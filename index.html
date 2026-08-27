@@ -1,0 +1,1696 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>基建安全智能检查系统</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="安全检查">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  :root{
+    --sg-green:#00923E;--sg-green-dark:#007032;--sg-green-light:#e6f4ea;
+    --blue:#1B95E0;--blue-light:#e3f2fd;
+    --orange:#FF9800;--orange-light:#fff3e0;
+    --brown:#795548;--brown-light:#efebe9;
+    --red:#F44336;--red-light:#ffebee;
+    --teal:#009688;--teal-light:#e0f2f1;
+    --gray-1:#F5F7FA;--gray-2:#E8EDF2;--gray-3:#C4CDD6;--gray-4:#8A9AAA;--gray-5:#5A6A7A;
+    --text-1:#1A2332;--text-2:#4A5A6A;--white:#fff;
+    --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 32px rgba(0,0,0,.12)
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--gray-1);color:var(--text-1);line-height:1.6}
+  #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
+  @media(min-width:500px){body{background:#1a1a2e;padding:20px 0}#app{min-height:880px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}}
+  .page{display:none;min-height:100vh;animation:fadeIn .3s ease}
+  .page.active{display:block}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+  /* ===== Scan Page ===== */
+  #page-scan{background:linear-gradient(160deg,#00B649,#00923E 40%,#004d24);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:50px 24px 30px;color:#fff;overflow-y:auto}
+  #page-scan .hero{text-align:center;margin-bottom:24px}
+  #page-scan .logo-icon{width:60px;height:60px;margin:0 auto 10px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+  #page-scan .brand{font-size:26px;font-weight:800;letter-spacing:1px;margin-bottom:4px}
+  #page-scan .brand .brand-accent{color:#FFD700}
+  #page-scan .subtitle{font-size:13px;opacity:.75}
+  #page-scan .qr-area{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);margin-bottom:8px;position:relative;cursor:pointer;transition:transform .2s}
+  #page-scan .qr-area:active{transform:scale(.97)}
+  #page-scan .qr-area::before,#page-scan .qr-area::after{content:'';position:absolute;width:18px;height:18px;border:3px solid var(--sg-green);border-radius:4px}
+  #page-scan .qr-area::before{top:5px;left:5px;border-right:none;border-bottom:none}
+  #page-scan .qr-area::after{bottom:5px;right:5px;border-left:none;border-top:none}
+  #page-scan .scan-line{position:absolute;left:14px;right:14px;height:2px;background:linear-gradient(90deg,transparent,var(--sg-green),transparent);top:50%;border-radius:2px;animation:scanLine 2s ease-in-out infinite}
+  @keyframes scanLine{0%,100%{top:14px}50%{top:calc(100% - 14px)}}
+  #page-scan .qr-label{font-size:12px;color:var(--sg-green);text-align:center;margin-top:6px;margin-bottom:6px;font-weight:600}
+  #page-scan .scan-hint{font-size:12px;opacity:.7;text-align:center;margin-bottom:16px}
+  #page-scan .url-display{font-size:10px;opacity:.4;text-align:center;word-break:break-all;max-width:280px;margin:0 auto 16px}
+  #page-scan .scan-btn{background:#fff;color:var(--sg-green);border:none;padding:13px 44px;border-radius:28px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s;margin-bottom:28px}
+  #page-scan .scan-btn:active{transform:scale(.96)}
+  #page-scan .how-works{width:100%;margin-bottom:22px}
+  #page-scan .hw-title{font-size:12px;opacity:.6;text-align:center;margin-bottom:10px;letter-spacing:1px}
+  #page-scan .hw-steps{display:flex;align-items:center;justify-content:center;gap:6px}
+  #page-scan .hw-step{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 6px;text-align:center;flex:1;max-width:85px}
+  #page-scan .hw-icon{font-size:18px;margin-bottom:3px}
+  #page-scan .hw-text{font-size:10px;opacity:.85}
+  #page-scan .hw-arrow{font-size:12px;opacity:.4}
+  #page-scan .feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
+  #page-scan .feat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px}
+  #page-scan .fc-icon{font-size:18px;flex-shrink:0}
+  #page-scan .fc-name{font-size:12px;font-weight:600}
+  #page-scan .fc-text{font-size:10px;opacity:.7;margin-top:1px}
+  #page-scan .archive-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;padding:11px 30px;border-radius:22px;font-size:13px;cursor:pointer;transition:all .2s}
+  #page-scan .archive-btn:active{transform:scale(.96)}
+  #page-scan .bottom-deco{font-size:10px;opacity:.35;text-align:center;margin-top:20px;letter-spacing:1px}
+
+  /* ===== Topbar ===== */
+  .topbar{background:linear-gradient(135deg,var(--sg-green),var(--sg-green-dark));color:#fff;padding:44px 20px 20px;position:sticky;top:0;z-index:100}
+  .topbar .bar-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .topbar .back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
+  .topbar .bar-title{font-size:17px;font-weight:600;flex:1}
+  .info-card{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px 16px;backdrop-filter:blur(8px)}
+  .info-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+  .info-row:last-child{margin-bottom:0}
+  .info-row span:first-child{opacity:.8}
+  .info-row span:last-child{font-weight:500}
+  .info-input{border:none;background:transparent;text-align:right;font-size:13px;flex:1;min-width:0;color:var(--text-1);font-weight:500;outline:none}
+  .info-input::placeholder{color:var(--gray-4);font-size:12px;font-weight:400}
+  .rp-input{border:none;background:transparent;width:100%;font-size:13px;color:var(--text-1);outline:none;padding:0}
+  .rp-input::placeholder{color:var(--gray-4);font-size:11px}
+
+  /* ===== Category Cards ===== */
+  .cat-list{padding:16px}
+  .cat-card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
+  .cat-card:active{transform:scale(.98)}
+  .cat-card .cc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+  .cat-card .cc-body{flex:1}
+  .cat-card .cc-name{font-size:15px;font-weight:600;color:var(--text-1)}
+  .cat-card .cc-desc{font-size:12px;color:var(--gray-4);margin-top:2px}
+  .cat-card .cc-arrow{font-size:20px;color:var(--gray-3)}
+  .cat-card .cc-progress{display:flex;align-items:center;gap:8px;margin-top:6px}
+  .cat-card .cc-ptrack{flex:1;height:6px;background:var(--gray-2);border-radius:3px;overflow:hidden}
+  .cat-card .cc-pfill{height:100%;border-radius:3px;transition:width .5s ease}
+  .cat-card .cc-pnum{font-size:12px;color:var(--gray-4);white-space:nowrap}
+
+  /* ===== Inspection Page ===== */
+  #page-inspect{padding-bottom:100px}
+  .sub-section{margin:16px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .sub-header{padding:12px 16px;background:var(--gray-1);font-size:14px;font-weight:600;color:var(--text-1);display:flex;align-items:center;gap:8px}
+  .sub-header .sh-dot{width:6px;height:6px;border-radius:50%}
+  .check-item{padding:14px 16px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--gray-2);transition:all .2s}
+  .check-item.has-issue{border-left:4px solid var(--red);padding-left:12px}
+  .check-item.is-ok{border-left:4px solid var(--sg-green);padding-left:12px}
+  .ci-body{flex:1}
+  .ci-name{font-size:14px;font-weight:500;color:var(--text-1)}
+  .ci-note{font-size:12px;color:var(--red);margin-top:4px;font-weight:500}
+  .ci-status{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:2px solid var(--gray-3);background:#fff;cursor:pointer}
+  .check-item.is-ok .ci-status{background:var(--sg-green);border-color:var(--sg-green);color:#fff}
+  .check-item.has-issue .ci-status{background:var(--red);border-color:var(--red);color:#fff}
+  .ci-photo-btn{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid var(--gray-3);background:var(--gray-1);cursor:pointer;transition:all .2s}
+  .ci-photo-btn.has-photo{border-color:var(--blue);background:var(--blue-light)}
+  .ci-photo-row{display:flex;gap:8px;margin-top:6px;align-items:center}
+  .ci-photo-thumb{width:44px;height:44px;border-radius:6px;object-fit:cover;cursor:pointer;border:1px solid var(--gray-3)}
+  .ci-photo-label{font-size:11px;color:var(--blue);font-weight:500}
+  .photo-viewer{position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:20px}
+  .photo-viewer.active{display:flex;animation:fadeIn .2s}
+  .photo-viewer img{max-width:100%;max-height:80vh;border-radius:8px}
+  .photo-viewer .pv-close{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.2);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer}
+  .report-photo-card{background:var(--gray-1);border-radius:var(--radius);overflow:hidden;margin-bottom:12px;border:1px solid var(--gray-2)}
+  .report-photo-card img{width:100%;max-height:200px;object-fit:cover;display:block}
+  .rpc-body{padding:12px}
+  .rpc-title{font-size:13px;font-weight:600;color:var(--text-1)}
+  .rpc-desc{font-size:12px;color:var(--text-2);margin-top:4px}
+  .rpc-fix{font-size:12px;color:var(--sg-green);margin-top:6px;font-weight:500}
+
+  /* ===== Action Bar ===== */
+  .action-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;padding:12px 16px 24px;box-shadow:0 -4px 20px rgba(0,0,0,.08);display:flex;gap:10px;z-index:200}
+  .action-btn{flex:1;border:none;border-radius:var(--radius);padding:12px 6px;font-size:12px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:all .2s}
+  .action-btn .ab-icon{font-size:22px}
+  .action-btn:active{transform:scale(.95)}
+  .action-btn.btn-voice{background:var(--blue);color:#fff}
+  .action-btn.btn-photo{background:var(--orange);color:#fff}
+  .action-btn.btn-report{background:var(--red);color:#fff}
+
+  /* ===== Modal ===== */
+  .overlay{display:none;position:fixed;inset:0;z-index:300;background:rgba(0,0,0,.5);justify-content:center;align-items:flex-end;animation:fadeIn .2s}
+  .overlay.active{display:flex}
+  .modal{background:#fff;width:100%;max-width:430px;border-radius:24px 24px 0 0;max-height:85vh;overflow-y:auto;animation:slideUp .3s}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal-header{padding:20px 20px 12px;text-align:center;border-bottom:1px solid var(--gray-2);position:sticky;top:0;background:#fff;z-index:10}
+  .modal-header .mh-title{font-size:17px;font-weight:700}
+  .modal-header .mh-sub{font-size:13px;color:var(--gray-4);margin-top:2px}
+  .modal-header .mh-close{position:absolute;right:16px;top:20px;background:var(--gray-2);border:none;width:28px;height:28px;border-radius:50%;font-size:16px;cursor:pointer;color:var(--gray-5)}
+  .modal-body{padding:20px}
+
+  /* Voice */
+  .voice-area{text-align:center;padding:10px 0 20px}
+  .voice-mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1673c0);border:none;cursor:pointer;font-size:36px;color:#fff;box-shadow:0 8px 24px rgba(27,149,224,.4);transition:all .3s;position:relative}
+  .voice-mic-btn.recording{background:linear-gradient(135deg,var(--red),#d32f2f);box-shadow:0 8px 24px rgba(244,67,54,.4);animation:pulse 1.2s ease-in-out infinite}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+  .voice-mic-btn.recording::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(244,67,54,.3);animation:ripple 1.5s ease-out infinite}
+  @keyframes ripple{0%{transform:scale(1);opacity:1}100%{transform:scale(1.5);opacity:0}}
+  .voice-hint{font-size:14px;color:var(--gray-4);margin-top:16px}
+  .voice-demo-btn{margin-top:14px;background:var(--gray-2);border:none;padding:8px 16px;border-radius:20px;font-size:13px;color:var(--text-2);cursor:pointer}
+  .voice-demo-btn:hover{background:var(--gray-3)}
+  .voice-result{background:var(--gray-1);border-radius:var(--radius);padding:16px;margin-top:16px;display:none}
+  .voice-result.active{display:block;animation:fadeIn .3s}
+  .vr-label{font-size:12px;color:var(--gray-4);margin-bottom:6px;font-weight:600}
+  .vr-text{font-size:14px;color:var(--text-1);line-height:1.8}
+  .vr-parse{margin-top:14px;padding-top:14px;border-top:1px dashed var(--gray-3)}
+  .vr-parse-label{font-size:12px;color:var(--sg-green);font-weight:700;margin-bottom:8px;display:flex;align-items:center;gap:4px}
+  .parse-item{display:flex;align-items:center;gap:8px;padding:8px 0;font-size:13px;border-bottom:1px solid var(--gray-2)}
+  .parse-item:last-child{border-bottom:none}
+  .pi-icon{font-size:16px}
+  .pi-text{flex:1;color:var(--text-2)}
+  .pi-text .pi-cat{font-size:11px;color:var(--gray-4);display:block}
+  .pi-badge{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+  .pi-badge.ok{background:var(--sg-green-light);color:var(--sg-green)}
+  .pi-badge.issue{background:var(--red-light);color:var(--red)}
+  .confirm-btn{width:100%;margin-top:16px;padding:14px;border:none;border-radius:var(--radius);color:#fff;font-size:15px;font-weight:600;cursor:pointer;display:none}
+  .confirm-btn.active{display:block;animation:fadeIn .3s}
+  .confirm-btn.voice{background:var(--sg-green)}
+  .confirm-btn.photo{background:var(--orange)}
+
+  /* Photo */
+  .photo-upload-area{border:2px dashed var(--gray-3);border-radius:var(--radius);padding:40px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--gray-1)}
+  .photo-upload-area:hover{border-color:var(--orange);background:var(--orange-light)}
+  .pa-icon{font-size:48px;margin-bottom:12px}
+  .pa-text{font-size:14px;color:var(--gray-4)}
+  .pa-sub{font-size:12px;color:var(--gray-3);margin-top:4px}
+  .photo-preview{display:none;margin-top:16px}
+  .photo-preview.active{display:block;animation:fadeIn .3s}
+  .photo-preview img{width:100%;max-height:250px;object-fit:cover;border-radius:var(--radius)}
+  .ai-analyzing{display:none;text-align:center;padding:20px 0}
+  .ai-analyzing.active{display:block}
+  .ai-spinner{width:56px;height:56px;border:4px solid var(--gray-2);border-top-color:var(--orange);border-radius:50%;margin:0 auto 16px;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .ai-text{font-size:14px;color:var(--text-2)}
+  .ai-steps{margin-top:16px;text-align:left}
+  .ai-step{font-size:12px;color:var(--gray-4);padding:4px 0;display:flex;align-items:center;gap:6px}
+  .ai-step.done{color:var(--sg-green)}
+  .ai-step.done::before{content:'✓'}
+  .ai-step:not(.done)::before{content:'○'}
+  .photo-result{display:none;margin-top:16px}
+  .photo-result.active{display:block;animation:fadeIn .3s}
+  .detect-card{background:var(--gray-1);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+  .dc-header{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+  .dc-name{font-size:14px;font-weight:600;flex:1}
+  .dc-conf{font-size:12px;color:var(--gray-4)}
+  .dc-status{font-size:12px;padding:2px 8px;border-radius:8px;font-weight:600}
+  .dc-status.ok{background:var(--sg-green-light);color:var(--sg-green)}
+  .dc-status.issue{background:var(--red-light);color:var(--red)}
+  .dc-detail{font-size:12px;color:var(--text-2)}
+  .dc-cat{font-size:11px;color:var(--gray-4);margin-top:2px}
+
+  /* Report */
+  #page-report{padding-bottom:40px}
+
+  /* ===== Archive Page ===== */
+  .ai-card{background:linear-gradient(135deg,#00923E,#00B649);border-radius:var(--radius);padding:18px 16px;color:#fff;margin-bottom:16px}
+  .ai-card-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+  .bar-chart{margin-bottom:16px}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
+  .bar-label{width:40%;font-size:11px;opacity:.95;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .bar-track{flex:1;height:18px;background:rgba(255,255,255,.2);border-radius:9px;overflow:hidden}
+  .bar-fill{height:100%;background:#fff;border-radius:9px;transition:width .6s;display:flex;align-items:center;justify-content:flex-end;padding-right:6px;font-size:10px;font-weight:700;color:var(--sg-green);min-width:30px}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+  .stat-cell{background:rgba(255,255,255,.15);border-radius:8px;padding:10px;text-align:center}
+  .stat-num{font-size:22px;font-weight:700}
+  .stat-label{font-size:11px;opacity:.85;margin-top:2px}
+  .ai-suggest{background:rgba(255,255,255,.15);border-radius:8px;padding:12px;font-size:12px;line-height:1.7}
+  .ai-suggest-item{display:flex;gap:6px;margin-bottom:4px}
+  .ai-suggest-item::before{content:'⚡';flex-shrink:0}
+  .archive-list{padding:0 16px}
+  .archive-item{background:#fff;border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:12px}
+  .archive-item:active{transform:scale(.98)}
+  .archive-icon{width:40px;height:40px;border-radius:10px;background:var(--sg-green-light);color:var(--sg-green);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+  .archive-info{flex:1;min-width:0}
+  .archive-date{font-size:14px;font-weight:600;color:var(--text-1)}
+  .archive-meta{font-size:12px;color:var(--gray-5);margin-top:2px}
+  .archive-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;flex-shrink:0}
+  .ab-severe{background:#fee;color:var(--red)}
+  .ab-general{background:#fff8e1;color:var(--orange)}
+  .ab-clean{background:#e8f5e9;color:var(--sg-green)}
+  .qr-report{text-align:center;margin-top:20px;padding:16px;background:var(--gray-1);border-radius:var(--radius)}
+  .qr-report-img{width:120px;height:120px;margin:0 auto 8px}
+  .qr-report-label{font-size:12px;color:var(--gray-5)}
+  .report-doc{background:#fff;margin:16px;border-radius:var(--radius);box-shadow:var(--shadow-lg);overflow:hidden}
+  .report-head{background:linear-gradient(135deg,var(--red),#c62828);color:#fff;padding:30px 24px 24px;text-align:center}
+  .report-head .rh-type{font-size:12px;opacity:.8;letter-spacing:2px}
+  .report-head .rh-title{font-size:20px;font-weight:700;margin:6px 0}
+  .report-head .rh-no{font-size:12px;opacity:.8}
+  .report-body{padding:20px 24px}
+  .report-sec{margin-bottom:20px}
+  .rs-label{font-size:13px;font-weight:700;margin-bottom:8px;padding-left:10px;border-left:3px solid var(--sg-green)}
+  .rs-content{font-size:13px;color:var(--text-2);line-height:1.8}
+  .report-info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .rig-item{font-size:13px}
+  .rig-item span:first-child{color:var(--gray-4)}
+  .issue-table{width:100%;border-collapse:collapse;font-size:12px}
+  .issue-table th{background:var(--gray-1);padding:8px 10px;text-align:left;font-weight:600;color:var(--text-2);border-bottom:2px solid var(--gray-2)}
+  .issue-table td{padding:10px;border-bottom:1px solid var(--gray-2);color:var(--text-1);vertical-align:top}
+  .it-sev-high{color:var(--red);font-weight:600}
+  .it-sev-mid{color:var(--orange);font-weight:600}
+  .report-summary{background:var(--red-light);border-radius:var(--radius);padding:16px;margin-bottom:16px}
+  .report-summary .rs-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
+  .report-summary .rs-row:last-child{margin-bottom:0}
+  .report-summary .rs-row span:last-child{font-weight:700}
+  .report-footer{padding:16px 24px;border-top:1px solid var(--gray-2)}
+  .rf-row{display:flex;justify-content:space-between;font-size:12px;color:var(--gray-4);margin-bottom:8px}
+  .sign-area{display:flex;gap:16px;margin-top:16px}
+  .sign-box{flex:1;text-align:center}
+  .sb-line{border-top:1px solid var(--gray-3);padding-top:6px;font-size:12px;color:var(--gray-4)}
+  .report-actions{display:flex;gap:12px;padding:0 16px}
+  .report-actions button{flex:1;padding:14px;border:none;border-radius:var(--radius);font-size:15px;font-weight:600;cursor:pointer}
+  .ra-print{background:var(--sg-green);color:#fff}
+  .ra-back{background:var(--gray-2);color:var(--text-2)}
+
+  .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.show{opacity:1}
+  @media print{body{background:#fff}#app{max-width:none;box-shadow:none}.page{display:none!important}}
+</style>
+<script>
+/* ===== Pure JS QR Code Generator (SVG output, compact version) ===== */
+function qrGenSVG(text, size) {
+  // Galois field tables
+  var EXP = new Array(256), LOG = new Array(256);
+  for (var i = 0, x = 1; i < 256; i++) { EXP[i] = x; LOG[x] = i; x = (x<<1) ^ (x&128?0x11d:0); }
+  function gfMul(a, b) { return a===0||b===0?0:EXP[(LOG[a]+LOG[b])%255]; }
+  function rsGenPoly(deg) {
+    var poly = [1];
+    for (var i = 0; i < deg; i++) {
+      var np = new Array(poly.length+1).fill(0);
+      for (var j = 0; j < poly.length; j++) {
+        np[j] ^= poly[j];
+        np[j+1] ^= gfMul(poly[j], EXP[i]);
+      }
+      poly = np;
+    }
+    return poly;
+  }
+  function rsEncode(data, ecLen) {
+    var gen = rsGenPoly(ecLen);
+    var res = data.concat(new Array(ecLen).fill(0));
+    for (var i = 0; i < data.length; i++) {
+      var factor = res[i];
+      if (factor !== 0) {
+        for (var j = 0; j < gen.length; j++) {
+          res[i+j] ^= gfMul(gen[j], factor);
+        }
+      }
+    }
+    return res.slice(data.length);
+  }
+  
+  // Choose version and error correction level (M)
+  var versions = [
+    // total codewords, ec codewords per block, blocks in group1, data in g1, blocks g2, data g2
+    null,
+    [26,10,1,16,0,0],   // v1
+    [44,16,1,28,0,0],   // v2
+    [70,26,1,44,0,0],   // v3
+    [100,18,2,32,0,0],  // v4
+    [134,24,2,43,0,0],  // v5
+    [172,16,4,27,0,0],  // v6
+    [196,18,4,31,0,0],  // v7
+    [242,22,2,38,2,39], // v8
+    [292,22,3,36,2,37], // v9
+    [346,26,4,43,1,44]  // v10
+  ];
+  
+  // Encode data in byte mode
+  var bytes = [];
+  for (var i = 0; i < text.length; i++) {
+    var c = text.charCodeAt(i);
+    if (c < 128) bytes.push(c);
+    else if (c < 2048) { bytes.push(0xc0|(c>>6)); bytes.push(0x80|(c&0x3f)); }
+    else { bytes.push(0xe0|(c>>12)); bytes.push(0x80|((c>>6)&0x3f)); bytes.push(0x80|(c&0x3f)); }
+  }
+  
+  // Find suitable version
+  var ver = 0;
+  for (var v = 1; v <= 10; v++) {
+    var vi = versions[v];
+    var totalData = vi[2]*vi[3] + (vi[4]||0)*(vi[5]||0);
+    var charCountBits = v < 10 ? 8 : 16;
+    var neededBits = 4 + charCountBits + bytes.length*8;
+    if (neededBits <= totalData*8) { ver = v; break; }
+  }
+  if (!ver) ver = 10;
+  
+  var vi = versions[ver];
+  var totalData = vi[2]*vi[3] + (vi[4]||0)*(vi[5]||0);
+  var charCountBits = ver < 10 ? 8 : 16;
+  
+  // Build bit stream
+  var bits = [];
+  function pushBits(val, n) { for (var i = n-1; i >= 0; i--) bits.push((val>>i)&1); }
+  pushBits(4, 4); // byte mode
+  pushBits(bytes.length, charCountBits);
+  for (var i = 0; i < bytes.length; i++) pushBits(bytes[i], 8);
+  // Terminator
+  var maxBits = totalData * 8;
+  var termBits = Math.min(4, maxBits - bits.length);
+  for (var i = 0; i < termBits; i++) bits.push(0);
+  // Pad to byte
+  while (bits.length % 8 !== 0) bits.push(0);
+  // Pad bytes
+  var padBytes = [0xec, 0x11];
+  var pi = 0;
+  while (bits.length < maxBits) {
+    pushBits(padBytes[pi%2], 8);
+    pi++;
+  }
+  
+  // Convert to data codewords
+  var dataCw = [];
+  for (var i = 0; i < bits.length; i += 8) {
+    var b = 0;
+    for (var j = 0; j < 8; j++) b = (b<<1) | bits[i+j];
+    dataCw.push(b);
+  }
+  
+  // Split into blocks and RS encode
+  var ecLen = vi[1];
+  var blocks = [];
+  var offset = 0;
+  for (var b = 0; b < vi[2]; b++) {
+    var d = dataCw.slice(offset, offset + vi[3]);
+    offset += vi[3];
+    blocks.push({data: d, ec: rsEncode(d, ecLen)});
+  }
+  if (vi[4]) {
+    for (var b = 0; b < vi[4]; b++) {
+      var d = dataCw.slice(offset, offset + vi[5]);
+      offset += vi[5];
+      blocks.push({data: d, ec: rsEncode(d, ecLen)});
+    }
+  }
+  
+  // Interleave data
+  var maxDataLen = 0;
+  for (var i = 0; i < blocks.length; i++) if (blocks[i].data.length > maxDataLen) maxDataLen = blocks[i].data.length;
+  var allCw = [];
+  for (var i = 0; i < maxDataLen; i++) {
+    for (var j = 0; j < blocks.length; j++) {
+      if (i < blocks[j].data.length) allCw.push(blocks[j].data[i]);
+    }
+  }
+  for (var i = 0; i < ecLen; i++) {
+    for (var j = 0; j < blocks.length; j++) {
+      allCw.push(blocks[j].ec[i]);
+    }
+  }
+  
+  // Build matrix
+  var n = 17 + ver*4;
+  var matrix = [];
+  var reserved = [];
+  for (var i = 0; i < n; i++) {
+    matrix.push(new Array(n).fill(null));
+    reserved.push(new Array(n).fill(false));
+  }
+  
+  // Finder patterns
+  function setFinder(r, c) {
+    for (var dr = -1; dr <= 7; dr++) {
+      for (var dc = -1; dc <= 7; dc++) {
+        var rr = r+dr, cc = c+dc;
+        if (rr < 0 || rr >= n || cc < 0 || cc >= n) continue;
+        reserved[rr][cc] = true;
+        var v = false;
+        if (dr>=0&&dr<=6&&dc>=0&&dc<=6) {
+          if (dr===0||dr===6||dc===0||dc===6) v = true;
+          else if (dr>=2&&dr<=4&&dc>=2&&dc<=4) v = true;
+        }
+        matrix[rr][cc] = v;
+      }
+    }
+  }
+  setFinder(0, 0); setFinder(0, n-7); setFinder(n-7, 0);
+  
+  // Alignment patterns (simplified - only for versions that have them)
+  var alignPos = {
+    2:[6,18],3:[6,22],4:[6,26],5:[6,30],6:[6,34],
+    7:[6,22,38],8:[6,24,42],9:[6,26,46],10:[6,28,50]
+  };
+  if (alignPos[ver]) {
+    var ap = alignPos[ver];
+    for (var ai = 0; ai < ap.length; ai++) {
+      for (var aj = 0; aj < ap.length; aj++) {
+        var ar = ap[ai], ac = ap[aj];
+        if (matrix[ar][ac] !== null) continue; // skip overlaps with finders
+        for (var dr = -2; dr <= 2; dr++) {
+          for (var dc = -2; dc <= 2; dc++) {
+            reserved[ar+dr][ac+dc] = true;
+            var v = (Math.abs(dr)===2||Math.abs(dc)===2||(dr===0&&dc===0));
+            matrix[ar+dr][ac+dc] = v;
+          }
+        }
+      }
+    }
+  }
+  
+  // Timing patterns
+  for (var i = 8; i < n-8; i++) {
+    matrix[6][i] = (i%2===0); reserved[6][i] = true;
+    matrix[i][6] = (i%2===0); reserved[i][6] = true;
+  }
+  
+  // Format info placeholder
+  for (var i = 0; i <= 8; i++) {
+    if (!reserved[8][i]) { reserved[8][i] = true; matrix[8][i] = false; }
+    if (!reserved[i][8]) { reserved[i][8] = true; matrix[i][8] = false; }
+    if (!reserved[8][n-1-i]) { reserved[8][n-1-i] = true; matrix[8][n-1-i] = false; }
+    if (!reserved[n-1-i][8]) { reserved[n-1-i][8] = true; matrix[n-1-i][8] = false; }
+  }
+  reserved[n-8][8] = true; matrix[n-8][8] = true; // dark module
+  
+  // Reserve version info area (v7+)
+  if (ver >= 7) {
+    for (var i = 0; i < 6; i++) {
+      for (var j = 0; j < 3; j++) {
+        reserved[i][n-11+j] = true; matrix[i][n-11+j] = false;
+        reserved[n-11+j][i] = true; matrix[n-11+j][i] = false;
+      }
+    }
+  }
+  
+  // Place data
+  var bitIdx = 0;
+  var upward = true;
+  for (var col = n-1; col > 0; col -= 2) {
+    if (col === 6) col--;
+    for (var row = 0; row < n; row++) {
+      var r = upward ? n-1-row : row;
+      for (var c = 0; c < 2; c++) {
+        var cc = col - c;
+        if (!reserved[r][cc] && bitIdx < allCw.length*8) {
+          var byteIdx = Math.floor(bitIdx / 8);
+          var bitPos = 7 - (bitIdx % 8);
+          matrix[r][cc] = ((allCw[byteIdx] >> bitPos) & 1) === 1;
+          bitIdx++;
+        }
+      }
+    }
+    upward = !upward;
+  }
+  
+  // Mask pattern 0 (mod 2 of row+col) - simplest
+  var bestMatrix = null;
+  var bestPenalty = Infinity;
+  var bestMask = 0;
+  
+  for (var mask = 0; mask < 8; mask++) {
+    var m = [];
+    for (var i = 0; i < n; i++) {
+      m.push(matrix[i].slice());
+    }
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        if (reserved[r][c]) continue;
+        var invert = false;
+        switch(mask) {
+          case 0: invert = (r+c)%2===0; break;
+          case 1: invert = r%2===0; break;
+          case 2: invert = c%3===0; break;
+          case 3: invert = (r+c)%3===0; break;
+          case 4: invert = (Math.floor(r/2)+Math.floor(c/3))%2===0; break;
+          case 5: invert = ((r*c)%2+(r*c)%3)===0; break;
+          case 6: invert = (((r*c)%2+(r*c)%3)%2)===0; break;
+          case 7: invert = (((r+c)%2+(r*c)%3)%2)===0; break;
+        }
+        if (invert) m[r][c] = !m[r][c];
+      }
+    }
+    
+    // Simple penalty calculation
+    var penalty = 0;
+    // Rule 1: run length
+    for (var r = 0; r < n; r++) {
+      var run = 1;
+      for (var c = 1; c < n; c++) {
+        if (m[r][c] === m[r][c-1]) { run++; if (run===5) penalty+=3; else if(run>5) penalty++; }
+        else run = 1;
+      }
+    }
+    for (var c = 0; c < n; c++) {
+      var run = 1;
+      for (var r = 1; r < n; r++) {
+        if (m[r][c] === m[r-1][c]) { run++; if (run===5) penalty+=3; else if(run>5) penalty++; }
+        else run = 1;
+      }
+    }
+    
+    if (penalty < bestPenalty) {
+      bestPenalty = penalty;
+      bestMatrix = m;
+      bestMask = mask;
+    }
+  }
+  
+  matrix = bestMatrix;
+  
+  // Add format info (EC level M = 0b00, mask = bestMask)
+  var fmtData = (0 << 3) | bestMask; // M level + mask
+  // BCH encode format info (15 bits)
+  var fmtPoly = 0b10100110111; // x^10+x^8+x^5+x^4+x^2+x+1
+  var fmt = fmtData << 10;
+  for (var i = 4; i >= 0; i--) {
+    if ((fmt >> (i+10)) & 1) fmt ^= fmtPoly << i;
+  }
+  var fmtBits = ((fmtData << 10) | fmt) ^ 0b101010000010010;
+  
+  // Place format info
+  function setFmtBit(pos, val) {
+    // positions around top-left finder
+    var positions1 = [
+      [8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],
+      [7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]
+    ];
+    var positions2 = [
+      [n-1,8],[n-2,8],[n-3,8],[n-4,8],[n-5,8],[n-6,8],[n-7,8],
+      [n-8,8],[n-8,7],[n-8,5],[n-8,4],[n-8,3],[n-8,2],[n-8,1],[n-8,0]
+    ];
+    var p1 = positions1[pos];
+    var p2 = positions2[pos];
+    matrix[p1[0]][p1[1]] = !!val;
+    matrix[p2[0]][p2[1]] = !!val;
+  }
+  for (var i = 0; i < 15; i++) {
+    setFmtBit(i, (fmtBits >> i) & 1);
+  }
+  
+  // Generate SVG
+  var cellSize = Math.floor(size / n);
+  var actualSize = cellSize * n;
+  var padding = cellSize * 2;
+  var totalSize = actualSize + padding * 2;
+  
+  var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + totalSize + '" height="' + totalSize + '" viewBox="0 0 ' + totalSize + ' ' + totalSize + '">';
+  svg += '<rect width="100%" height="100%" fill="white"/>';
+  for (var r = 0; r < n; r++) {
+    for (var c = 0; c < n; c++) {
+      if (matrix[r][c]) {
+        svg += '<rect x="' + (padding + c*cellSize) + '" y="' + (padding + r*cellSize) + 
+               '" width="' + cellSize + '" height="' + cellSize + '" fill="black"/>';
+      }
+    }
+  }
+  svg += '</svg>';
+  return svg;
+}
+</script></head>
+<body>
+<div id="app">
+
+  <!-- ===== Scan Entry ===== -->
+  <div class="page active" id="page-scan">
+    <div class="hero">
+      <div class="logo-icon">🏗️</div>
+      <div class="brand">码上<span class="brand-accent">安全</span></div>
+      <div class="subtitle">施工现场检查AI助手</div>
+    </div>
+    <div class="qr-area" onclick="goCategory()">
+      <div class="scan-line"></div>
+      <div id="homeQrContainer" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px"></div>
+      <div style="display:none;color:#999;font-size:13px;text-align:center;padding:40px 0">二维码加载中...</div>
+    </div>
+    <div class="qr-label">扫码进入检查系统</div>
+    <div class="scan-hint">手机扫码 · 点击也可直接进入</div>
+    <div class="url-display" id="urlDisplay"></div>
+    <button class="scan-btn" onclick="goCategory()">扫码开始检查</button>
+
+    <div class="how-works">
+      <div class="hw-title">— 使用流程 —</div>
+      <div class="hw-steps">
+        <div class="hw-step"><div class="hw-icon">📱</div><div class="hw-text">扫码进入</div></div>
+        <div class="hw-arrow">→</div>
+        <div class="hw-step"><div class="hw-icon">🎤📷</div><div class="hw-text">语音/拍照检查</div></div>
+        <div class="hw-arrow">→</div>
+        <div class="hw-step"><div class="hw-icon">📋</div><div class="hw-text">生成整改单</div></div>
+      </div>
+    </div>
+
+    <div class="feat-grid">
+      <div class="feat-card"><div class="fc-icon">🎤</div><div><div class="fc-name">语音转记录</div><div class="fc-text">说一遍自动填表</div></div></div>
+      <div class="feat-card"><div class="fc-icon">📷</div><div><div class="fc-name">AI智能识别</div><div class="fc-text">拍照自动判定</div></div></div>
+      <div class="feat-card"><div class="fc-icon">📋</div><div><div class="fc-name">违章条例</div><div class="fc-text">自动匹配规程</div></div></div>
+      <div class="feat-card"><div class="fc-icon">🤖</div><div><div class="fc-name">高频分析</div><div class="fc-text">AI智能预警</div></div></div>
+    </div>
+
+    <button class="archive-btn" onclick="goArchive()">📂 检查归档与AI分析</button>
+    <div class="bottom-deco">国网张家口供电公司 · 基建安全管理</div>
+  </div>
+
+  <!-- ===== Category Selection ===== -->
+  <div class="page" id="page-category">
+    <div class="topbar">
+      <div class="bar-top">
+        <button class="back-btn" onclick="goScan()">←</button>
+        <div class="bar-title">基建安全专项检查</div>
+        <div class="bar-badge" id="overallProgress" style="background:rgba(255,255,255,.15);padding:4px 10px;border-radius:12px;font-size:12px">0/28</div>
+      </div>
+      <div class="info-card">
+        <div class="info-row"><span>工程名称</span><input class="info-input" id="inputProject" placeholder="点击输入" value=""></div>
+        <div class="info-row"><span>检查人</span><input class="info-input" id="inputInspector" placeholder="点击输入" value=""></div>
+        <div class="info-row"><span>检查日期</span><span id="checkDate"></span></div>
+        <div class="info-row"><span>天气/温度</span><span>晴 23°C</span></div>
+      </div>
+    </div>
+    <div class="cat-list" id="catList"></div>
+    <div style="height:100px"></div>
+    <div class="action-bar">
+      <button class="action-btn btn-voice" onclick="openVoiceModal()"><span class="ab-icon">🎤</span><span>语音录入</span></button>
+      <button class="action-btn btn-photo" onclick="openPhotoModal()"><span class="ab-icon">📷</span><span>拍照识别</span></button>
+      <button class="action-btn btn-report" onclick="goReport()"><span class="ab-icon">📋</span><span>生成整改单</span></button>
+    </div>
+  </div>
+
+  <!-- ===== Category Inspection ===== -->
+  <div class="page" id="page-inspect">
+    <div class="topbar">
+      <div class="bar-top">
+        <button class="back-btn" onclick="goCategory()">←</button>
+        <div class="bar-title" id="inspectTitle">专项检查</div>
+      </div>
+      <div class="info-card" id="inspectProgressCard">
+        <div class="info-row"><span>检查进度</span><span id="inspectProgress">0/0</span></div>
+        <div class="info-row"><span>发现问题</span><span id="inspectIssues">0项</span></div>
+      </div>
+    </div>
+    <div id="inspectContent" style="padding:0"></div>
+    <div style="height:100px"></div>
+    <div class="action-bar">
+      <button class="action-btn btn-voice" onclick="openVoiceModal()"><span class="ab-icon">🎤</span><span>语音录入</span></button>
+      <button class="action-btn btn-photo" onclick="openPhotoModal()"><span class="ab-icon">📷</span><span>拍照识别</span></button>
+      <button class="action-btn btn-report" onclick="goReport()"><span class="ab-icon">📋</span><span>生成整改单</span></button>
+    </div>
+  </div>
+
+  <!-- ===== Report ===== -->
+  <div class="page" id="page-report">
+    <div class="topbar">
+      <div class="bar-top">
+        <button class="back-btn" onclick="goCategory()">←</button>
+        <div class="bar-title">基建安全质量检查整改通知单</div>
+      </div>
+    </div>
+    <div class="report-doc">
+      <div class="report-head">
+        <div class="rh-type">SAFETY INSPECTION RECTIFICATION NOTICE</div>
+        <div class="rh-title">基建安全质量检查整改通知单</div>
+        <div class="rh-no" id="reportNo">编号：ZJJDQ-2026-001</div>
+      </div>
+      <div class="report-body" id="reportBody"></div>
+      <div class="report-footer">
+        <div class="rf-row"><span id="reportDate">日期：2026年08月26日</span></div>
+      </div>
+    </div>
+    <div class="report-actions">
+      <button class="ra-back" onclick="goCategory()">返回修改</button>
+      <button class="ra-print" onclick="saveAndArchive()">归档并打印</button>
+    </div>
+  </div>
+
+  <!-- ===== Archive Page ===== -->
+  <div class="page" id="page-archive">
+    <div class="topbar">
+      <div class="bar-top">
+        <button class="back-btn" onclick="goScan()">←</button>
+        <div class="bar-title">检查归档与AI分析</div>
+      </div>
+    </div>
+    <div style="padding:16px">
+      <div class="ai-card" id="aiAnalysisCard"></div>
+    </div>
+    <div style="padding:0 16px 8px">
+      <div style="font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:8px">📂 历次检查记录</div>
+    </div>
+    <div class="archive-list" id="archiveList"></div>
+  </div>
+
+  <!-- ===== Voice Modal ===== -->
+  <div class="overlay" id="voiceOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="mh-title">🎤 语音智能录入</div>
+        <div class="mh-sub">说出检查情况，AI自动识别并填写检查项</div>
+        <button class="mh-close" onclick="closeVoiceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="voice-area">
+          <button class="voice-mic-btn" id="micBtn" onclick="toggleVoice()">🎙️</button>
+          <div class="voice-hint" id="voiceHint">点击麦克风开始语音录入</div>
+          <button class="voice-demo-btn" onclick="simulateVoice()">▶ 演示：模拟一段语音录入</button>
+        </div>
+        <div class="voice-result" id="voiceResult">
+          <div class="vr-label">📝 语音识别结果</div>
+          <div class="vr-text" id="voiceText"></div>
+          <div class="vr-parse">
+            <div class="vr-parse-label">🤖 AI 智能解析</div>
+            <div id="parseList"></div>
+          </div>
+        </div>
+        <button class="confirm-btn voice" id="voiceConfirmBtn" onclick="confirmVoice()">✓ 确认填写到检查表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Photo Modal ===== -->
+  <div class="overlay" id="photoOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="mh-title">📷 拍照智能识别</div>
+        <div class="mh-sub">拍照上传，AI自动识别施工现场隐患</div>
+        <button class="mh-close" onclick="closePhotoModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="photo-upload-area" id="photoUpload" onclick="document.getElementById('photoInput').click()">
+          <div class="pa-icon">📷</div>
+          <div class="pa-text">点击拍照或上传照片</div>
+          <div class="pa-sub">支持基坑、用电设备、高空作业等场景识别</div>
+        </div>
+        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+        <div class="photo-preview" id="photoPreview"><img id="photoImg" src=""></div>
+        <div class="ai-analyzing" id="aiAnalyzing">
+          <div class="ai-spinner"></div>
+          <div class="ai-text" id="aiText">AI 正在分析图片...</div>
+          <div class="ai-steps" id="aiSteps"></div>
+        </div>
+        <div class="photo-result" id="photoResult"></div>
+        <button class="confirm-btn photo" id="photoConfirmBtn" onclick="confirmPhoto()">✓ 确认填写到检查表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Photo Viewer -->
+  <div class="photo-viewer" id="photoViewer" onclick="closePhotoViewer()">
+    <button class="pv-close">✕</button>
+    <img id="viewerImg" src="">
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ===================== Data =====================
+const categories = [
+  { id:1, name:'人员行为与安全意识隐患', icon:'👷', color:'#1B95E0', colorLight:'#e3f2fd',
+    subs:[
+      { name:'高空作业', items:[
+        { id:'1-1', name:'高空作业人员是否正确佩戴安全带', status:'pending', note:'' },
+        { id:'1-2', name:'脚手架/操作平台是否验收合格', status:'pending', note:'' },
+      ]},
+      { name:'安全培训与学习记录', items:[
+        { id:'1-3', name:'施工人员安全教育培训是否全覆盖', status:'pending', note:'' },
+        { id:'1-4', name:'特种作业人员是否持证上岗', status:'pending', note:'' },
+      ]},
+      { name:'应急演练记录', items:[
+        { id:'1-5', name:'是否按规定开展应急演练', status:'pending', note:'' },
+        { id:'1-6', name:'应急物资是否配备到位', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:2, name:'临时用电与电气施工隐患', icon:'⚡', color:'#FF9800', colorLight:'#fff3e0',
+    subs:[
+      { name:'三级配电两级保护', items:[
+        { id:'2-1', name:'是否按"三级配电两级保护"设置', status:'pending', note:'' },
+        { id:'2-2', name:'配电箱是否规范设置并标识', status:'pending', note:'' },
+      ]},
+      { name:'漏电保护失效', items:[
+        { id:'2-3', name:'漏电保护器是否有效动作', status:'pending', note:'' },
+        { id:'2-4', name:'重复接地是否规范', status:'pending', note:'' },
+      ]},
+      { name:'电缆敷设不规范', items:[
+        { id:'2-5', name:'电缆是否埋地或架空敷设', status:'pending', note:'' },
+        { id:'2-6', name:'电缆有无破损或接头裸露', status:'pending', note:'' },
+      ]},
+      { name:'私拉乱接', items:[
+        { id:'2-7', name:'是否存在私拉乱接现象', status:'pending', note:'' },
+        { id:'2-8', name:'用电设备是否一机一闸一漏一箱', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:3, name:'深基坑与地下工程隐患', icon:'🏗️', color:'#795548', colorLight:'#efebe9',
+    subs:[
+      { name:'支护结构失稳', items:[
+        { id:'3-1', name:'支护结构有无变形、裂缝', status:'pending', note:'' },
+        { id:'3-2', name:'基坑监测数据是否在报警值内', status:'pending', note:'' },
+      ]},
+      { name:'基坑周边防护不足', items:[
+        { id:'3-3', name:'基坑周边防护栏杆是否规范设置', status:'pending', note:'' },
+        { id:'3-4', name:'基坑周边堆载是否超标', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:4, name:'有限空间与动火作业隐患', icon:'🔥', color:'#F44336', colorLight:'#ffebee',
+    subs:[
+      { name:'通风不良', items:[
+        { id:'4-1', name:'有限空间作业前是否通风检测', status:'pending', note:'' },
+        { id:'4-2', name:'气体检测浓度是否合格', status:'pending', note:'' },
+      ]},
+      { name:'动火未审批', items:[
+        { id:'4-3', name:'动火作业是否办理审批手续', status:'pending', note:'' },
+        { id:'4-4', name:'动火监护人员是否到位', status:'pending', note:'' },
+      ]},
+      { name:'防火措施缺失', items:[
+        { id:'4-5', name:'灭火器材是否配备到位', status:'pending', note:'' },
+        { id:'4-6', name:'作业区易燃物是否清理', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:5, name:'管理机制隐患', icon:'📋', color:'#009688', colorLight:'#e0f2f1',
+    subs:[
+      { name:'隐患整改不及时', items:[
+        { id:'5-1', name:'历次检查隐患是否闭环管理', status:'pending', note:'' },
+        { id:'5-2', name:'整改是否在规定期限内完成', status:'pending', note:'' },
+      ]},
+      { name:'安全交底不到位', items:[
+        { id:'5-3', name:'安全技术交底是否签字确认', status:'pending', note:'' },
+        { id:'5-4', name:'交底内容是否有针对性', status:'pending', note:'' },
+      ]},
+    ]
+  },
+];
+
+let currentCatId = null;
+const flatItems = {};
+categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => flatItems[i.id] = { ...i, catName:c.name, subName:s.name, catIcon:c.icon, photo:'' })));
+
+// ===================== 违章条例数据库（AI自动匹配）=====================
+const regulations = {
+  '1-1': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程 第1部分：变电》（Q/GDW 11957.1-2020）第6.6.1条：高处作业人员必须正确佩戴安全带，安全带应系在牢固的构件上，严禁低挂高用。' },
+  '1-2': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.4.3条：脚手架搭设完毕后应经检查验收合格方可投入使用，经验收合格后挂合格牌。' },
+  '1-3': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.1.2条：施工人员上岗前应经过安全教育培训，经考试合格后方可上岗作业。' },
+  '1-4': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.1.3条：特种作业人员必须持有效的特种作业操作证方可上岗作业，严禁无证上岗。' },
+  '1-5': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.4.1条：施工单位应制定应急预案并定期组织应急演练，确保施工人员熟悉应急处置程序。' },
+  '1-6': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.4.2条：施工现场应配备必要的应急救援物资和器材，并定期检查维护。' },
+  '2-1': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程 第1部分：变电》（Q/GDW 11957.1-2020）第6.5.4条：施工现场用电应采用三级配电两级保护系统，总配电箱、分配电箱、开关箱三级配电，末级开关箱内应装设漏电保护器。' },
+  '2-2': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.4条：配电箱应设置总配电箱、分配电箱和开关箱，实行分级配电。配电箱应标注名称、用途、分路标识，箱门应标注安全警示标志。' },
+  '2-3': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.4条：末级开关箱内应装设漏电保护器，漏电保护器参数应匹配并定期测试其有效性，严禁使用失效的漏电保护器。' },
+  '2-4': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.2条：电气设备的金属外壳必须与接地网可靠连接，TN-S系统中PE线应按规定做重复接地。' },
+  '2-5': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程 第1部分：变电》（Q/GDW 11957.1-2020）第6.5.4条：电缆线路应采用埋地或架空敷设，不得沿地面明设，并应避免机械损伤和介质腐蚀。电缆接头处应有防水和防触电的措施。' },
+  '2-6': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.4条：用电线路及电气设备的绝缘应良好，布线应整齐，设备的裸露带电部分应加防护措施。' },
+  '2-7': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.4条：严禁私拉乱接电源线路，用电设备必须从开关箱引接，不得从分配电箱或线路直接接引。' },
+  '2-8': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.5.4条：每台用电设备应有专用的开关箱，实行一机一闸一漏一箱制，严禁一个开关箱控制多台用电设备。' },
+  '3-1': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.3.2条：基坑支护结构应定期检查，发现变形、裂缝等异常情况应立即停止作业并采取加固措施。' },
+  '3-2': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.3.3条：基坑开挖应按规定进行监测，监测数据达到报警值时应立即停止作业并采取应急措施。' },
+  '3-3': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.3.4条：基坑周边应设置防护栏杆和警示标志，防护栏杆应牢固可靠，高度不低于1.2米。' },
+  '3-4': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.3.5条：基坑周边1.5米范围内严禁堆放材料、土方等重物，堆载不得超过设计允许荷载。' },
+  '4-1': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.8.2条：有限空间作业前必须进行通风换气，经检测气体浓度合格后方可进入，严禁未通风检测进入有限空间。' },
+  '4-2': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.8.3条：有限空间作业应持续监测气体浓度，氧气浓度应保持在19.5%~23%，有害气体浓度应符合职业接触限值要求。' },
+  '4-3': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.7.2条：动火作业必须办理动火工作票，经审批后方可进行动火作业，严禁无票动火。' },
+  '4-4': { type:'严重违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.7.3条：动火作业现场必须设置专职监护人员，监护人不在场时严禁动火作业。' },
+  '4-5': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.7.4条：动火作业现场应配备足够的灭火器材，灭火器材应在有效期内且压力正常。' },
+  '4-6': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第6.7.5条：动火作业前应清除作业区周围5米内的易燃易爆物品，无法清除的应采取隔离措施。' },
+  '5-1': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.3.1条：安全隐患整改应实行闭环管理，整改完成后应复查确认并形成闭环记录。' },
+  '5-2': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.3.2条：隐患整改应在规定期限内完成，逾期未整改的应升级管理并追究责任。' },
+  '5-3': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.2.1条：施工前应进行安全技术交底，交底人和被交底人均应签字确认，未经签字确认不得施工。' },
+  '5-4': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.2.2条：安全技术交底应结合工程实际，交底内容应具体、有针对性，不得流于形式。' },
+};
+
+// ===================== AI整改措施数据库 =====================
+const fixMap = {
+  '1-1': '立即停止高处作业，正确佩戴安全带后方可复工',
+  '1-2': '组织脚手架专项验收，验收合格挂合格牌后方可使用',
+  '1-3': '补齐安全教育培训，所有人员经考试合格后方可上岗',
+  '1-4': '清退无证人员，持特种作业操作证方可上岗',
+  '1-5': '制定应急预案并组织演练，留存演练记录及影像资料',
+  '1-6': '配备应急救援物资和器材，建立台账并定期检查维护',
+  '2-1': '重新布置配电系统，落实三级配电两级保护要求',
+  '2-2': '更换或修复配电箱，完善名称用途和分路标识',
+  '2-3': '更换漏电保护器，测试合格后投入使用',
+  '2-4': '按规范设置重复接地，确保PE线可靠连接',
+  '2-5': '重新敷设电缆，采取埋地或架空方式，消除明设',
+  '2-6': '更换破损电缆，处理裸露接头，确保绝缘良好',
+  '2-7': '拆除私拉乱接线路，用电设备必须从开关箱引接',
+  '2-8': '增设专用开关箱，落实一机一闸一漏一箱制',
+  '3-1': '立即停止基坑作业，采取加固措施并复测合格',
+  '3-2': '加密监测频率，数据达到报警值时立即停工撤人',
+  '3-3': '补齐基坑周边防护栏杆，设置警示标志',
+  '3-4': '清理基坑周边堆载，确保不超设计允许荷载',
+  '4-1': '立即停止作业，通风检测合格后方可进入',
+  '4-2': '配备气体检测仪，持续监测确保浓度合格',
+  '4-3': '停止动火作业，补办动火工作票经审批后方可施工',
+  '4-4': '指定专职监护人员到场，监护人不在场严禁动火',
+  '4-5': '配备足量灭火器材，确保在有效期内',
+  '4-6': '清理作业区5米内易燃物，无法清除的采取隔离',
+  '5-1': '梳理未闭环隐患，限期整改并复查确认形成闭环',
+  '5-2': '加快整改进度，逾期未整改的升级管理并追究责任',
+  '5-3': '补做安全技术交底，交底人和被交底人签字确认',
+  '5-4': '重新进行安全技术交底，内容结合工程实际',
+};
+
+// ===================== Init =====================
+function init() {
+  const now = new Date();
+  const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
+  const ds2 = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  document.getElementById('checkDate').textContent = ds;
+  document.getElementById('reportDate').textContent = '日期：' + ds;
+  document.getElementById('reportNo').textContent = `编号：ZJJDQ-${ds2.replace(/-/g,'')}-001`;
+  
+  // Generate home page QR code
+  try {
+    var qrSvg = qrGenSVG(window.location.href, 180);
+    var homeQr = document.getElementById('homeQrContainer');
+    if (homeQr) homeQr.innerHTML = qrSvg;
+    var urlDisplay = document.getElementById('urlDisplay');
+    if (urlDisplay) urlDisplay.textContent = window.location.href;
+  } catch(e) { console.warn('QR gen error:', e); }
+
+  renderCategoryList();
+  if (window.location.hash === '#archive') goArchive();
+}
+
+// ===================== Navigation =====================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+function goScan() { showPage('page-scan'); }
+function goCategory() { showPage('page-category'); }
+function goInspect(catId) {
+  currentCatId = catId;
+  const cat = categories.find(c => c.id === catId);
+  document.getElementById('inspectTitle').textContent = cat.name;
+  renderInspectionPage(catId);
+  showPage('page-inspect');
+}
+function goReport() { generateReport(); showPage('page-report'); }
+
+// ===================== Category List =====================
+function renderCategoryList() {
+  const list = document.getElementById('catList');
+  list.innerHTML = categories.map(cat => {
+    const items = cat.subs.flatMap(s => s.items);
+    const checked = items.filter(i => i.status !== 'pending').length;
+    const total = items.length;
+    const pct = (checked / total) * 100;
+    const issues = items.filter(i => i.status === 'issue').length;
+    return `
+      <div class="cat-card" onclick="goInspect(${cat.id})">
+        <div class="cc-icon" style="background:${cat.colorLight}">${cat.icon}</div>
+        <div class="cc-body">
+          <div class="cc-name">${cat.name}</div>
+          <div class="cc-desc">${cat.subs.length}个小类 · ${total}个检查项${issues ? ' · ⚠ 发现'+issues+'项隐患' : ''}</div>
+          <div class="cc-progress">
+            <div class="cc-ptrack"><div class="cc-pfill" style="width:${pct}%;background:${cat.color}"></div></div>
+            <span class="cc-pnum">${checked}/${total}</span>
+          </div>
+        </div>
+        <span class="cc-arrow">›</span>
+      </div>`;
+  }).join('');
+  const totalItems = Object.keys(flatItems).length;
+  const totalChecked = Object.values(flatItems).filter(i => i.status !== 'pending').length;
+  document.getElementById('overallProgress').textContent = `${totalChecked}/${totalItems}`;
+}
+
+// ===================== Inspection Page =====================
+function renderInspectionPage(catId) {
+  const cat = categories.find(c => c.id === catId);
+  const content = document.getElementById('inspectContent');
+  content.innerHTML = cat.subs.map(sub => `
+    <div class="sub-section">
+      <div class="sub-header">
+        <span class="sh-dot" style="background:${cat.color}"></span>
+        <span>${sub.name}</span>
+      </div>
+      ${sub.items.map(item => {
+        const fi = flatItems[item.id];
+        return `
+        <div class="check-item ${fi.status==='ok'?'is-ok':''} ${fi.status==='issue'?'has-issue':''}" id="item-${item.id}">
+          <div class="ci-body">
+            <div class="ci-name">${fi.name}</div>
+            ${fi.note ? `<div class="ci-note">⚠ ${fi.note}</div>` : ''}
+            ${fi.photo ? `<div class="ci-photo-row"><img class="ci-photo-thumb" src="${fi.photo}" onclick="previewPhoto('${item.id}')"><span class="ci-photo-label">📸 照片佐证已留存</span></div>` : ''}
+          </div>
+          <div class="ci-photo-btn ${fi.photo?'has-photo':''}" onclick="itemPhoto('${item.id}')">${fi.photo?'📸':'📷'}</div>
+          <input type="file" id="photo-input-${item.id}" accept="image/*" capture="environment" style="display:none" onchange="handleItemPhoto(event,'${item.id}')">
+          <div class="ci-status" onclick="cycleStatus('${item.id}')">${fi.status==='ok'?'✓':fi.status==='issue'?'!':''}</div>
+        </div>`;
+      }).join('')}
+    </div>`).join('');
+  // Update progress
+  const items = cat.subs.flatMap(s => s.items);
+  const checked = items.filter(i => flatItems[i.id].status !== 'pending').length;
+  const issues = items.filter(i => flatItems[i.id].status === 'issue').length;
+  document.getElementById('inspectProgress').textContent = `${checked}/${items.length}`;
+  document.getElementById('inspectIssues').textContent = `${issues}项`;
+  // Sync back to categories array
+  items.forEach(i => { const orig = cat.subs.flatMap(s=>s.items).find(it=>it.id===i.id); orig.status = flatItems[i.id].status; orig.note = flatItems[i.id].note; orig.photo = flatItems[i.id].photo; });
+  renderCategoryList();
+}
+
+function cycleStatus(id) {
+  const order = ['pending', 'ok', 'issue'];
+  const item = flatItems[id];
+  const idx = order.indexOf(item.status);
+  item.status = order[(idx + 1) % order.length];
+  if (item.status !== 'issue') item.note = '';
+  // Sync to categories
+  categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === id) { i.status = item.status; i.note = item.note; } })));
+  if (currentCatId) renderInspectionPage(currentCatId);
+  else renderCategoryList();
+}
+
+// ===================== Photo Evidence =====================
+function itemPhoto(id) {
+  document.getElementById('photo-input-' + id).click();
+}
+function handleItemPhoto(event, id) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    flatItems[id].photo = e.target.result;
+    categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === id) i.photo = e.target.result; })));
+    if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
+    showToast('照片佐证已保存');
+  };
+  reader.readAsDataURL(file);
+  event.target.value = '';
+}
+function previewPhoto(id) {
+  const photo = flatItems[id].photo; if (!photo) return;
+  document.getElementById('viewerImg').src = photo;
+  document.getElementById('photoViewer').classList.add('active');
+}
+function closePhotoViewer() {
+  document.getElementById('photoViewer').classList.remove('active');
+}
+
+// ===================== Voice =====================
+let recognition = null, isRecording = false;
+function openVoiceModal() { document.getElementById('voiceOverlay').classList.add('active'); }
+function closeVoiceModal() {
+  document.getElementById('voiceOverlay').classList.remove('active');
+  stopVoice();
+  document.getElementById('voiceResult').classList.remove('active');
+  document.getElementById('voiceConfirmBtn').classList.remove('active');
+  document.getElementById('micBtn').classList.remove('recording');
+  isRecording = false;
+}
+function toggleVoice() { isRecording ? stopVoice() : startVoice(); }
+function startVoice() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { showToast('浏览器不支持语音识别，请使用演示模式'); return; }
+  recognition = new SR();
+  recognition.lang = 'zh-CN'; recognition.continuous = false; recognition.interimResults = true;
+  recognition.onstart = () => { isRecording = true; const b = document.getElementById('micBtn'); b.classList.add('recording'); b.textContent = '⏹'; document.getElementById('voiceHint').textContent = '正在录音...请说出检查情况'; };
+  recognition.onresult = (e) => {
+    let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+    if (e.results[e.results.length-1].isFinal) processVoice(t);
+  };
+  recognition.onerror = (e) => { showToast('语音识别出错，可使用演示模式'); stopVoice(); };
+  recognition.onend = () => stopVoice();
+  try { recognition.start(); } catch(e) { showToast('启动失败，请使用演示模式'); }
+}
+function stopVoice() {
+  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+  isRecording = false;
+  const b = document.getElementById('micBtn'); b.classList.remove('recording'); b.textContent = '🎙️';
+  document.getElementById('voiceHint').textContent = '点击麦克风开始语音录入';
+}
+
+const demoVoiceText = '2号基坑支护结构发现裂缝，周边防护栏杆缺失。临时用电存在私拉乱接，电缆直接放在地上没有架空敷设。动火作业没有审批手续，监护人不在现场。高空作业有人没系安全带。';
+
+function simulateVoice() {
+  const b = document.getElementById('micBtn');
+  b.classList.add('recording'); b.textContent = '⏻';
+  document.getElementById('voiceHint').textContent = '正在录音...请说出检查情况';
+  setTimeout(() => {
+    b.classList.remove('recording'); b.textContent = '🎙️';
+    document.getElementById('voiceHint').textContent = '录音完成，AI正在解析...';
+    setTimeout(() => processVoice(demoVoiceText), 500);
+  }, 2000);
+}
+
+const voiceRules = [
+  { keys:['安全带','高空','高处','系'], id:'1-1', extract:(t) => {
+    if (t.includes('没系') || t.includes('没戴') || t.includes('未戴') || t.includes('未系') || t.includes('没有')) return { status:'issue', note:'高空作业人员未正确佩戴安全带' };
+    if (t.includes('正确') || t.includes('规范') || (t.includes('安全带') && t.includes('佩戴'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['脚手架','操作平台','验收'], id:'1-2', extract:(t) => {
+    if (t.includes('未验收') || t.includes('没验收') || t.includes('不合格')) return { status:'issue', note:'脚手架/操作平台未验收或验收不合格' };
+    if (t.includes('验收') && (t.includes('合格') || t.includes('通过'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['培训','教育'], id:'1-3', extract:(t) => {
+    if (t.includes('未培训') || t.includes('没培训') || t.includes('缺失')) return { status:'issue', note:'安全教育培训未全覆盖' };
+    if (t.includes('培训') && (t.includes('全覆盖') || t.includes('完成'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['持证','特种作业','证件'], id:'1-4', extract:(t) => {
+    if (t.includes('无证') || t.includes('没证') || t.includes('未持证')) return { status:'issue', note:'特种作业人员未持证上岗' };
+    if (t.includes('持证') || t.includes('有证')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['应急演练','演练'], id:'1-5', extract:(t) => {
+    if (t.includes('未演练') || t.includes('没演练') || t.includes('未开展')) return { status:'issue', note:'未按规定开展应急演练' };
+    if (t.includes('演练') && (t.includes('开展') || t.includes('完成'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['应急物资'], id:'1-6', extract:(t) => {
+    if (t.includes('缺失') || t.includes('不足') || t.includes('没有')) return { status:'issue', note:'应急物资配备不足' };
+    if (t.includes('到位') || t.includes('齐全')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['三级配电','两级保护'], id:'2-1', extract:(t) => {
+    if (t.includes('未按') || t.includes('不符合') || t.includes('没有按')) return { status:'issue', note:'未按三级配电两级保护设置' };
+    if (t.includes('三级配电') && (t.includes('符合') || t.includes('规范'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['配电箱'], id:'2-2', extract:(t) => {
+    if (t.includes('不规范') || t.includes('未标识') || t.includes('破损')) return { status:'issue', note:'配电箱设置不规范或未标识' };
+    if (t.includes('规范') || t.includes('标识')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['漏电','保护器'], id:'2-3', extract:(t) => {
+    if (t.includes('失效') || t.includes('不起作用') || t.includes('故障')) return { status:'issue', note:'漏电保护器失效' };
+    if (t.includes('有效') || t.includes('正常')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['接地','重复接地'], id:'2-4', extract:(t) => {
+    if (t.includes('不规范') || t.includes('未做') || t.includes('缺失')) return { status:'issue', note:'重复接地不规范' };
+    if (t.includes('规范') || t.includes('合格')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['电缆','埋地','架空','敷设'], id:'2-5', extract:(t) => {
+    if (t.includes('地上') || t.includes('未架空') || t.includes('未埋地') || t.includes('直接放')) return { status:'issue', note:'电缆未埋地或架空敷设，直接放置地面' };
+    if (t.includes('架空') || t.includes('埋地')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['电缆','破损','接头'], id:'2-6', extract:(t) => {
+    if (t.includes('破损') || t.includes('裸露') || t.includes('断裂')) return { status:'issue', note:'电缆破损或接头裸露' };
+    if (t.includes('完好') || t.includes('无破损')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['私拉','乱接'], id:'2-7', extract:(t) => {
+    if (t.includes('私拉') || t.includes('乱接')) return { status:'issue', note:'存在私拉乱接现象' };
+    return null;
+  }},
+  { keys:['一机一闸','一漏一箱'], id:'2-8', extract:(t) => {
+    if (t.includes('不符合') || t.includes('未按') || t.includes('没有')) return { status:'issue', note:'用电设备未落实一机一闸一漏一箱' };
+    if (t.includes('一机一闸') || t.includes('符合')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['支护','变形','裂缝'], id:'3-1', extract:(t) => {
+    if (t.includes('裂缝') || t.includes('变形') || t.includes('失稳') || t.includes('开裂')) return { status:'issue', note:'支护结构发现裂缝/变形' };
+    if (t.includes('完好') || t.includes('正常') || t.includes('无变形')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['监测','报警','数据'], id:'3-2', extract:(t) => {
+    if (t.includes('报警') || t.includes('超限') || t.includes('异常')) return { status:'issue', note:'基坑监测数据达到报警值' };
+    if (t.includes('正常') || t.includes('报警值内')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['防护栏杆','栏杆','周边防护'], id:'3-3', extract:(t) => {
+    if (t.includes('缺失') || t.includes('不全') || t.includes('没有') || t.includes('未设置')) return { status:'issue', note:'基坑周边防护栏杆缺失或未规范设置' };
+    if (t.includes('规范') || t.includes('齐全')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['堆载','周边堆'], id:'3-4', extract:(t) => {
+    if (t.includes('超标') || t.includes('超载') || t.includes('堆放')) return { status:'issue', note:'基坑周边堆载超标' };
+    if (t.includes('符合') || t.includes('未超标')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['通风','检测'], id:'4-1', extract:(t) => {
+    if (t.includes('未通风') || t.includes('没通风') || t.includes('不良')) return { status:'issue', note:'有限空间作业前未通风检测' };
+    if (t.includes('通风') && (t.includes('检测') || t.includes('合格'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['气体','浓度'], id:'4-2', extract:(t) => {
+    if (t.includes('不合格') || t.includes('超标') || t.includes('异常')) return { status:'issue', note:'气体检测浓度不合格' };
+    if (t.includes('合格') || t.includes('正常')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['动火','审批'], id:'4-3', extract:(t) => {
+    if (t.includes('未审批') || t.includes('没审批') || t.includes('没有审批') || t.includes('无手续')) return { status:'issue', note:'动火作业未办理审批手续' };
+    if (t.includes('审批') && (t.includes('已办') || t.includes('手续'))) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['监护','监护人'], id:'4-4', extract:(t) => {
+    if (t.includes('不在') || t.includes('缺位') || t.includes('未到位')) return { status:'issue', note:'动火监护人员未到位' };
+    if (t.includes('到位') || t.includes('在场')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['灭火器','器材'], id:'4-5', extract:(t) => {
+    if (t.includes('缺失') || t.includes('不足') || t.includes('没有')) return { status:'issue', note:'灭火器材配备不足' };
+    if (t.includes('到位') || t.includes('配备')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['易燃物','清理'], id:'4-6', extract:(t) => {
+    if (t.includes('未清理') || t.includes('堆放')) return { status:'issue', note:'作业区易燃物未清理' };
+    if (t.includes('清理') || t.includes('清除')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['闭环','整改'], id:'5-1', extract:(t) => {
+    if (t.includes('未闭环') || t.includes('未整改') || t.includes('不及时')) return { status:'issue', note:'历次检查隐患未闭环管理' };
+    if (t.includes('闭环') || t.includes('已整改')) return { status:'ok', note:'' };
+    return null;
+  }},
+  { keys:['交底','签字'], id:'5-3', extract:(t) => {
+    if (t.includes('未签字') || t.includes('未交底') || t.includes('不到位')) return { status:'issue', note:'安全技术交底未签字确认' };
+    if (t.includes('签字') || t.includes('交底') && t.includes('完成')) return { status:'ok', note:'' };
+    return null;
+  }},
+];
+
+function processVoice(text) {
+  document.getElementById('voiceText').textContent = text;
+  const results = [];
+  voiceRules.forEach(rule => {
+    if (rule.keys.some(k => text.includes(k))) {
+      const r = rule.extract(text);
+      if (r) {
+        const item = flatItems[rule.id];
+        results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon });
+      }
+    }
+  });
+  const parseList = document.getElementById('parseList');
+  if (results.length) {
+    parseList.innerHTML = results.map(r => `
+      <div class="parse-item">
+        <span class="pi-icon">${r.icon}</span>
+        <span class="pi-text">${r.name}<span class="pi-cat">${r.catName} / ${r.subName}</span></span>
+        <span class="pi-badge ${r.status==='ok'?'ok':'issue'}">${r.status==='ok'?'正常':'隐患'}</span>
+      </div>
+      ${r.status === 'issue' && regulations[r.id] ? `
+      <div style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 12px 8px 32px;background:var(--sg-green-light);border-radius:8px;margin:2px 0 6px 16px;border-left:3px solid var(--sg-green)">
+        <div style="font-size:11px;color:var(--sg-green);font-weight:700">📋 AI已自动匹配违章条例</div>
+        <div style="font-size:11px;color:var(--text-2);line-height:1.6">${regulations[r.id].text}</div>
+        <span class="pi-badge issue" style="margin-top:2px">${regulations[r.id].type}</span>
+      </div>` : ''}`).join('');
+  } else {
+    parseList.innerHTML = '<div class="parse-item"><span class="pi-text">未识别到有效检查信息，请尝试更清晰的描述</span></div>';
+  }
+  document.getElementById('voiceResult').classList.add('active');
+  document.getElementById('voiceConfirmBtn').classList.add('active');
+  document.getElementById('voiceHint').textContent = 'AI解析完成，请确认后填写到检查表';
+  window._voiceResults = results;
+}
+
+function confirmVoice() {
+  if (window._voiceResults) {
+    window._voiceResults.forEach(r => {
+      const item = flatItems[r.id];
+      item.status = r.status; item.note = r.note || '';
+      categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === r.id) { i.status = r.status; i.note = r.note || ''; } })));
+    });
+    if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
+    showToast('已自动填写 ' + window._voiceResults.length + ' 项检查记录');
+  }
+  closeVoiceModal();
+}
+
+// ===================== Photo =====================
+function openPhotoModal() {
+  document.getElementById('photoOverlay').classList.add('active');
+  document.getElementById('photoPreview').classList.remove('active');
+  document.getElementById('aiAnalyzing').classList.remove('active');
+  document.getElementById('photoResult').classList.remove('active');
+  document.getElementById('photoConfirmBtn').classList.remove('active');
+  document.getElementById('photoUpload').style.display = 'block';
+}
+function closePhotoModal() { document.getElementById('photoOverlay').classList.remove('active'); }
+
+function handlePhoto(event) {
+  const file = event.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('photoImg').src = e.target.result;
+    document.getElementById('photoPreview').classList.add('active');
+    document.getElementById('photoUpload').style.display = 'none';
+    setTimeout(() => startAIAnalysis(), 500);
+  };
+  reader.readAsDataURL(file);
+}
+
+function startAIAnalysis() {
+  document.getElementById('aiAnalyzing').classList.add('active');
+  const steps = ['正在加载AI模型...', '识别施工场景类型...', '检测安全隐患特征...', '比对安全规范标准...', '生成识别结果...'];
+  const sc = document.getElementById('aiSteps');
+  sc.innerHTML = steps.map((s, i) => `<div class="ai-step" id="aiStep-${i}">${s}</div>`).join('');
+  let cur = 0;
+  const iv = setInterval(() => {
+    if (cur < steps.length) { document.getElementById('aiStep-' + cur).classList.add('done'); cur++; }
+    else { clearInterval(iv); setTimeout(() => showPhotoResult(), 500); }
+  }, 600);
+  document.getElementById('aiText').textContent = 'AI 正在深度分析图片...';
+}
+
+const photoDetectionResults = [
+  { id:'3-1', status:'issue', confidence:94, detail:'检测到基坑支护结构存在横向裂缝，缝宽约2mm，存在失稳风险' },
+  { id:'2-7', status:'issue', confidence:91, detail:'检测到临时用电私拉乱接，电缆未穿管保护，存在触电风险' },
+  { id:'3-3', status:'issue', confidence:89, detail:'检测到基坑周边防护栏杆部分缺失，未设置连续防护' },
+  { id:'1-1', status:'issue', confidence:86, detail:'检测到高空作业人员未正确佩戴安全带，存在坠落风险' },
+];
+
+function showPhotoResult() {
+  document.getElementById('aiAnalyzing').classList.remove('active');
+  const r = document.getElementById('photoResult');
+  r.innerHTML = `
+    <div class="vr-label" style="margin-bottom:10px">🔍 AI 识别结果</div>
+    ${photoDetectionResults.map(d => {
+      const item = flatItems[d.id];
+      const reg = regulations[d.id];
+      return `
+      <div class="detect-card">
+        <div class="dc-header">
+          <span style="font-size:18px">${item.catIcon}</span>
+          <span class="dc-name">${item.name}</span>
+          <span class="dc-conf">置信度 ${d.confidence}%</span>
+        </div>
+        <div class="dc-cat">${item.catName} / ${item.subName}</div>
+        <div class="dc-detail" style="margin-top:6px">${d.detail}</div>
+        <div style="margin-top:8px"><span class="dc-status issue">✗ 隐患</span></div>
+        ${reg ? `
+        <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
+          <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 AI已自动匹配违章条例（${reg.type}）</div>
+          ${reg.text}
+        </div>` : ''}
+      </div>`;
+    }).join('')}`;
+  r.classList.add('active');
+  document.getElementById('photoConfirmBtn').classList.add('active');
+}
+
+function confirmPhoto() {
+  const uploadedPhoto = document.getElementById('photoImg').src;
+  photoDetectionResults.forEach(d => {
+    const item = flatItems[d.id];
+    item.status = d.status; item.note = d.detail;
+    if (uploadedPhoto) item.photo = uploadedPhoto;
+    categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
+  });
+  if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
+  closePhotoModal();
+  showToast('已自动填写 ' + photoDetectionResults.length + ' 项识别结果（含照片佐证）');
+}
+
+// ===================== Report =====================
+function generateReport() {
+  const allItems = Object.values(flatItems);
+  const issues = allItems.filter(i => i.status === 'issue');
+  const okItems = allItems.filter(i => i.status === 'ok');
+  const now = new Date();
+  const ds2 = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日`;
+
+  let generalCount = 0, severeCount = 0;
+  issues.forEach(i => {
+    const reg = regulations[i.id];
+    if (reg && reg.type === '严重违章') severeCount++; else generalCount++;
+  });
+
+  const projectVal = (document.getElementById('inputProject') || {}).value || '';
+  const inspectorVal = (document.getElementById('inputInspector') || {}).value || '';
+
+  let html = `
+    <div class="report-sec">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;width:15%;background:var(--gray-1);font-weight:600">项目名称</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px;width:35%"><input class="rp-input" value="${projectVal}" placeholder="请输入"></td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;width:15%;background:var(--gray-1);font-weight:600">建管单位</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px;width:35%"><input class="rp-input" placeholder="请输入"></td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">检查地点</td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px">现场检查</td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">检查班组</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px"><input class="rp-input" placeholder="请输入"></td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">班组长</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px"><input class="rp-input" value="${inspectorVal}" placeholder="请输入"></td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">监理单位</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px"><input class="rp-input" placeholder="请输入"></td>
+        </tr>
+        <tr>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">检查时间</td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px">${ds2}</td>
+          <td style="border:1px solid var(--gray-3);padding:5px 8px;background:var(--gray-1);font-weight:600">施工单位</td>
+          <td style="border:1px solid var(--gray-3);padding:4px 6px"><input class="rp-input" placeholder="请输入"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="report-sec">
+      <div class="report-summary">
+        <div class="rs-row"><span>检查项目总数</span><span>${allItems.length} 项</span></div>
+        <div class="rs-row"><span style="color:var(--sg-green)">合格项</span><span style="color:var(--sg-green)">${okItems.length} 项</span></div>
+        <div class="rs-row"><span style="color:var(--red)">发现隐患</span><span style="color:var(--red)">${issues.length} 项</span></div>
+        <div class="rs-row"><span>其中严重违章</span><span style="color:var(--red)">${severeCount} 项</span></div>
+        <div class="rs-row"><span>其中一般违章</span><span style="color:var(--orange)">${generalCount} 项</span></div>
+      </div>
+    </div>`;
+
+  if (issues.length) {
+    let issueIdx = 0;
+    let tableRows = '';
+    issues.forEach(item => {
+      issueIdx++;
+      const reg = regulations[item.id];
+      const vType = reg ? reg.type : '一般违章';
+      const vText = reg ? reg.text : '请参照《国家电网有限公司电力建设安全工作规程》相关条款执行';
+      const fix = fixMap[item.id] || '限期整改至合格标准';
+      const problemDesc = item.note ? `${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span>` : item.name;
+      const sevClass = vType === '严重违章' ? 'it-sev-high' : 'it-sev-mid';
+      tableRows += `<tr>
+        <td style="text-align:center">${issueIdx}</td>
+        <td>${problemDesc}</td>
+        <td style="text-align:center;white-space:nowrap"><span class="${sevClass}" style="font-weight:600">${vType}</span></td>
+        <td style="font-size:11px;line-height:1.6">${vText}</td>
+        <td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td>
+      </tr>`;
+    });
+
+    html += `
+      <div class="report-sec">
+        <div class="rs-label">发现问题、违章条例及整改要求<span style="font-size:11px;color:var(--sg-green);font-weight:400">（整改要求由AI自动生成）</span></div>
+        <table class="issue-table">
+          <thead><tr>
+            <th style="width:4%">序号</th>
+            <th style="width:18%">发现问题</th>
+            <th style="width:10%">违章类型（一般\严重）</th>
+            <th style="width:35%">违章条例</th>
+            <th style="width:33%">整改要求</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>
+      </div>`;
+
+    const issuesWithPhotos = issues.filter(i => i.photo);
+    if (issuesWithPhotos.length) {
+      html += `
+      <div class="report-sec">
+        <div class="rs-label">隐患照片佐证</div>
+        ${issuesWithPhotos.map(item => {
+          const reg = regulations[item.id];
+          return `
+        <div class="report-photo-card">
+          <img src="${item.photo}" alt="隐患照片">
+          <div class="rpc-body">
+            <div class="rpc-title">⚠ ${item.name}</div>
+            <div class="rpc-desc">${item.note}</div>
+            ${reg ? `<div class="rpc-fix">违章类型：${reg.type}</div>` : ''}
+            ${fixMap[item.id] ? `<div class="rpc-fix" style="color:var(--sg-green)">🔧 整改要求：${fixMap[item.id]}</div>` : ''}
+          </div>
+        </div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    html += `
+      <div class="report-sec">
+        <div class="rs-label">整改要求</div>
+        <div class="rs-content">
+          请责任单位举一反三，以上问题按要求立即整改${severeCount ? `，严重违章${severeCount}项` : ''}${generalCount ? `，一般违章${generalCount}项` : ''}。<br>
+          1. 严重违章须<strong>立即停工整改</strong>，整改完成并复查合格后方可复工。<br>
+          2. 一般违章在收到本通知后<strong>3个工作日内</strong>完成整改。<br>
+          3. 整改完成后请拍照留存，并通知检查人复查确认。<br>
+          4. 整改情况形成书面回复，纳入隐患闭环管理台账。
+        </div>
+      </div>`;
+  } else {
+    html += `<div class="report-sec"><div class="rs-label">检查结论</div><div class="rs-content" style="color:var(--sg-green);font-weight:600">✓ 本次检查未发现安全隐患，各施工环节符合安全规范要求。</div></div>`;
+  }
+
+  html += `<div class="sign-area">
+    <div class="sign-box"><div style="height:40px"></div><div class="sb-line">检查组签字</div></div>
+    <div class="sign-box"><div style="height:40px"></div><div class="sb-line">被检查单位签字</div></div>
+  </div>`;
+
+  // 整改码（码上闭环）
+  if (issues.length) {
+    const qrUrl = window.location.origin + '/#archive';
+    html += `<div class="qr-report">
+      <div id="reportQrContainer" style="width:100px;height:100px;background:#fff;border-radius:4px;display:inline-block"></div>
+      <div class="qr-report-label">📱 扫码查看整改任务</div>
+      <div style="font-size:11px;color:var(--gray-4);margin-top:4px">施工人员扫码可查看隐患详情、违章条例和整改要求</div>
+    </div>`;
+  }
+
+  document.getElementById('reportBody').innerHTML = html;
+
+  // Generate report QR code
+  setTimeout(function() {
+    try {
+      var qrContainer = document.getElementById('reportQrContainer');
+      if (qrContainer && issues.length) {
+        var reportQrUrl = window.location.origin + '/#archive';
+        qrContainer.innerHTML = qrGenSVG(reportQrUrl, 100);
+      }
+    } catch(e) { console.warn('Report QR gen error:', e); }
+  }, 50);
+
+}
+
+// ===================== Toast & Overlay =====================
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 2500); }
+document.getElementById('voiceOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeVoiceModal(); });
+document.getElementById('photoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePhotoModal(); });
+
+// ===================== 归档与AI智能分析 =====================
+const sampleReports = [
+  {id:'RPT-20260810-001',date:'2026-08-10',dateStr:'08月10日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['1-1','2-7','5-3'],issueDetails:[{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'2名工人高处作业未系安全带'},{id:'2-7',name:'是否存在私拉乱接现象',note:'3号配电室有私接电源线'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底记录无签字'}],
+   summary:{total:28,ok:25,issues:3,severe:1,general:2}},
+  {id:'RPT-20260815-002',date:'2026-08-15',dateStr:'08月15日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['2-1','2-3','4-3','1-1'],issueDetails:[{id:'2-1',name:'是否按"三级配电两级保护"设置',note:'未落实三级配电'},{id:'2-3',name:'漏电保护器是否有效动作',note:'2个漏保失效'},{id:'4-3',name:'动火作业是否办理审批手续',note:'无动火工作票'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'安全带低挂高用'}],
+   summary:{total:28,ok:24,issues:4,severe:3,general:1}},
+  {id:'RPT-20260820-003',date:'2026-08-20',dateStr:'08月20日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['2-7','3-1','5-3','1-1','4-5'],issueDetails:[{id:'2-7',name:'是否存在私拉乱接现象',note:'开关箱直接接引'},{id:'3-1',name:'支护结构有无变形、裂缝',note:'北侧支护轻微变形'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底内容泛泛'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'1人未戴安全带'},{id:'4-5',name:'灭火器材是否配备到位',note:'动火区缺2具灭火器'}],
+   summary:{total:28,ok:23,issues:5,severe:2,general:3}}
+];
+
+function getReports() {
+  const s = localStorage.getItem('safety_reports');
+  if (s) return JSON.parse(s);
+  localStorage.setItem('safety_reports', JSON.stringify(sampleReports));
+  return sampleReports;
+}
+function saveReport(r) { const all = getReports(); all.unshift(r); localStorage.setItem('safety_reports', JSON.stringify(all)); }
+
+function saveAndArchive() {
+  const allItems = Object.values(flatItems);
+  const issues = allItems.filter(i => i.status === 'issue');
+  const now = new Date();
+  const ds2 = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const report = {
+    id:`RPT-${ds2.replace(/-/g,'')}-${String(Date.now()).slice(-3)}`,
+    date:ds2, dateStr:`${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日`,
+    project:(document.getElementById('inputProject')||{}).value||'',
+    inspector:(document.getElementById('inputInspector')||{}).value||'',
+    issues:issues.map(i=>i.id),
+    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note})),
+    summary:{total:allItems.length,ok:allItems.filter(i=>i.status==='ok').length,issues:issues.length,
+      severe:issues.filter(i=>regulations[i.id]&&regulations[i.id].type==='严重违章').length,
+      general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length}
+  };
+  saveReport(report);
+  showToast('已归档保存');
+  goArchive();
+}
+
+function goArchive() { renderArchive(); renderAIAnalysis(); showPage('page-archive'); }
+
+function renderArchive() {
+  const reports = getReports();
+  const c = document.getElementById('archiveList');
+  if (!reports.length) { c.innerHTML = '<div style="text-align:center;color:var(--gray-4);padding:40px">暂无检查记录</div>'; return; }
+  c.innerHTML = reports.map(r => {
+    let badge = r.summary.severe > 0 ? `<span class="archive-badge ab-severe">严重${r.summary.severe}项</span>`
+      : r.summary.general > 0 ? `<span class="archive-badge ab-general">一般${r.summary.general}项</span>`
+      : `<span class="archive-badge ab-clean">无隐患</span>`;
+    return `<div class="archive-item" onclick="viewReport('${r.id}')">
+      <div class="archive-icon">📋</div>
+      <div class="archive-info">
+        <div class="archive-date">${r.dateStr} · ${r.project||'未填写'}</div>
+        <div class="archive-meta">隐患${r.summary.issues}项 · 合格${r.summary.ok}项 · 检查人${r.inspector||'未填写'}</div>
+      </div>${badge}</div>`;
+  }).join('');
+}
+
+function renderAIAnalysis() {
+  const reports = getReports();
+  const card = document.getElementById('aiAnalysisCard');
+  if (!reports.length) { card.innerHTML = '<div class="ai-card-title">📊 AI智能分析</div><div style="text-align:center;padding:20px">暂无数据</div>'; return; }
+  const freq = {};
+  reports.forEach(r => r.issues.forEach(id => { freq[id] = (freq[id]||0) + 1; }));
+  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]);
+  const maxFreq = sorted[0] ? sorted[0][1] : 1;
+  const top5 = sorted.slice(0,5);
+  let barHtml = top5.map(([id,count]) => {
+    const item = flatItems[id]; if (!item) return '';
+    const pct = (count/maxFreq*100).toFixed(0);
+    return `<div class="bar-row"><span class="bar-label">${item.name}</span><div class="bar-track"><div class="bar-fill" style="width:${pct}%">${count}次</div></div></div>`;
+  }).join('');
+  let totalSevere=0, totalGeneral=0, totalIssues=0;
+  reports.forEach(r => { totalSevere+=r.summary.severe; totalGeneral+=r.summary.general; totalIssues+=r.summary.issues; });
+  let suggestions = [];
+  if (freq['1-1']>=2) suggestions.push('高空作业安全带问题反复出现，建议加强入场专项培训和每日班前提醒');
+  if (freq['2-7']>=2) suggestions.push('私拉乱接多次发生，建议设置标准化配电点并每日巡查');
+  if (freq['5-3']>=2) suggestions.push('安全交底屡次不到位，建议推行交底签到+拍照制度');
+  if (freq['2-1']>=1) suggestions.push('三级配电问题需重点关注，建议专项整改');
+  if (totalSevere > totalGeneral) suggestions.push('严重违章占比偏高，建议召开安全警示教育会');
+  if (!suggestions.length) suggestions.push('隐患分布较分散，继续保持常态化检查');
+  card.innerHTML = `
+    <div class="ai-card-title">🤖 AI高频隐患智能分析</div>
+    <div style="font-size:12px;opacity:.85;margin-bottom:12px">基于${reports.length}次检查记录，共发现${totalIssues}项隐患</div>
+    <div class="bar-chart">${barHtml}</div>
+    <div class="stat-grid">
+      <div class="stat-cell"><div class="stat-num">${totalSevere}</div><div class="stat-label">严重违章</div></div>
+      <div class="stat-cell"><div class="stat-num">${totalGeneral}</div><div class="stat-label">一般违章</div></div>
+    </div>
+    <div class="ai-suggest">${suggestions.map(s=>`<div class="ai-suggest-item">${s}</div>`).join('')}</div>`;
+}
+
+function viewReport(id) {
+  const reports = getReports();
+  const r = reports.find(x => x.id === id);
+  if (!r) return;
+  let issueIdx = 0;
+  let tableRows = '';
+  r.issueDetails.forEach(item => {
+    issueIdx++;
+    const reg = regulations[item.id]; const fix = fixMap[item.id] || '限期整改至合格标准';
+    const vType = reg ? reg.type : '一般违章'; const vText = reg ? reg.text : '请参照相关规程执行';
+    const sevClass = vType === '严重违章' ? 'it-sev-high' : 'it-sev-mid';
+    tableRows += `<tr><td style="text-align:center">${issueIdx}</td><td>${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span></td><td style="text-align:center"><span class="${sevClass}" style="font-weight:600">${vType}</span></td><td style="font-size:11px;line-height:1.6">${vText}</td><td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td></tr>`;
+  });
+  document.getElementById('reportBody').innerHTML = `
+    <div class="report-sec">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <tr><td style="border:1px solid var(--gray-3);padding:5px 8px;width:15%;background:var(--gray-1);font-weight:600">项目名称</td><td style="border:1px solid var(--gray-3);padding:5px 8px;width:35%">${r.project||''}</td><td style="border:1px solid var(--gray-3);padding:5px 8px;width:15%;background:var(--gray-1);font-weight:600">检查时间</td><td style="border:1px solid var(--gray-3);padding:5px 8px;width:35%">${r.dateStr}</td></tr>
+      </table>
+    </div>
+    <div class="report-sec">
+      <div class="report-summary">
+        <div class="rs-row"><span>检查项目总数</span><span>${r.summary.total} 项</span></div>
+        <div class="rs-row"><span style="color:var(--sg-green)">合格项</span><span style="color:var(--sg-green)">${r.summary.ok} 项</span></div>
+        <div class="rs-row"><span style="color:var(--red)">发现隐患</span><span style="color:var(--red)">${r.summary.issues} 项</span></div>
+        <div class="rs-row"><span>其中严重违章</span><span style="color:var(--red)">${r.summary.severe} 项</span></div>
+        <div class="rs-row"><span>其中一般违章</span><span style="color:var(--orange)">${r.summary.general} 项</span></div>
+      </div>
+    </div>
+    <div class="report-sec">
+      <div class="rs-label">发现问题、违章条例及整改要求</div>
+      <table class="issue-table">
+        <thead><tr><th style="width:4%">序号</th><th style="width:18%">发现问题</th><th style="width:10%">违章类型</th><th style="width:35%">违章条例</th><th style="width:33%">整改要求</th></tr></thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+    </div>`;
+  document.getElementById('reportNo').textContent = `编号：${r.id}`;
+  showPage('page-report');
+}
+
+init();
+</script>
+</body>
+</html>
