@@ -229,6 +229,8 @@
   .archive-date{font-size:14px;font-weight:600;color:var(--text-1)}
   .archive-meta{font-size:12px;color:var(--gray-5);margin-top:2px}
   .archive-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;flex-shrink:0}
+  .archive-del{flex-shrink:0;border:none;background:var(--gray-1);color:var(--red);width:30px;height:30px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  .archive-del:active{background:var(--red);color:#fff}
   .ab-severe{background:#fee;color:var(--red)}
   .ab-general{background:#fff8e1;color:var(--orange)}
   .ab-clean{background:#e8f5e9;color:var(--sg-green)}
@@ -726,7 +728,10 @@ function qrGenSVG(text, size) {
       <div class="ai-card" id="aiAnalysisCard"></div>
     </div>
     <div style="padding:0 16px 8px">
-      <div style="font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:8px">📂 历次检查记录</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:14px;font-weight:700;color:var(--text-1)">📂 历次检查记录</div>
+        <button onclick="clearReports()" style="border:none;background:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px">🗑 清空</button>
+      </div>
     </div>
     <div class="archive-list" id="archiveList"></div>
   </div>
@@ -1603,7 +1608,11 @@ function goArchive() { renderArchive(); renderAIAnalysis(); showPage('page-archi
 function renderArchive() {
   const reports = getReports();
   const c = document.getElementById('archiveList');
-  if (!reports.length) { c.innerHTML = '<div style="text-align:center;color:var(--gray-4);padding:40px">暂无检查记录</div>'; return; }
+  if (!reports.length) {
+    c.innerHTML = `<div style="text-align:center;color:var(--gray-4);padding:40px 20px">暂无检查记录<br>
+      <button onclick="restoreSamples()" style="margin-top:14px;border:1px dashed var(--sg-green);background:#fff;color:var(--sg-green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:20px;cursor:pointer">📥 载入示例数据</button></div>`;
+    return;
+  }
   c.innerHTML = reports.map(r => {
     let badge = r.summary.severe > 0 ? `<span class="archive-badge ab-severe">严重${r.summary.severe}项</span>`
       : r.summary.general > 0 ? `<span class="archive-badge ab-general">一般${r.summary.general}项</span>`
@@ -1613,8 +1622,30 @@ function renderArchive() {
       <div class="archive-info">
         <div class="archive-date">${r.dateStr} · ${r.project||'未填写'}</div>
         <div class="archive-meta">隐患${r.summary.issues}项 · 合格${r.summary.ok}项 · 检查人${r.inspector||'未填写'}</div>
-      </div>${badge}</div>`;
+      </div>${badge}
+      <button class="archive-del" onclick="event.stopPropagation();deleteReport('${r.id}')">✕</button></div>`;
   }).join('');
+}
+
+function deleteReport(id) {
+  if (!confirm('删除这条检查记录？')) return;
+  const all = getReports().filter(r => r.id !== id);
+  localStorage.setItem('safety_reports', JSON.stringify(all));
+  renderArchive(); renderAIAnalysis();
+  showToast('已删除该记录');
+}
+
+function clearReports() {
+  if (!confirm('确定清空全部检查记录吗？AI分析数据也会同步清除。')) return;
+  localStorage.setItem('safety_reports', '[]');
+  renderArchive(); renderAIAnalysis();
+  showToast('已清空全部记录');
+}
+
+function restoreSamples() {
+  localStorage.setItem('safety_reports', JSON.stringify(sampleReports));
+  renderArchive(); renderAIAnalysis();
+  showToast('已载入示例数据');
 }
 
 function renderAIAnalysis() {
