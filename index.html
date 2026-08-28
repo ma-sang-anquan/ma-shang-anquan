@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v3.7</title>
+<title>基建安全智能检查系统 v3.8</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -1100,8 +1100,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v3.7说明是缓存旧版，强制刷新
-  if (!document.title.includes('v3.7')) { location.reload(true); }
+  // 版本检查：若标题不含v3.8说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.8')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1861,6 +1861,7 @@ function addManualIssue() {
     selected: true,
     isManual: true,
     manualText: text,
+    matchedRegId: bestMatchId,
     catName: refItem.catName,
     subName: refItem.subName,
     name: '【手动填写】' + text.substring(0, 20) + (text.length > 20 ? '...' : ''),
@@ -1931,6 +1932,11 @@ function confirmPhoto() {
           photo: uploadedPhoto || '',
           isManual: true
         };
+        // 同步匹配到的违章条例和整改要求，供整改单使用
+        if (d.matchedRegId && regulations[d.matchedRegId]) {
+          regulations[newItemId] = regulations[d.matchedRegId];
+          if (fixMap[d.matchedRegId]) fixMap[newItemId] = fixMap[d.matchedRegId];
+        }
         // 同时添加到 categories 中对应类别
         categories.forEach(c => {
           if (c.name === d.catName) {
@@ -2172,7 +2178,10 @@ function saveAndArchive() {
     project:(document.getElementById('inputProject')||{}).value||'',
     inspector:(document.getElementById('inputInspector')||{}).value||'',
     issues:issues.map(i=>i.id),
-    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note,photo:i.photo||''})),
+    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note,photo:i.photo||'',
+      regType:regulations[i.id]?regulations[i.id].type:'',
+      regText:regulations[i.id]?regulations[i.id].text:'',
+      fix:fixMap[i.id]||''})),
     summary:{total:allItems.length,ok:allItems.filter(i=>i.status==='ok').length,issues:issues.length,
       severe:issues.filter(i=>regulations[i.id]&&regulations[i.id].type==='严重违章').length,
       general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length},
@@ -2273,7 +2282,8 @@ function viewReport(id) {
   let tableRows = '';
   r.issueDetails.forEach(item => {
     issueIdx++;
-    const reg = regulations[item.id]; const fix = fixMap[item.id] || '限期整改至合格标准';
+    const reg = regulations[item.id] || (item.regText ? {type:item.regType,text:item.regText} : null);
+    const fix = fixMap[item.id] || item.fix || '限期整改至合格标准';
     const vType = reg ? reg.type : '一般违章'; const vText = reg ? reg.text : '请参照相关规程执行';
     const sevClass = vType === '严重违章' ? 'it-sev-high' : 'it-sev-mid';
     const photoHtml = item.photo ? `<div style="margin-top:6px"><img src="${item.photo}" style="max-width:100%;border-radius:6px;border:1px solid var(--gray-3)" onclick="openPhotoViewer('${item.photo}')"></div>` : '';
@@ -2284,6 +2294,9 @@ function viewReport(id) {
   let rectHtml = '';
   if (r.rectifications && Object.keys(r.rectifications).length > 0) {
     rectHtml = '<div class="report-sec"><div class="rs-label">整改反馈记录</div>';
+    if (r.rectifyUnit || r.rectifyPerson) {
+      rectHtml += `<div style="font-size:12px;color:var(--text-2);margin-bottom:10px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px">整改单位：<b>${r.rectifyUnit||'-'}</b>　整改人：<b>${r.rectifyPerson||'-'}</b></div>`;
+    }
     Object.entries(r.rectifications).forEach(([issueId, rect]) => {
       const item = r.issueDetails.find(x => x.id === issueId);
       if (item) {
@@ -2341,8 +2354,8 @@ function openRectifyModal(reportId) {
   // 渲染整改反馈单页面
   let itemsHtml = '';
   pendingIssues.forEach((item, idx) => {
-    const reg = regulations[item.id];
-    const fix = fixMap[item.id] || '限期整改至合格标准';
+    const reg = regulations[item.id] || (item.regText ? {type:item.regType,text:item.regText} : null);
+    const fix = fixMap[item.id] || item.fix || '限期整改至合格标准';
     itemsHtml += `
       <div class="rectify-item-card" data-issue-id="${item.id}" style="border:1px solid var(--gray-3);border-radius:10px;padding:14px;margin-bottom:12px;background:#fff">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
@@ -2351,6 +2364,10 @@ function openRectifyModal(reportId) {
         </div>
         <div style="font-size:12px;color:var(--gray-4);margin-bottom:8px;padding-left:34px">${item.note||''}</div>
         ${item.photo ? `<div style="margin-bottom:10px;padding-left:34px"><div style="font-size:11px;color:var(--gray-4);margin-bottom:4px">📷 检查时照片：</div><img src="${item.photo}" style="max-width:120px;border-radius:6px;border:1px solid var(--gray-3)"></div>` : ''}
+        ${reg ? `<div style="background:#FFF4E5;border-left:3px solid var(--orange);border-radius:6px;padding:10px;margin-bottom:10px;font-size:12px">
+          <div style="font-weight:600;color:var(--orange);margin-bottom:4px">📋 违章条例（${reg.type}）：</div>
+          <div style="color:var(--text-2);line-height:1.6">${reg.text}</div>
+        </div>` : ''}
         <div style="background:var(--gray-1);border-radius:6px;padding:10px;margin-bottom:10px;font-size:12px">
           <div style="font-weight:600;color:var(--sg-green);margin-bottom:4px">整改要求：</div>
           <div style="color:var(--text-2)">${fix}</div>
@@ -2373,16 +2390,18 @@ function openRectifyModal(reportId) {
     <div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--gray-3)">
       <div style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--orange)">隐患整改反馈单</div>
       <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600;width:25%">工程名称</td><td style="border:1px solid var(--gray-3);padding:6px 8px">${r.project||''}</td></tr>
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600;width:25%">工程名称</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyProject" placeholder="请输入工程名称" value="${r.project||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
         <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">检查时间</td><td style="border:1px solid var(--gray-3);padding:6px 8px">${r.dateStr}</td></tr>
         <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改期限</td><td style="border:1px solid var(--gray-3);padding:6px 8px">3日内完成</td></tr>
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改单位</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyUnit" placeholder="请输入整改单位" value="${r.rectifyUnit||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改人</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyPerson" placeholder="请输入整改人姓名" value="${r.rectifyPerson||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
       </table>
       <div style="font-size:12px;color:var(--gray-4)">共 ${pendingIssues.length} 项隐患待整改，请逐项上传整改后照片并填写说明</div>
     </div>
     ${itemsHtml}
-    <div style="position:sticky;bottom:0;background:#fff;padding:12px 16px;border-top:1px solid var(--gray-3);margin:0 -16px -16px">
-      <button class="confirm-btn" onclick="submitRectifications('${reportId}')" style="width:100%;background:var(--orange);border-color:var(--orange);font-size:16px;padding:14px">✓ 完成整改并保存</button>
-      <div style="font-size:11px;color:var(--gray-4);text-align:center;margin-top:6px">提交后检查人员可在归档中查看整改记录</div>
+    <div style="background:#fff;padding:16px;border-top:1px solid var(--gray-3)">
+      <button class="confirm-btn" onclick="submitRectifications('${reportId}')" style="width:100%;background:var(--orange);border-color:var(--orange);font-size:16px;padding:14px">✓ 完成整改并提交</button>
+      <div style="font-size:11px;color:var(--gray-4);text-align:center;margin-top:6px">提交后可在归档记录中随时查看整改结果</div>
     </div>`;
   
   showPage('page-rectify');
@@ -2410,7 +2429,15 @@ function submitRectifications(reportId) {
   const reports = getReports();
   const r = reports.find(x => x.id === reportId);
   if (!r) return;
-  
+
+  // 保存表头信息：工程名称（可补填）、整改单位、整改人
+  const projInput = document.getElementById('rectifyProject');
+  const unitInput = document.getElementById('rectifyUnit');
+  const personInput = document.getElementById('rectifyPerson');
+  if (projInput && projInput.value.trim()) r.project = projInput.value.trim();
+  r.rectifyUnit = unitInput ? unitInput.value.trim() : '';
+  r.rectifyPerson = personInput ? personInput.value.trim() : '';
+
   if (!r.rectifications) r.rectifications = {};
   const now = new Date();
   const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -2433,7 +2460,7 @@ function submitRectifications(reportId) {
   if (submitted === 0) { showToast('请至少上传一项整改照片'); return; }
   
   localStorage.setItem('safety_reports', JSON.stringify(reports));
-  showToast(`已提交 ${submitted} 项整改反馈`);
+  showToast(`已提交 ${submitted} 项整改反馈，可在归档中查看`);
   viewReport(reportId);
 }
 
