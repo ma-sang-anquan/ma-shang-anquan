@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v2.2</title>
+<title>基建安全智能检查系统 v2.3</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -953,6 +953,10 @@ const fixMap = {
 };
 
 // ===================== Init =====================
+// 旧二维码地址纠错：ma-shang-anqun 是建仓库时少打的 a，自动跳到正确地址
+if (location.pathname.indexOf('/ma-shang-anqun') === 0) {
+  location.replace(location.href.replace('/ma-shang-anqun', '/ma-shang-anquan'));
+}
 function init() {
   const now = new Date();
   const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
@@ -972,8 +976,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v2.2说明是缓存旧版，强制刷新
-  if (!document.title.includes('v2.2')) { location.reload(true); }
+  // 版本检查：若标题不含v2.3说明是缓存旧版，强制刷新
+  if (!document.title.includes('v2.3')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1345,17 +1349,18 @@ function processVoice(text) {
       const r = rule.extract(text);
       if (r) {
         const item = flatItems[rule.id];
-        results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon });
+        results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
       }
     }
   });
   const parseList = document.getElementById('parseList');
   if (results.length) {
-    parseList.innerHTML = results.map(r => `
-      <div class="parse-item">
+    parseList.innerHTML = '<div style="font-size:11px;color:var(--gray-4);padding:0 0 6px 2px">👇 点选要录入的项目，无关项点掉即可</div>' + results.map((r, idx) => `
+      <div class="parse-item voice-pick selected" data-idx="${idx}" onclick="toggleVoicePick(${idx})" style="cursor:pointer;border-radius:8px;padding:8px;margin:0 -8px">
         <span class="pi-icon">${r.icon}</span>
         <span class="pi-text">${r.name}<span class="pi-cat">${r.catName} / ${r.subName}</span></span>
         <span class="pi-badge ${r.status==='ok'?'ok':'issue'}">${r.status==='ok'?'正常':'隐患'}</span>
+        <span class="vp-check" style="margin-left:6px;font-size:16px">✅</span>
       </div>
       ${r.status === 'issue' && regulations[r.id] ? `
       <div style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 12px 8px 32px;background:var(--sg-green-light);border-radius:8px;margin:2px 0 6px 16px;border-left:3px solid var(--sg-green)">
@@ -1368,19 +1373,35 @@ function processVoice(text) {
   }
   document.getElementById('voiceResult').classList.add('active');
   document.getElementById('voiceConfirmBtn').classList.add('active');
-  document.getElementById('voiceHint').textContent = 'AI解析完成，请确认后填写到检查表';
+  document.getElementById('voiceHint').textContent = 'AI解析完成，点选确认后填写到检查表';
   window._voiceResults = results;
 }
 
+function toggleVoicePick(idx) {
+  const r = window._voiceResults[idx];
+  r.selected = !r.selected;
+  const el = document.querySelector('.voice-pick[data-idx="' + idx + '"]');
+  if (el) {
+    el.classList.toggle('selected', r.selected);
+    el.style.opacity = r.selected ? '1' : '0.4';
+    el.querySelector('.vp-check').textContent = r.selected ? '✅' : '⬜';
+  }
+  const n = window._voiceResults.filter(x => x.selected).length;
+  document.getElementById('voiceConfirmBtn').textContent = '✓ 确认填写选中的 ' + n + ' 项';
+}
+
 function confirmVoice() {
-  if (window._voiceResults) {
-    window._voiceResults.forEach(r => {
+  const picked = (window._voiceResults || []).filter(r => r.selected);
+  if (picked.length) {
+    picked.forEach(r => {
       const item = flatItems[r.id];
       item.status = r.status; item.note = r.note || '';
       categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === r.id) { i.status = r.status; i.note = r.note || ''; } })));
     });
     if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
-    showToast('已自动填写 ' + window._voiceResults.length + ' 项检查记录');
+    showToast('已自动填写 ' + picked.length + ' 项检查记录');
+  } else {
+    showToast('未选择任何项目');
   }
   closeVoiceModal();
 }

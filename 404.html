@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>正在跳转...</title>
+<script>
+// 旧二维码地址纠错：ma-shang-anqun（少个a）→ ma-shang-anquan
+var url = location.href;
+if (url.indexOf('/ma-shang-anqun') > -1) {
+  location.replace(url.replace('/ma-shang-anqun', '/ma-shang-anquan'));
+} else {
+  location.replace('/ma-shang-anqun/');
+}
+</script>
+</head>
+<body style="font-family:sans-serif;text-align:center;padding-top:40vh;color:#666">
+正在进入检查系统…
+</body>
+</html>
