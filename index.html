@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v3.0</title>
+<title>基建安全智能检查系统 v3.3</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -781,7 +781,7 @@ function qrGenSVG(text, size) {
           <div class="pa-text">点击拍照或上传照片</div>
           <div class="pa-sub">支持基坑、用电设备、高空作业等场景识别</div>
         </div>
-        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
+        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
         <div class="photo-preview" id="photoPreview"><img id="photoImg" src=""></div>
         <div class="ai-analyzing" id="aiAnalyzing">
           <div class="ai-spinner"></div>
@@ -1035,8 +1035,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v3.0说明是缓存旧版，强制刷新
-  if (!document.title.includes('v3.0')) { location.reload(true); }
+  // 版本检查：若标题不含v3.3说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.3')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1441,10 +1441,10 @@ function processVoice(text) {
   window._voiceVersion = 'v2.4-strict';
   console.log('语音解析版本:', window._voiceVersion);
   
-  // 如果严格匹配没结果，再宽松匹配（但限制最多2条）
+  // 如果严格匹配没结果，再宽松匹配（出2-3条）
   if (results.length === 0) {
     for (const vr of voiceRules) {
-      if (results.length >= 2) break;
+      if (results.length >= 3) break;
       if (vr.keys.some(k => text.includes(k)) && !matchedIds.has(vr.id)) {
         const r = vr.extract(text);
         if (r) {
@@ -1545,12 +1545,10 @@ function startAIAnalysis() {
 }
 
 const photoScenes = [
-  { id:'high', name:'高处作业/脚手架', icon:'🪜', catIds:[1,7], items:['1-1','7-1','7-2','7-3','7-4'] },
+  { id:'high', name:'高处作业/脚手架', icon:'🪜', catIds:[1,7], items:['1-1','1-2','7-1','7-2','7-3','7-4','7-5','7-6','7-7','7-8','7-9'] },
   { id:'electric', name:'临时用电/电缆', icon:'⚡', catIds:[2], items:['2-1','2-2','2-3','2-4','2-5','2-6','2-7','2-8'] },
-  { id:'fire', name:'动火/消防', icon:'🔥', catIds:[4,8], items:['4-1','4-2','4-3','4-4','4-5','4-6','8-1','8-2'] },
-  { id:'crane', name:'起重机械/吊装', icon:'🏗️', catIds:[6], items:['6-1','6-2','6-3','6-4','6-5','6-6','6-7','6-8'] },
-  { id:'deep', name:'深基坑/地下', icon:'🏗️', catIds:[3], items:['3-1','3-2','3-3','3-4'] },
-  { id:'manage', name:'管理/资料', icon:'📋', catIds:[5], items:['5-1','5-2','5-3','5-4','5-5','5-6'] },
+  { id:'fire', name:'动火/消防/基坑', icon:'🔥', catIds:[3,4,8], items:['3-1','3-2','3-3','3-4','4-1','4-2','4-3','4-4','4-5','4-6','8-1','8-2','8-3'] },
+  { id:'manage', name:'管理/资料/吊装', icon:'📋', catIds:[5,6], items:['5-1','5-2','5-3','5-4','5-5','5-6','6-1','6-2','6-3','6-4','6-5','6-6','6-7','6-8'] },
 ];
 
 function showPhotoResult() {
@@ -1584,9 +1582,9 @@ function selectPhotoScene(sceneId) {
   event.currentTarget.style.borderColor = 'var(--sg-green)';
   event.currentTarget.style.background = 'var(--sg-green-light)';
   
-  // 从该场景类别中随机出1-2条隐患
+  // 从该场景类别中随机出2-3条隐患
   const shuffled = [...scene.items].sort(() => Math.random() - 0.5);
-  const count = Math.min(shuffled.length, Math.random() > 0.5 ? 2 : 1);
+  const count = Math.min(shuffled.length, Math.random() > 0.5 ? 3 : 2);
   const pickedIds = shuffled.slice(0, count);
   
   const results = pickedIds.map(id => {
@@ -1819,23 +1817,44 @@ document.getElementById('voiceOverlay').addEventListener('click', e => { if (e.t
 document.getElementById('photoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePhotoModal(); });
 
 // ===================== 归档与AI智能分析 =====================
-const sampleReports = [
-  {id:'RPT-20260810-001',date:'2026-08-10',dateStr:'08月10日',project:'张家口110kV输变电工程',inspector:'',
-   issues:['1-1','2-7','5-3'],issueDetails:[{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'2名工人高处作业未系安全带'},{id:'2-7',name:'是否存在私拉乱接现象',note:'3号配电室有私接电源线'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底记录无签字'}],
-   summary:{total:28,ok:25,issues:3,severe:1,general:2}},
-  {id:'RPT-20260815-002',date:'2026-08-15',dateStr:'08月15日',project:'张家口110kV输变电工程',inspector:'',
-   issues:['2-1','2-3','4-3','1-1'],issueDetails:[{id:'2-1',name:'是否按"三级配电两级保护"设置',note:'未落实三级配电'},{id:'2-3',name:'漏电保护器是否有效动作',note:'2个漏保失效'},{id:'4-3',name:'动火作业是否办理审批手续',note:'无动火工作票'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'安全带低挂高用'}],
-   summary:{total:28,ok:24,issues:4,severe:3,general:1}},
-  {id:'RPT-20260820-003',date:'2026-08-20',dateStr:'08月20日',project:'张家口110kV输变电工程',inspector:'',
-   issues:['2-7','3-1','5-3','1-1','4-5'],issueDetails:[{id:'2-7',name:'是否存在私拉乱接现象',note:'开关箱直接接引'},{id:'3-1',name:'支护结构有无变形、裂缝',note:'北侧支护轻微变形'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底内容泛泛'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'1人未戴安全带'},{id:'4-5',name:'灭火器材是否配备到位',note:'动火区缺2具灭火器'}],
-   summary:{total:28,ok:23,issues:5,severe:2,general:3}}
-];
+function genSampleReports() {
+  const now = new Date();
+  const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${ts}`;
+  return [
+    {id:`RPT-${ds.replace(/-/g,'')}-001`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
+     issues:['1-1','2-7','5-3'],issueDetails:[{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'2名工人高处作业未系安全带'},{id:'2-7',name:'是否存在私拉乱接现象',note:'3号配电室有私接电源线'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底记录无签字'}],
+     summary:{total:28,ok:25,issues:3,severe:1,general:2},rectifications:{}},
+    {id:`RPT-${ds.replace(/-/g,'')}-002`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
+     issues:['2-1','2-3','4-3','1-1'],issueDetails:[{id:'2-1',name:'是否按"三级配电两级保护"设置',note:'未落实三级配电'},{id:'2-3',name:'漏电保护器是否有效动作',note:'2个漏保失效'},{id:'4-3',name:'动火作业是否办理审批手续',note:'无动火工作票'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'安全带低挂高用'}],
+     summary:{total:28,ok:24,issues:4,severe:3,general:1},rectifications:{}},
+    {id:`RPT-${ds.replace(/-/g,'')}-003`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
+     issues:['2-7','3-1','5-3','1-1','4-5'],issueDetails:[{id:'2-7',name:'是否存在私拉乱接现象',note:'开关箱直接接引'},{id:'3-1',name:'支护结构有无变形、裂缝',note:'北侧支护轻微变形'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底内容泛泛'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'1人未戴安全带'},{id:'4-5',name:'灭火器材是否配备到位',note:'动火区缺2具灭火器'}],
+     summary:{total:28,ok:23,issues:5,severe:2,general:3},rectifications:{}}
+  ];
+}
 
 function getReports() {
   const s = localStorage.getItem('safety_reports');
-  if (s) return JSON.parse(s);
-  localStorage.setItem('safety_reports', JSON.stringify(sampleReports));
-  return sampleReports;
+  if (s) {
+    const reports = JSON.parse(s);
+    // 示例数据时间动态更新为当前时间
+    const now = new Date();
+    const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${ts}`;
+    reports.forEach(r => {
+      if (r.id.includes('RPT-') && r.id.length <= 15) { // 只更新示例数据（ID较短）
+        r.date = ds;
+        r.dateStr = dateStr;
+      }
+    });
+    return reports;
+  }
+  const fresh = genSampleReports();
+  localStorage.setItem('safety_reports', JSON.stringify(fresh));
+  return fresh;
 }
 function saveReport(r) { const all = getReports(); all.unshift(r); localStorage.setItem('safety_reports', JSON.stringify(all)); }
 
@@ -1844,16 +1863,18 @@ function saveAndArchive() {
   const issues = allItems.filter(i => i.status === 'issue');
   const now = new Date();
   const ds2 = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const report = {
     id:`RPT-${ds2.replace(/-/g,'')}-${String(Date.now()).slice(-3)}`,
-    date:ds2, dateStr:`${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日`,
+    date:ds2, dateStr:`${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${timeStr}`,
     project:(document.getElementById('inputProject')||{}).value||'',
     inspector:(document.getElementById('inputInspector')||{}).value||'',
     issues:issues.map(i=>i.id),
-    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note})),
+    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note,photo:i.photo||''})),
     summary:{total:allItems.length,ok:allItems.filter(i=>i.status==='ok').length,issues:issues.length,
       severe:issues.filter(i=>regulations[i.id]&&regulations[i.id].type==='严重违章').length,
-      general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length}
+      general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length},
+    rectifications:{}
   };
   saveReport(report);
   showToast('已归档保存');
@@ -1950,8 +1971,32 @@ function viewReport(id) {
     const reg = regulations[item.id]; const fix = fixMap[item.id] || '限期整改至合格标准';
     const vType = reg ? reg.type : '一般违章'; const vText = reg ? reg.text : '请参照相关规程执行';
     const sevClass = vType === '严重违章' ? 'it-sev-high' : 'it-sev-mid';
-    tableRows += `<tr><td style="text-align:center">${issueIdx}</td><td>${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span></td><td style="text-align:center"><span class="${sevClass}" style="font-weight:600">${vType}</span></td><td style="font-size:11px;line-height:1.6">${vText}</td><td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td></tr>`;
+    const photoHtml = item.photo ? `<div style="margin-top:6px"><img src="${item.photo}" style="max-width:100%;border-radius:6px;border:1px solid var(--gray-3)" onclick="openPhotoViewer('${item.photo}')"></div>` : '';
+    tableRows += `<tr><td style="text-align:center">${issueIdx}</td><td>${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span>${photoHtml}</td><td style="text-align:center"><span class="${sevClass}" style="font-weight:600">${vType}</span></td><td style="font-size:11px;line-height:1.6">${vText}</td><td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td></tr>`;
   });
+  
+  // 整改反馈区域
+  let rectHtml = '';
+  if (r.rectifications && Object.keys(r.rectifications).length > 0) {
+    rectHtml = '<div class="report-sec"><div class="rs-label">整改反馈记录</div>';
+    Object.entries(r.rectifications).forEach(([issueId, rect]) => {
+      const item = r.issueDetails.find(x => x.id === issueId);
+      if (item) {
+        rectHtml += `<div style="border:1px solid var(--gray-3);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--gray-1)">
+          <div style="font-weight:600;font-size:13px;margin-bottom:6px">✅ ${item.name}</div>
+          <div style="font-size:12px;color:var(--text-2);margin-bottom:6px">${rect.note||'已整改完成'}</div>
+          ${rect.photo ? `<img src="${rect.photo}" style="max-width:100%;border-radius:6px;border:1px solid var(--gray-3)" onclick="openPhotoViewer('${rect.photo}')">` : ''}
+          <div style="font-size:11px;color:var(--gray-4);margin-top:6px">整改时间：${rect.time||''}</div>
+        </div>`;
+      }
+    });
+    rectHtml += '</div>';
+  }
+  
+  // 添加整改按钮（施工人员入口）
+  const canRectify = r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
+  const rectifyBtn = canRectify ? `<button class="confirm-btn" onclick="openRectifyModal('${r.id}')" style="margin-top:14px;background:var(--orange);border-color:var(--orange)">🔧 施工人员整改反馈</button>` : '<div style="text-align:center;color:var(--sg-green);font-weight:600;padding:14px;background:var(--sg-green-light);border-radius:8px;margin-top:14px">✓ 全部隐患已整改闭环</div>';
+  
   document.getElementById('reportBody').innerHTML = `
     <div class="report-sec">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -1973,9 +2018,66 @@ function viewReport(id) {
         <thead><tr><th style="width:4%">序号</th><th style="width:18%">发现问题</th><th style="width:10%">违章类型</th><th style="width:35%">违章条例</th><th style="width:33%">整改要求</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
-    </div>`;
+    </div>
+    ${rectHtml}
+    <div style="padding:0 16px 16px">${rectifyBtn}</div>`;
   document.getElementById('reportNo').textContent = `编号：${r.id}`;
   showPage('page-report');
+}
+
+function openRectifyModal(reportId) {
+  const reports = getReports();
+  const r = reports.find(x => x.id === reportId);
+  if (!r) return;
+  
+  const pendingIssues = r.issueDetails.filter(item => !r.rectifications || !r.rectifications[item.id]);
+  if (!pendingIssues.length) { showToast('全部隐患已整改'); return; }
+  
+  let optionsHtml = '';
+  pendingIssues.forEach(item => {
+    optionsHtml += `<div class="rectify-item" onclick="selectRectifyItem('${reportId}','${item.id}')" style="border:1px solid var(--gray-3);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer">
+      <div style="font-weight:600;font-size:13px">${item.name}</div>
+      <div style="font-size:12px;color:var(--gray-4)">${item.note||''}</div>
+    </div>`;
+  });
+  
+  showToast('请选择要整改的隐患');
+  // 简化：直接选择第一个未整改项
+  selectRectifyItem(reportId, pendingIssues[0].id);
+}
+
+function selectRectifyItem(reportId, issueId) {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*';
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      saveRectification(reportId, issueId, ev.target.result);
+    };
+    reader.readAsDataURL(file);
+  };
+  input.click();
+}
+
+function saveRectification(reportId, issueId, photoData) {
+  const reports = getReports();
+  const r = reports.find(x => x.id === reportId);
+  if (!r) return;
+  
+  if (!r.rectifications) r.rectifications = {};
+  const now = new Date();
+  r.rectifications[issueId] = {
+    photo: photoData,
+    time: `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
+    note: '整改完成，已拍照留存'
+  };
+  
+  localStorage.setItem('safety_reports', JSON.stringify(reports));
+  showToast('整改反馈已提交');
+  viewReport(reportId); // 刷新页面
 }
 
 init();
