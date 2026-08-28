@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v3.8</title>
+<title>基建安全智能检查系统 v3.9</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -1100,8 +1100,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v3.8说明是缓存旧版，强制刷新
-  if (!document.title.includes('v3.8')) { location.reload(true); }
+  // 版本检查：若标题不含v3.9说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.9')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -2313,7 +2313,7 @@ function viewReport(id) {
   
   // 添加整改按钮（施工人员入口）
   const canRectify = r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
-  const rectifyBtn = canRectify ? `<button class="confirm-btn" onclick="openRectifyModal('${r.id}')" style="margin-top:14px;background:var(--orange);border-color:var(--orange)">🔧 施工人员整改反馈</button>` : '<div style="text-align:center;color:var(--sg-green);font-weight:600;padding:14px;background:var(--sg-green-light);border-radius:8px;margin-top:14px">✓ 全部隐患已整改闭环</div>';
+  const rectifyBtn = canRectify ? `<button class="confirm-btn active" onclick="openRectifyModal('${r.id}')" style="display:block !important;width:100%;margin-top:14px;background:var(--orange);border:none;color:#fff;font-size:15px;font-weight:600;padding:14px;border-radius:10px;cursor:pointer">🔧 施工人员整改反馈</button>` : '<div style="text-align:center;color:var(--sg-green);font-weight:600;padding:14px;background:var(--sg-green-light);border-radius:8px;margin-top:14px">✓ 全部隐患已整改闭环</div>';
   
   document.getElementById('reportBody').innerHTML = `
     <div class="report-sec">
@@ -2400,7 +2400,7 @@ function openRectifyModal(reportId) {
     </div>
     ${itemsHtml}
     <div style="background:#fff;padding:16px;border-top:1px solid var(--gray-3)">
-      <button class="confirm-btn" onclick="submitRectifications('${reportId}')" style="width:100%;background:var(--orange);border-color:var(--orange);font-size:16px;padding:14px">✓ 完成整改并提交</button>
+      <button class="confirm-btn active" onclick="submitRectifications('${reportId}')" style="display:block !important;width:100%;background:var(--orange);border:none;color:#fff;font-size:16px;font-weight:600;padding:14px;border-radius:10px;cursor:pointer">✓ 完成整改并提交</button>
       <div style="font-size:11px;color:var(--gray-4);text-align:center;margin-top:6px">提交后可在归档记录中随时查看整改结果</div>
     </div>`;
   
