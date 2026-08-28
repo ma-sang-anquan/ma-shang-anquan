@@ -26,7 +26,8 @@
   #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
   @media(min-width:500px){body{background:#1a1a2e;padding:20px 0}#app{min-height:880px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}}
   .page{display:none;height:100vh;height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeIn .3s ease}
-  .page.active{display:block}
+  .page.active{display:block !important}
+  #page-scan.page.active{display:flex !important}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
   /* ===== Scan Page ===== */
