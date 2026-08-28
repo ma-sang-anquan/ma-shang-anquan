@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v4.0</title>
+<title>基建安全智能检查系统 v4.1</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -1100,8 +1100,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v4.0说明是缓存旧版，强制刷新
-  if (!document.title.includes('v4.0')) { location.reload(true); }
+  // 版本检查：若标题不含v4.1说明是缓存旧版，强制刷新
+  if (!document.title.includes('v4.1')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1273,13 +1273,14 @@ function closeVoiceModal() {
 function resetVoiceUI() {
   if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
   isRecording = false; simRecording = false;
+  if (iatRecording) stopIatRecording();
   const b = document.getElementById('micBtn');
   b.classList.remove('recording'); b.textContent = '🎙️';
   document.getElementById('voiceHint').textContent = '按住麦克风说话，松手自动识别';
 }
 function micPressStart(e) {
   if (e) e.preventDefault();
-  if (isRecording || simRecording) return;
+  if (isRecording || simRecording || iatRecording) return;
   const b = document.getElementById('micBtn');
   b.classList.add('recording'); b.textContent = '🎤';
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1300,6 +1301,13 @@ function micPressStart(e) {
       isRecording = true;
       document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
     } catch(err) { fallbackToSim(); }
+  } else if (xfyunConfigured() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    startIatRecording().then(() => {
+      document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
+    }).catch(() => {
+      b.classList.remove('recording'); b.textContent = '🎙️';
+      document.getElementById('voiceHint').textContent = '无法打开麦克风，请允许授权后重试';
+    });
   } else {
     fallbackToSim();
   }
@@ -1318,6 +1326,13 @@ function micPressEnd(e) {
     b.classList.remove('recording'); b.textContent = '🎙️';
     document.getElementById('voiceHint').textContent = '识别中…';
     try { recognition.stop(); } catch(err) { finishRecording(voiceTranscript); }
+    return;
+  }
+  if (iatRecording) {
+    b.classList.remove('recording'); b.textContent = '🎙️';
+    document.getElementById('voiceHint').textContent = '录音完成，正在识别…';
+    stopIatRecording();
+    runIatRecognition();
     return;
   }
   if (simRecording) {
@@ -1347,9 +1362,172 @@ function finishRecording(text) {
   b.addEventListener('touchcancel', micPressEnd, {passive:false});
   b.addEventListener('mousedown', micPressStart);
   b.addEventListener('mouseup', micPressEnd);
-  b.addEventListener('mouseleave', () => { if (isRecording || simRecording) micPressEnd(); });
+  b.addEventListener('mouseleave', () => { if (isRecording || simRecording || iatRecording) micPressEnd(); });
   b.addEventListener('contextmenu', e => e.preventDefault());
 })();
+
+// ===================== 讯飞语音听写（iOS微信真识别） =====================
+// ↓↓↓ 在讯飞开放平台 xfyun.cn 创建应用后填入三个密钥 ↓↓↓
+const XFYUN = { APPID: '66489045', APIKey: 'a9918dce4a02c44f0c184fbeddc668a', APISecret: 'YWEyYzgwMGZhNGIwZjJiMTIkYzM3YzU0' };
+function xfyunConfigured() { return !!(XFYUN.APPID && XFYUN.APIKey && XFYUN.APISecret); }
+
+// --- 紧凑版 SHA-256（签名用） ---
+function sha256(ascii) {
+  function rr(v, a) { return (v >>> a) | (v << (32 - a)); }
+  var mp = Math.pow, mw = mp(2, 32), result = '';
+  var words = [], bitLen = ascii.length * 8;
+  var hash = sha256.h = sha256.h || [], k = sha256.k = sha256.k || [];
+  var pc = k.length, isComp = {};
+  for (var cand = 2; pc < 64; cand++) {
+    if (!isComp[cand]) {
+      for (var i = 0; i < 313; i += cand) isComp[i] = cand;
+      hash[pc] = (mp(cand, .5) * mw) | 0;
+      k[pc++] = (mp(cand, 1 / 3) * mw) | 0;
+    }
+  }
+  ascii += '\x80';
+  while (ascii.length % 64 - 56) ascii += '\x00';
+  for (var i = 0; i < ascii.length; i++) {
+    var j = ascii.charCodeAt(i);
+    if (j >> 8) return;
+    words[i >> 2] |= j << ((3 - i) % 4) * 8;
+  }
+  words[words.length] = (bitLen / mw) | 0;
+  words[words.length] = bitLen;
+  for (var j = 0; j < words.length;) {
+    var w = words.slice(j, j += 16), oldHash = hash;
+    hash = hash.slice(0, 8);
+    for (var i = 0; i < 64; i++) {
+      var w15 = w[i - 15], w2 = w[i - 2];
+      var a = hash[0], e = hash[4];
+      var t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ ((~e) & hash[6])) + k[i]
+        + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
+      var t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(t1 + t2) | 0].concat(hash);
+      hash[4] = (hash[4] + t1) | 0;
+    }
+    for (var i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
+  }
+  for (var i = 0; i < 8; i++) {
+    for (var j = 3; j + 1; j--) {
+      var b = (hash[i] >> (j * 8)) & 255;
+      result += ((b < 16) ? 0 : '') + b.toString(16);
+    }
+  }
+  return result;
+}
+function hexToLatin(hex) { var s = ''; for (var i = 0; i < hex.length; i += 2) s += String.fromCharCode(parseInt(hex.substr(i, 2), 16)); return s; }
+function hmacSha256Base64(key, msg) {
+  var k = key;
+  if (k.length > 64) k = hexToLatin(sha256(k));
+  k = k + '\x00'.repeat(64 - k.length);
+  var ipad = '', opad = '';
+  for (var i = 0; i < 64; i++) { var c = k.charCodeAt(i); ipad += String.fromCharCode(c ^ 0x36); opad += String.fromCharCode(c ^ 0x5c); }
+  return btoa(hexToLatin(sha256(opad + hexToLatin(sha256(ipad + msg)))));
+}
+function arrayBufferToBase64(buf) {
+  var bin = '', bytes = new Uint8Array(buf), chunk = 0x8000;
+  for (var i = 0; i < bytes.length; i += chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+  return btoa(bin);
+}
+function getIatUrl() {
+  var host = 'iat-api.xfyun.cn';
+  var date = new Date().toUTCString();
+  var sigOrigin = 'host: ' + host + '\ndate: ' + date + '\nGET /v2/iat HTTP/1.1';
+  var sig = hmacSha256Base64(XFYUN.APISecret, sigOrigin);
+  var authOrigin = 'api_key="' + XFYUN.APIKey + '", algorithm="hmac-sha256", headers="host date request-line", signature="' + sig + '"';
+  return 'wss://' + host + '/v2/iat?authorization=' + encodeURIComponent(btoa(authOrigin)) + '&date=' + encodeURIComponent(date) + '&host=' + host;
+}
+
+// --- 录音采集（PCM 16k 16bit mono） ---
+var iatRecording = false, iatStream = null, iatCtx = null, iatProcessor = null, iatSource = null, iatPcm = [];
+function resampleTo16k(input, fromRate) {
+  if (fromRate === 16000) return input;
+  var ratio = fromRate / 16000, newLen = Math.round(input.length / ratio), out = new Float32Array(newLen);
+  for (var i = 0; i < newLen; i++) {
+    var pos = i * ratio, idx = Math.floor(pos), frac = pos - idx;
+    var s0 = input[idx] || 0, s1 = input[idx + 1] !== undefined ? input[idx + 1] : s0;
+    out[i] = s0 + (s1 - s0) * frac;
+  }
+  return out;
+}
+function floatTo16BitPCM(input) {
+  var out = new Int16Array(input.length);
+  for (var i = 0; i < input.length; i++) { var s = Math.max(-1, Math.min(1, input[i])); out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF; }
+  return out.buffer;
+}
+function startIatRecording() {
+  iatPcm = [];
+  return navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(function (stream) {
+    iatStream = stream;
+    iatCtx = new (window.AudioContext || window.webkitAudioContext)();
+    iatSource = iatCtx.createMediaStreamSource(stream);
+    iatProcessor = iatCtx.createScriptProcessor(4096, 1, 1);
+    iatProcessor.onaudioprocess = function (e) {
+      if (!iatRecording) return;
+      var input = e.inputBuffer.getChannelData(0);
+      iatPcm.push(floatTo16BitPCM(resampleTo16k(input, iatCtx.sampleRate)));
+    };
+    iatSource.connect(iatProcessor);
+    iatProcessor.connect(iatCtx.destination);
+    iatRecording = true;
+  });
+}
+function stopIatRecording() {
+  iatRecording = false;
+  if (iatProcessor) { try { iatProcessor.disconnect(); } catch (e) {} iatProcessor = null; }
+  if (iatSource) { try { iatSource.disconnect(); } catch (e) {} iatSource = null; }
+  if (iatStream) { iatStream.getTracks().forEach(function (t) { t.stop(); }); iatStream = null; }
+  if (iatCtx) { iatCtx.close().catch(function () {}); iatCtx = null; }
+}
+
+// --- WebSocket 发送识别 ---
+function runIatRecognition() {
+  var total = 0; iatPcm.forEach(function (b) { total += b.byteLength; });
+  if (total === 0) { document.getElementById('voiceHint').textContent = '没录到声音，按住再试一次'; return; }
+  var merged = new Uint8Array(total), off = 0;
+  iatPcm.forEach(function (b) { merged.set(new Uint8Array(b), off); off += b.byteLength; });
+  document.getElementById('voiceHint').textContent = '识别中…';
+  var ws, offset = 0, endSent = false, iatTexts = {}, finalText = '';
+  try { ws = new WebSocket(getIatUrl()); } catch (e) { document.getElementById('voiceHint').textContent = '识别服务连接失败'; return; }
+  ws.onopen = function () {
+    var first = true;
+    var timer = setInterval(function () {
+      if (ws.readyState !== 1) { clearInterval(timer); return; }
+      if (offset >= merged.length) {
+        if (!endSent) { ws.send(JSON.stringify({ data: { status: 2, format: 'audio/L16;rate=16000', encoding: 'raw', audio: '' } })); endSent = true; }
+        clearInterval(timer); return;
+      }
+      var chunk = merged.subarray(offset, Math.min(offset + 10240, merged.length));
+      offset += chunk.length;
+      var payload = { data: { status: first ? 0 : 1, format: 'audio/L16;rate=16000', encoding: 'raw', audio: arrayBufferToBase64(chunk.buffer) } };
+      if (first) {
+        payload.common = { app_id: XFYUN.APPID };
+        payload.business = { language: 'zh_cn', domain: 'iat', accent: 'mandarin', vad_eos: 3000, ptt: 1 };
+        first = false;
+      }
+      ws.send(JSON.stringify(payload));
+    }, 40);
+  };
+  ws.onmessage = function (e) {
+    var d = JSON.parse(e.data);
+    if (d.code !== 0) { try { ws.close(); } catch (x) {} document.getElementById('voiceHint').textContent = '识别失败：' + d.message + '（code ' + d.code + '）'; return; }
+    var res = d.data && d.data.result;
+    if (res && res.ws) {
+      var str = '';
+      res.ws.forEach(function (w) { w.cw.forEach(function (c) { str += c.w; }); });
+      iatTexts[res.sn] = str;
+      finalText = Object.keys(iatTexts).sort(function (a, b) { return a - b; }).map(function (k) { return iatTexts[k]; }).join('');
+      document.getElementById('voiceHint').textContent = '识别中：' + finalText.slice(-14);
+    }
+    if (d.data && d.data.status === 2) {
+      try { ws.close(); } catch (x) {}
+      if (finalText.trim()) { document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…'; processVoice(finalText); }
+      else document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
+    }
+  };
+  ws.onerror = function () { document.getElementById('voiceHint').textContent = '识别服务连接失败，请检查网络和密钥'; };
+}
 
 const demoVoiceText = '2号基坑支护结构发现裂缝，周边防护栏杆缺失。临时用电存在私拉乱接，电缆直接放在地上没有架空敷设。动火作业没有审批手续，监护人不在现场。高空作业有人没系安全带。';
 
@@ -1501,56 +1679,68 @@ function processVoice(text) {
   const results = [];
   const matchedIds = new Set();
   
-  // 严格匹配：按优先级排序，只取最相关的一条
-  const priorityRules = [
-    // 高处作业-安全带
-    { match: t => (t.includes('高空') || t.includes('高处')) && (t.includes('安全带') || t.includes('保护')), id: '1-1' },
-    // 消防-灭火器
-    { match: t => t.includes('灭火器') && (t.includes('堵') || t.includes('挡') || t.includes('缺') || t.includes('没')), id: '4-5' },
-    // 临时用电-电缆
-    { match: t => (t.includes('电缆') || t.includes('电线')) && (t.includes('地上') || t.includes('未架空') || t.includes('乱') || t.includes('破损')), id: '2-5' },
-    // 临时用电-配电箱
-    { match: t => t.includes('配电箱') && (t.includes('不规范') || t.includes('未标识') || t.includes('破损')), id: '2-2' },
-    // 基坑-支护
-    { match: t => (t.includes('支护') || t.includes('基坑')) && (t.includes('裂缝') || t.includes('变形') || t.includes('失稳')), id: '3-1' },
-    // 动火-审批
-    { match: t => t.includes('动火') && (t.includes('未审批') || t.includes('没审批') || t.includes('无手续')), id: '4-3' },
+  // 场景词 → 核心检查项映射（只报场景名时兜底，和拍照识别场景模式一致）
+  const voiceScenes = [
+    { keys:['动火','焊接','切割','明火','焊工','气割'], items:['4-3','4-4','4-5'] },
+    { keys:['高空','高处','安全带','坠落'], items:['1-1'] },
+    { keys:['脚手架'], items:['1-2'] },
+    { keys:['临时用电','配电箱','电缆','用电','漏电','私拉乱接'], items:['2-1','2-3','2-5'] },
+    { keys:['基坑'], items:['3-1','3-3','3-4'] },
+    { keys:['有限空间','气体检测','密闭空间'], items:['4-1','4-2'] },
+    { keys:['消防','灭火'], items:['4-5','8-3'] },
+    { keys:['吊装','起重','吊车'], items:['6-1','6-5'] },
   ];
-  
-  // 先尝试严格匹配
+
+  const pushResult = (id, status, note) => {
+    if (matchedIds.has(id)) return;
+    const item = flatItems[id];
+    if (!item) return;
+    results.push({ id, status, note, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
+    matchedIds.add(id);
+  };
+
+  // 1) 严格匹配（有明确问题定性，高置信），一段话可命中多条
+  const priorityRules = [
+    { match: t => (t.includes('高空') || t.includes('高处')) && (t.includes('安全带') || t.includes('保护') || t.includes('没系') || t.includes('未系')), id: '1-1' },
+    { match: t => t.includes('脚手架') && (t.includes('未验收') || t.includes('没验收') || t.includes('不合格')), id: '1-2' },
+    { match: t => t.includes('灭火器') && (t.includes('堵') || t.includes('挡') || t.includes('缺') || t.includes('没') || t.includes('失效')), id: '4-5' },
+    { match: t => (t.includes('电缆') || t.includes('电线')) && (t.includes('地上') || t.includes('未架空') || t.includes('乱') || t.includes('破损')), id: '2-5' },
+    { match: t => t.includes('配电箱') && (t.includes('不规范') || t.includes('未标识') || t.includes('破损')), id: '2-2' },
+    { match: t => (t.includes('支护') || t.includes('基坑')) && (t.includes('裂缝') || t.includes('变形') || t.includes('失稳')), id: '3-1' },
+    { match: t => (t.includes('动火') || t.includes('焊接') || t.includes('切割') || t.includes('明火')) && (t.includes('未审批') || t.includes('没审批') || t.includes('没有审批') || t.includes('无手续') || t.includes('没办票') || t.includes('未办票') || t.includes('无票')), id: '4-3' },
+    { match: t => (t.includes('动火') || t.includes('监护')) && (t.includes('不在') || t.includes('缺位') || t.includes('未到位') || t.includes('没有监护')), id: '4-4' },
+    { match: t => t.includes('私拉乱接') || (t.includes('私拉') && t.includes('乱接')), id: '2-7' },
+  ];
+
   for (const rule of priorityRules) {
-    if (rule.match(text) && !matchedIds.has(rule.id)) {
+    if (rule.match(text)) {
       const vr = voiceRules.find(v => v.id === rule.id);
-      if (vr) {
-        const r = vr.extract(text);
-        if (r) {
-          const item = flatItems[rule.id];
-          results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
-          matchedIds.add(rule.id);
-          break; // 只取最匹配的一条
-        }
-      }
+      if (vr) { const r = vr.extract(text); if (r) pushResult(rule.id, r.status, r.note); }
     }
   }
-  
-  // 版本标记
-  window._voiceVersion = 'v2.4-strict';
-  console.log('语音解析版本:', window._voiceVersion);
-  
-  // 如果严格匹配没结果，再宽松匹配（出2-3条）
+
+  // 2) 宽松匹配补充：有定性词的其他项，最多凑4条
+  for (const vr of voiceRules) {
+    if (results.length >= 4) break;
+    if (vr.keys.some(k => text.includes(k)) && !matchedIds.has(vr.id)) {
+      const r = vr.extract(text);
+      if (r) pushResult(vr.id, r.status, r.note);
+    }
+  }
+
+  // 3) 场景兜底：只说了场景名（如"动火作业"），给出该场景核心检查项供勾选
   if (results.length === 0) {
-    for (const vr of voiceRules) {
-      if (results.length >= 3) break;
-      if (vr.keys.some(k => text.includes(k)) && !matchedIds.has(vr.id)) {
-        const r = vr.extract(text);
-        if (r) {
-          const item = flatItems[vr.id];
-          results.push({ id: vr.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
-          matchedIds.add(vr.id);
-        }
+    for (const sc of voiceScenes) {
+      if (sc.keys.some(k => text.includes(k))) {
+        sc.items.forEach(id => pushResult(id, 'issue', '语音提及该场景，请现场确认'));
+        break;
       }
     }
   }
+
+  // 版本标记
+  window._voiceVersion = 'v4.1-scene';
+  console.log('语音解析版本:', window._voiceVersion);
   const parseList = document.getElementById('parseList');
   if (results.length) {
     parseList.innerHTML = '<div style="font-size:11px;color:var(--gray-4);padding:0 0 6px 2px">👇 点选要录入的项目，无关项点掉即可</div>' + results.map((r, idx) => `
