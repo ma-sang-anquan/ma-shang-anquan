@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v2.3</title>
+<title>基建安全智能检查系统 v2.4</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -976,8 +976,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v2.3说明是缓存旧版，强制刷新
-  if (!document.title.includes('v2.3')) { location.reload(true); }
+  // 版本检查：若标题不含v2.4说明是缓存旧版，强制刷新
+  if (!document.title.includes('v2.4')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1344,15 +1344,58 @@ const voiceRules = [
 function processVoice(text) {
   document.getElementById('voiceText').textContent = text;
   const results = [];
-  voiceRules.forEach(rule => {
-    if (rule.keys.some(k => text.includes(k))) {
-      const r = rule.extract(text);
-      if (r) {
-        const item = flatItems[rule.id];
-        results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
+  const matchedIds = new Set();
+  
+  // 严格匹配：按优先级排序，只取最相关的一条
+  const priorityRules = [
+    // 高处作业-安全带
+    { match: t => (t.includes('高空') || t.includes('高处')) && (t.includes('安全带') || t.includes('保护')), id: '1-1' },
+    // 消防-灭火器
+    { match: t => t.includes('灭火器') && (t.includes('堵') || t.includes('挡') || t.includes('缺') || t.includes('没')), id: '4-5' },
+    // 临时用电-电缆
+    { match: t => (t.includes('电缆') || t.includes('电线')) && (t.includes('地上') || t.includes('未架空') || t.includes('乱') || t.includes('破损')), id: '2-5' },
+    // 临时用电-配电箱
+    { match: t => t.includes('配电箱') && (t.includes('不规范') || t.includes('未标识') || t.includes('破损')), id: '2-2' },
+    // 基坑-支护
+    { match: t => (t.includes('支护') || t.includes('基坑')) && (t.includes('裂缝') || t.includes('变形') || t.includes('失稳')), id: '3-1' },
+    // 动火-审批
+    { match: t => t.includes('动火') && (t.includes('未审批') || t.includes('没审批') || t.includes('无手续')), id: '4-3' },
+  ];
+  
+  // 先尝试严格匹配
+  for (const rule of priorityRules) {
+    if (rule.match(text) && !matchedIds.has(rule.id)) {
+      const vr = voiceRules.find(v => v.id === rule.id);
+      if (vr) {
+        const r = vr.extract(text);
+        if (r) {
+          const item = flatItems[rule.id];
+          results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
+          matchedIds.add(rule.id);
+          break; // 只取最匹配的一条
+        }
       }
     }
-  });
+  }
+  
+  // 版本标记
+  window._voiceVersion = 'v2.4-strict';
+  console.log('语音解析版本:', window._voiceVersion);
+  
+  // 如果严格匹配没结果，再宽松匹配（但限制最多2条）
+  if (results.length === 0) {
+    for (const vr of voiceRules) {
+      if (results.length >= 2) break;
+      if (vr.keys.some(k => text.includes(k)) && !matchedIds.has(vr.id)) {
+        const r = vr.extract(text);
+        if (r) {
+          const item = flatItems[vr.id];
+          results.push({ id: vr.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
+          matchedIds.add(vr.id);
+        }
+      }
+    }
+  }
   const parseList = document.getElementById('parseList');
   if (results.length) {
     parseList.innerHTML = '<div style="font-size:11px;color:var(--gray-4);padding:0 0 6px 2px">👇 点选要录入的项目，无关项点掉即可</div>' + results.map((r, idx) => `
