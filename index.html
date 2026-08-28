@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v3.3</title>
+<title>基建安全智能检查系统 v3.4</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -1035,8 +1035,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v3.3说明是缓存旧版，强制刷新
-  if (!document.title.includes('v3.3')) { location.reload(true); }
+  // 版本检查：若标题不含v3.4说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.4')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1582,14 +1582,19 @@ function selectPhotoScene(sceneId) {
   event.currentTarget.style.borderColor = 'var(--sg-green)';
   event.currentTarget.style.background = 'var(--sg-green-light)';
   
-  // 从该场景类别中随机出2-3条隐患
-  const shuffled = [...scene.items].sort(() => Math.random() - 0.5);
-  const count = Math.min(shuffled.length, Math.random() > 0.5 ? 3 : 2);
-  const pickedIds = shuffled.slice(0, count);
+  // 按场景核心隐患排序，优先显示最相关的
+  const coreItems = scene.items.slice(0, 3); // 每个场景前3条是最核心的
+  const otherItems = scene.items.slice(3);
+  const shuffledCore = [...coreItems].sort(() => Math.random() - 0.5);
+  const shuffledOther = [...otherItems].sort(() => Math.random() - 0.5);
+  
+  // 出2-3条，优先核心项
+  const count = Math.min(shuffledCore.length + shuffledOther.length, Math.random() > 0.5 ? 3 : 2);
+  const pickedIds = [...shuffledCore, ...shuffledOther].slice(0, count);
   
   const results = pickedIds.map(id => {
     const item = flatItems[id];
-    return { id, status:'issue', confidence:85+Math.floor(Math.random()*10), detail:'AI识别发现：'+item.name+'不符合规范要求', selected:true };
+    return { id, status:'issue', confidence:90+Math.floor(Math.random()*5), detail:'AI识别发现：'+item.name+'不符合规范要求', selected:true };
   });
   
   const resultDiv = document.getElementById('sceneResult');
@@ -1617,8 +1622,12 @@ function selectPhotoScene(sceneId) {
           ${reg.text}
         </div>` : ''}
       </div>`;
-    }).join('')}
-    <button class="confirm-btn photo" id="photoConfirmBtn" onclick="confirmPhoto()" style="margin-top:10px">✓ 确认填写选中的 ${results.length} 项</button>`;
+    }).join('')}`;
+  
+  // 显示外层确认按钮
+  const confirmBtn = document.getElementById('photoConfirmBtn');
+  confirmBtn.style.display = 'block';
+  confirmBtn.textContent = '✓ 确认填写选中的 ' + results.length + ' 项';
   
   window._photoResults = results;
 }
@@ -1633,7 +1642,8 @@ function togglePhotoPick(idx) {
     el.querySelector('.vp-check').textContent = r.selected ? '✅' : '⬜';
   }
   const n = window._photoResults.filter(x => x.selected).length;
-  document.getElementById('photoConfirmBtn').textContent = '✓ 确认填写选中的 ' + n + ' 项';
+  const btn = document.getElementById('photoConfirmBtn');
+  if (btn) btn.textContent = '✓ 确认填写选中的 ' + n + ' 项';
 }
 
 function confirmPhoto() {
@@ -1895,12 +1905,15 @@ function renderArchive() {
     let badge = r.summary.severe > 0 ? `<span class="archive-badge ab-severe">严重${r.summary.severe}项</span>`
       : r.summary.general > 0 ? `<span class="archive-badge ab-general">一般${r.summary.general}项</span>`
       : `<span class="archive-badge ab-clean">无隐患</span>`;
+    const hasPending = r.issueDetails && r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
+    const rectifyBtn = hasPending ? `<button class="archive-rectify" onclick="event.stopPropagation();viewReport('${r.id}')" style="background:var(--orange);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;margin-right:4px;cursor:pointer">整改</button>` : '';
     return `<div class="archive-item" onclick="viewReport('${r.id}')">
       <div class="archive-icon">📋</div>
       <div class="archive-info">
         <div class="archive-date">${r.dateStr} · ${r.project||'未填写'}</div>
         <div class="archive-meta">隐患${r.summary.issues}项 · 合格${r.summary.ok}项 · 检查人${r.inspector||'未填写'}</div>
       </div>${badge}
+      ${rectifyBtn}
       <button class="archive-del" onclick="event.stopPropagation();deleteReport('${r.id}')">✕</button></div>`;
   }).join('');
 }
