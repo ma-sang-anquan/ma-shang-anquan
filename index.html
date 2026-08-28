@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v2.5</title>
+<title>基建安全智能检查系统 v3.0</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -880,6 +880,65 @@ const categories = [
         { id:'5-3', name:'安全技术交底是否签字确认', status:'pending', note:'' },
         { id:'5-4', name:'交底内容是否有针对性', status:'pending', note:'' },
       ]},
+      { name:'方案与审批', items:[
+        { id:'5-5', name:'施工方案是否经审批', status:'pending', note:'' },
+        { id:'5-6', name:'超过一定规模的危险性较大工程是否专家论证', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:6, name:'起重机械与吊装作业隐患', icon:'🏗️', color:'#9C27B0', colorLight:'#f3e5f5',
+    subs:[
+      { name:'起重机械', items:[
+        { id:'6-1', name:'起重机械是否验收合格并挂牌', status:'pending', note:'' },
+        { id:'6-2', name:'起重机械安全装置是否齐全有效', status:'pending', note:'' },
+        { id:'6-3', name:'起重机械操作人员是否持证', status:'pending', note:'' },
+      ]},
+      { name:'吊装作业', items:[
+        { id:'6-4', name:'吊装作业区域是否设置警戒', status:'pending', note:'' },
+        { id:'6-5', name:'吊装物捆绑是否牢固', status:'pending', note:'' },
+        { id:'6-6', name:'是否违规斜拉斜吊', status:'pending', note:'' },
+      ]},
+      { name:'吊索具', items:[
+        { id:'6-7', name:'钢丝绳有无断丝、变形、磨损超标', status:'pending', note:'' },
+        { id:'6-8', name:'吊钩有无裂纹、变形，保险装置是否有效', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:7, name:'高处作业与脚手架隐患', icon:'🪜', color:'#FF5722', colorLight:'#fbe9e7',
+    subs:[
+      { name:'脚手架', items:[
+        { id:'7-1', name:'脚手架基础是否平整夯实', status:'pending', note:'' },
+        { id:'7-2', name:'脚手架连墙件是否按规范设置', status:'pending', note:'' },
+        { id:'7-3', name:'脚手板是否满铺、固定牢固', status:'pending', note:'' },
+        { id:'7-4', name:'脚手架外侧是否设置密目式安全网', status:'pending', note:'' },
+      ]},
+      { name:'临边洞口', items:[
+        { id:'7-5', name:'楼梯口、电梯井口是否设置防护', status:'pending', note:'' },
+        { id:'7-6', name:'预留洞口是否设置盖板或防护栏杆', status:'pending', note:'' },
+        { id:'7-7', name:'临边作业面是否设置防护栏杆', status:'pending', note:'' },
+      ]},
+      { name:'攀登作业', items:[
+        { id:'7-8', name:'登高作业是否使用合格梯具', status:'pending', note:'' },
+        { id:'7-9', name:'直爬梯是否设置护笼', status:'pending', note:'' },
+      ]},
+    ]
+  },
+  { id:8, name:'消防安全与文明施工隐患', icon:'🧯', color:'#E91E63', colorLight:'#fce4ec',
+    subs:[
+      { name:'消防设施', items:[
+        { id:'8-1', name:'临时消防设施是否齐全有效', status:'pending', note:'' },
+        { id:'8-2', name:'消防通道是否畅通', status:'pending', note:'' },
+        { id:'8-3', name:'易燃易爆物品是否专库存放', status:'pending', note:'' },
+      ]},
+      { name:'文明施工', items:[
+        { id:'8-4', name:'材料堆放是否整齐，标识是否清晰', status:'pending', note:'' },
+        { id:'8-5', name:'施工道路是否硬化，排水是否畅通', status:'pending', note:'' },
+        { id:'8-6', name:'建筑垃圾是否及时清运', status:'pending', note:'' },
+      ]},
+      { name:'生活区', items:[
+        { id:'8-7', name:'宿舍内是否违规使用大功率电器', status:'pending', note:'' },
+        { id:'8-8', name:'食堂卫生是否符合要求', status:'pending', note:'' },
+      ]},
     ]
   },
 ];
@@ -976,8 +1035,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v2.5说明是缓存旧版，强制刷新
-  if (!document.title.includes('v2.5')) { location.reload(true); }
+  // 版本检查：若标题不含v3.0说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.0')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1485,31 +1544,64 @@ function startAIAnalysis() {
   document.getElementById('aiText').textContent = 'AI 正在深度分析图片...';
 }
 
-const photoDetectionPool = [
-  { id:'3-1', status:'issue', confidence:94, detail:'检测到基坑支护结构存在横向裂缝，缝宽约2mm，存在失稳风险' },
-  { id:'2-7', status:'issue', confidence:91, detail:'检测到临时用电私拉乱接，电缆未穿管保护，存在触电风险' },
-  { id:'3-3', status:'issue', confidence:89, detail:'检测到基坑周边防护栏杆部分缺失，未设置连续防护' },
-  { id:'1-1', status:'issue', confidence:86, detail:'检测到高空作业人员未正确佩戴安全带，存在坠落风险' },
-  { id:'4-5', status:'issue', confidence:88, detail:'检测到灭火器被杂物遮挡，无法快速取用' },
-  { id:'2-5', status:'issue', confidence:90, detail:'检测到电缆直接放置地面，未做架空或埋地处理' },
+const photoScenes = [
+  { id:'high', name:'高处作业/脚手架', icon:'🪜', catIds:[1,7], items:['1-1','7-1','7-2','7-3','7-4'] },
+  { id:'electric', name:'临时用电/电缆', icon:'⚡', catIds:[2], items:['2-1','2-2','2-3','2-4','2-5','2-6','2-7','2-8'] },
+  { id:'fire', name:'动火/消防', icon:'🔥', catIds:[4,8], items:['4-1','4-2','4-3','4-4','4-5','4-6','8-1','8-2'] },
+  { id:'crane', name:'起重机械/吊装', icon:'🏗️', catIds:[6], items:['6-1','6-2','6-3','6-4','6-5','6-6','6-7','6-8'] },
+  { id:'deep', name:'深基坑/地下', icon:'🏗️', catIds:[3], items:['3-1','3-2','3-3','3-4'] },
+  { id:'manage', name:'管理/资料', icon:'📋', catIds:[5], items:['5-1','5-2','5-3','5-4','5-5','5-6'] },
 ];
 
 function showPhotoResult() {
   document.getElementById('aiAnalyzing').classList.remove('active');
-  // 随机出 1-2 条，模拟真实场景的不确定性
-  const shuffled = [...photoDetectionPool].sort(() => Math.random() - 0.5);
-  const count = Math.random() > 0.5 ? 2 : 1;
-  const results = shuffled.slice(0, count).map(d => ({ ...d, selected: true }));
   
   const r = document.getElementById('photoResult');
   r.innerHTML = `
-    <div class="vr-label" style="margin-bottom:10px">🔍 AI 识别结果</div>
-    <div style="font-size:11px;color:var(--gray-4);padding:0 0 8px 2px">👇 点选要录入的项目，无关项点掉即可</div>
+    <div class="vr-label" style="margin-bottom:12px">📸 请选择照片对应的检查场景</div>
+    <div style="font-size:12px;color:var(--gray-4);margin-bottom:12px">AI已分析图片，请选择最匹配的场景类别：</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+      ${photoScenes.map(s => `
+        <div class="scene-card" onclick="selectPhotoScene('${s.id}')" style="background:var(--gray-2);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s">
+          <div style="font-size:28px;margin-bottom:6px">${s.icon}</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text-2)">${s.name}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div id="sceneResult" style="margin-top:14px"></div>`;
+  r.classList.add('active');
+}
+
+function selectPhotoScene(sceneId) {
+  const scene = photoScenes.find(s => s.id === sceneId);
+  if (!scene) return;
+  
+  // 高亮选中的场景
+  document.querySelectorAll('.scene-card').forEach(el => {
+    el.style.borderColor = 'transparent';
+    el.style.background = 'var(--gray-2)';
+  });
+  event.currentTarget.style.borderColor = 'var(--sg-green)';
+  event.currentTarget.style.background = 'var(--sg-green-light)';
+  
+  // 从该场景类别中随机出1-2条隐患
+  const shuffled = [...scene.items].sort(() => Math.random() - 0.5);
+  const count = Math.min(shuffled.length, Math.random() > 0.5 ? 2 : 1);
+  const pickedIds = shuffled.slice(0, count);
+  
+  const results = pickedIds.map(id => {
+    const item = flatItems[id];
+    return { id, status:'issue', confidence:85+Math.floor(Math.random()*10), detail:'AI识别发现：'+item.name+'不符合规范要求', selected:true };
+  });
+  
+  const resultDiv = document.getElementById('sceneResult');
+  resultDiv.innerHTML = `
+    <div style="font-size:12px;color:var(--gray-4);padding:10px 0 8px">👇 点选要录入的项目，无关项点掉即可</div>
     ${results.map((d, idx) => {
       const item = flatItems[d.id];
       const reg = regulations[d.id];
       return `
-      <div class="detect-card photo-pick ${d.selected ? 'selected' : ''}" data-idx="${idx}" onclick="togglePhotoPick(${idx})" style="cursor:pointer;position:relative">
+      <div class="detect-card photo-pick ${d.selected ? 'selected' : ''}" data-idx="${idx}" onclick="togglePhotoPick(${idx})" style="cursor:pointer;position:relative;margin-bottom:10px">
         <div class="dc-header">
           <span style="font-size:18px">${item.catIcon}</span>
           <span class="dc-name">${item.name}</span>
@@ -1527,9 +1619,9 @@ function showPhotoResult() {
           ${reg.text}
         </div>` : ''}
       </div>`;
-    }).join('')}`;
-  r.classList.add('active');
-  document.getElementById('photoConfirmBtn').classList.add('active');
+    }).join('')}
+    <button class="confirm-btn photo" id="photoConfirmBtn" onclick="confirmPhoto()" style="margin-top:10px">✓ 确认填写选中的 ${results.length} 项</button>`;
+  
   window._photoResults = results;
 }
 
