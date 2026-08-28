@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v4.1</title>
+<title>基建安全智能检查系统 v4.2</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -763,10 +763,15 @@ function qrGenSVG(text, size) {
         <div class="voice-area">
           <button class="voice-mic-btn" id="micBtn">🎙️</button>
           <div class="voice-hint" id="voiceHint">按住麦克风说话，松手自动识别</div>
+          <div id="wxGuide" style="display:none;margin-top:10px;background:#FFF7E6;border:1px solid #FFD591;border-radius:8px;padding:10px 12px;font-size:12px;color:#AD6800;line-height:1.8;text-align:left">
+            📢 <b>微信内无法使用语音识别</b>（微信未开放麦克风）<br>
+            方式①：点右上角「···」→「在浏览器打开」<br>
+            方式②：退出微信，用<b>手机相机</b>扫码直接打开
+          </div>
           <button class="voice-demo-btn" onclick="simulateVoice()">▶ 演示：模拟一段语音录入</button>
         </div>
         <div class="voice-result" id="voiceResult">
-          <div class="vr-label">📝 语音识别结果</div>
+          <div class="vr-label">📝 语音识别结果 <span id="voiceModeTag" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:4px"></span></div>
           <div class="vr-text" id="voiceText"></div>
           <div class="vr-parse">
             <div class="vr-parse-label">🤖 AI 智能解析</div>
@@ -1100,8 +1105,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v4.1说明是缓存旧版，强制刷新
-  if (!document.title.includes('v4.1')) { location.reload(true); }
+  // 版本检查：若标题不含v4.2说明是缓存旧版，强制刷新
+  if (!document.title.includes('v4.2')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1263,7 +1268,24 @@ function closePhotoViewer() {
 
 // ===================== Voice (按住说话) =====================
 let recognition = null, isRecording = false, simRecording = false, voiceTranscript = '';
-function openVoiceModal() { document.getElementById('voiceOverlay').classList.add('active'); }
+function openVoiceModal() {
+  document.getElementById('voiceOverlay').classList.add('active');
+  var wg = document.getElementById('wxGuide');
+  if (wg) {
+    var noMic = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    var inWx = /MicroMessenger/i.test(navigator.userAgent);
+    wg.style.display = (inWx && noMic) ? 'block' : 'none';
+  }
+  setVoiceMode('');
+}
+function setVoiceMode(mode) {
+  var tag = document.getElementById('voiceModeTag');
+  if (!tag) return;
+  if (mode === 'real') { tag.textContent = '🎙️ 真机识别'; tag.style.background = '#F6FFED'; tag.style.color = '#389E0D'; tag.style.border = '1px solid #B7EB8F'; }
+  else if (mode === 'xfyun') { tag.textContent = '☁️ 讯飞云识别'; tag.style.background = '#F6FFED'; tag.style.color = '#389E0D'; tag.style.border = '1px solid #B7EB8F'; }
+  else if (mode === 'demo') { tag.textContent = '📢 演示模式·不是你说的话'; tag.style.background = '#FFF7E6'; tag.style.color = '#D48806'; tag.style.border = '1px solid #FFD591'; }
+  else { tag.textContent = ''; tag.style.border = 'none'; tag.style.background = 'transparent'; }
+}
 function closeVoiceModal() {
   document.getElementById('voiceOverlay').classList.remove('active');
   resetVoiceUI();
@@ -1339,6 +1361,7 @@ function micPressEnd(e) {
     simRecording = false;
     b.classList.remove('recording'); b.textContent = '🎙️';
     document.getElementById('voiceHint').textContent = '录音完成，AI正在解析…';
+    setVoiceMode('demo');
     setTimeout(() => processVoice(demoVoiceText), 600);
   }
 }
@@ -1349,6 +1372,7 @@ function finishRecording(text) {
   b.classList.remove('recording'); b.textContent = '🎙️';
   if (text && text.trim()) {
     document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…';
+    setVoiceMode('real');
     processVoice(text);
   } else {
     document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
@@ -1522,7 +1546,7 @@ function runIatRecognition() {
     }
     if (d.data && d.data.status === 2) {
       try { ws.close(); } catch (x) {}
-      if (finalText.trim()) { document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…'; processVoice(finalText); }
+      if (finalText.trim()) { document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…'; setVoiceMode('xfyun'); processVoice(finalText); }
       else document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
     }
   };
@@ -1538,6 +1562,7 @@ function simulateVoice() {
   setTimeout(() => {
     b.classList.remove('recording'); b.textContent = '🎙️';
     document.getElementById('voiceHint').textContent = '录音完成，AI正在解析...';
+    setVoiceMode('demo');
     setTimeout(() => processVoice(demoVoiceText), 500);
   }, 2000);
 }
@@ -2423,21 +2448,33 @@ function renderArchive() {
       <button onclick="restoreSamples()" style="margin-top:14px;border:1px dashed var(--sg-green);background:#fff;color:var(--sg-green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:20px;cursor:pointer">📥 载入示例数据</button></div>`;
     return;
   }
-  c.innerHTML = reports.map(r => {
+  // 分组：待整改（有隐患未闭环）/ 整改闭环（全部整改完成或无隐患）
+  const isPending = r => r.issueDetails && r.issueDetails.length > 0 && r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
+  const pendingList = reports.filter(isPending);
+  const closedList = reports.filter(r => !isPending(r));
+  const renderItem = r => {
     let badge = r.summary.severe > 0 ? `<span class="archive-badge ab-severe">严重${r.summary.severe}项</span>`
       : r.summary.general > 0 ? `<span class="archive-badge ab-general">一般${r.summary.general}项</span>`
       : `<span class="archive-badge ab-clean">无隐患</span>`;
-    const hasPending = r.issueDetails && r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
+    const hasPending = isPending(r);
     const rectifyBtn = hasPending ? `<button class="archive-rectify" onclick="event.stopPropagation();openRectifyModal('${r.id}')" style="background:var(--orange);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;margin-right:4px;cursor:pointer">整改</button>` : '';
+    const closedTag = !hasPending && r.summary.issues > 0 ? `<span style="background:var(--sg-green-light);color:var(--sg-green);font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-right:4px">✓ 已闭环</span>` : '';
     return `<div class="archive-item" onclick="viewReport('${r.id}')">
       <div class="archive-icon">📋</div>
       <div class="archive-info">
         <div class="archive-date">${r.dateStr} · ${r.project||'未填写'}</div>
         <div class="archive-meta">隐患${r.summary.issues}项 · 合格${r.summary.ok}项 · 检查人${r.inspector||'未填写'}</div>
       </div>${badge}
-      ${rectifyBtn}
+      ${closedTag}${rectifyBtn}
       <button class="archive-del" onclick="event.stopPropagation();deleteReport('${r.id}')">✕</button></div>`;
-  }).join('');
+  };
+  const groupHead = (icon, title, count, color) => `<div style="display:flex;align-items:center;gap:8px;padding:14px 14px 8px;font-size:14px;font-weight:700;color:${color}">${icon} ${title}<span style="background:${color};color:#fff;font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px">${count}</span></div>`;
+  const emptyTip = '<div style="text-align:center;color:var(--gray-4);font-size:12px;padding:14px 0 18px">暂无记录</div>';
+  c.innerHTML =
+    groupHead('📂', '整改通知单 · 待整改', pendingList.length, 'var(--orange)') +
+    (pendingList.length ? pendingList.map(renderItem).join('') : emptyTip) +
+    groupHead('📂', '整改闭环 · 已完成', closedList.length, 'var(--sg-green)') +
+    (closedList.length ? closedList.map(renderItem).join('') : emptyTip);
 }
 
 function deleteReport(id) {
