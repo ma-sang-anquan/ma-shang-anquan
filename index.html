@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>基建安全智能检查系统</title>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>基建安全智能检查系统 v2.2</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -25,9 +28,9 @@
   body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--gray-1);color:var(--text-1);line-height:1.6}
   #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
   @media(min-width:500px){body{background:#1a1a2e;padding:20px 0}#app{min-height:880px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}}
-  .page{display:none;height:100vh;height:100dvh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeIn .3s ease}
-  .page.active{display:block !important}
-  #page-scan.page.active{display:flex !important}
+  .page{display:none;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeIn .3s ease}
+  .page.active{display:block}
+  #page-scan.page.active{display:flex;flex-direction:column;align-items:center}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
   /* ===== Scan Page ===== */
@@ -969,15 +972,22 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
+  // 版本检查：若标题不含v2.2说明是缓存旧版，强制刷新
+  if (!document.title.includes('v2.2')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
 function showPage(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) {
+    pages[i].classList.remove('active');
+    pages[i].style.display = 'none';
+  }
+  var target = document.getElementById(id);
+  target.classList.add('active');
+  target.style.display = (id === 'page-scan') ? 'flex' : 'block';
+  target.scrollTop = 0;
   window.scrollTo(0, 0);
-  document.documentElement.scrollTop = 0;
-  document.body.scrollTop = 0;
 }
 function scanEnter() { showToast('✅ 扫码成功，进入检查'); goCategory(); }
 function goScan() { showPage('page-scan'); }
@@ -1111,31 +1121,35 @@ function resetVoiceUI() {
 function micPressStart(e) {
   if (e) e.preventDefault();
   if (isRecording || simRecording) return;
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   const b = document.getElementById('micBtn');
+  b.classList.add('recording'); b.textContent = '🎤';
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (SR) {
     voiceTranscript = '';
-    recognition = new SR();
-    recognition.lang = 'zh-CN'; recognition.continuous = true; recognition.interimResults = true;
-    recognition.onresult = (ev) => {
-      let t = '';
-      for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
-      voiceTranscript = t;
-      document.getElementById('voiceHint').textContent = '正在识别：' + t.slice(-14);
-    };
-    recognition.onerror = () => {};
-    recognition.onend = () => finishRecording(voiceTranscript);
     try {
+      recognition = new SR();
+      recognition.lang = 'zh-CN'; recognition.continuous = true; recognition.interimResults = true;
+      recognition.onresult = (ev) => {
+        let t = '';
+        for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
+        voiceTranscript = t;
+        document.getElementById('voiceHint').textContent = '正在识别：' + t.slice(-14);
+      };
+      recognition.onerror = () => { fallbackToSim(); };
+      recognition.onend = () => { if (isRecording) finishRecording(voiceTranscript); };
       recognition.start();
       isRecording = true;
-      b.classList.add('recording'); b.textContent = '🎤';
       document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
-    } catch(err) { recognition = null; showToast('语音启动失败，可使用下方演示模式'); }
+    } catch(err) { fallbackToSim(); }
   } else {
-    simRecording = true;
-    b.classList.add('recording'); b.textContent = '🎤';
-    document.getElementById('voiceHint').textContent = '正在录音… 松手结束';
+    fallbackToSim();
   }
+}
+function fallbackToSim() {
+  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+  isRecording = false;
+  simRecording = true;
+  document.getElementById('voiceHint').textContent = '正在录音… 松手结束';
 }
 function micPressEnd(e) {
   if (e) e.preventDefault();
