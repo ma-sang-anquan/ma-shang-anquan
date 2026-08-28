@@ -12,7 +12,7 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
-    --sg-green:#00923E;--sg-green-dark:#007032;--sg-green-light:#e6f4ea;
+    --sg-green:#10B981;--sg-green-dark:#059669;--sg-green-light:#E6F9F0;
     --blue:#1B95E0;--blue-light:#e3f2fd;
     --orange:#FF9800;--orange-light:#fff3e0;
     --brown:#795548;--brown-light:#efebe9;
@@ -30,10 +30,10 @@
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
   /* ===== Scan Page ===== */
-  #page-scan{background:linear-gradient(160deg,#00B649,#00923E 40%,#004d24);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:50px 24px 30px;color:#fff;overflow-y:auto}
-  #page-scan .hero{text-align:center;margin-bottom:24px}
-  #page-scan .logo-icon{width:60px;height:60px;margin:0 auto 10px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
-  #page-scan .brand{font-size:26px;font-weight:800;letter-spacing:1px;margin-bottom:4px}
+  #page-scan{background:linear-gradient(160deg,#4BDCA0,#10B981 45%,#0B7A5C);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:32px 24px 24px;color:#fff;overflow-y:auto}
+  #page-scan .hero{text-align:center;margin-bottom:14px}
+  #page-scan .logo-icon{width:48px;height:48px;margin:0 auto 6px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+  #page-scan .brand{font-size:24px;font-weight:800;letter-spacing:1px;margin-bottom:2px}
   #page-scan .brand .brand-accent{color:#FFD700}
   #page-scan .subtitle{font-size:13px;opacity:.75}
   #page-scan .qr-area{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);margin-bottom:8px;position:relative;cursor:pointer;transition:transform .2s}
@@ -46,30 +46,30 @@
   #page-scan .qr-label{font-size:12px;color:var(--sg-green);text-align:center;margin-top:6px;margin-bottom:6px;font-weight:600}
   #page-scan .scan-hint{font-size:12px;opacity:.7;text-align:center;margin-bottom:16px}
   #page-scan .url-display{font-size:10px;opacity:.4;text-align:center;word-break:break-all;max-width:280px;margin:0 auto 16px}
-  #page-scan .scan-btn{background:#fff;color:var(--sg-green);border:none;padding:13px 44px;border-radius:28px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s;margin-bottom:28px}
+  #page-scan .scan-btn{background:#fff;color:var(--sg-green-dark);border:none;padding:13px 44px;border-radius:28px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s;margin-bottom:16px}
   #page-scan .scan-btn:active{transform:scale(.96)}
-  #page-scan .how-works{width:100%;margin-bottom:22px}
+  #page-scan .how-works{width:100%;margin-bottom:12px}
   #page-scan .hw-title{font-size:12px;opacity:.6;text-align:center;margin-bottom:10px;letter-spacing:1px}
   #page-scan .hw-steps{display:flex;align-items:center;justify-content:center;gap:6px}
   #page-scan .hw-step{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 6px;text-align:center;flex:1;max-width:85px}
   #page-scan .hw-icon{font-size:18px;margin-bottom:3px}
   #page-scan .hw-text{font-size:10px;opacity:.85}
   #page-scan .hw-arrow{font-size:12px;opacity:.4}
-  #page-scan .feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
+  #page-scan .feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
   #page-scan .feat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px}
   #page-scan .fc-icon{font-size:18px;flex-shrink:0}
   #page-scan .fc-name{font-size:12px;font-weight:600}
   #page-scan .fc-text{font-size:10px;opacity:.7;margin-top:1px}
   #page-scan .archive-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;padding:11px 30px;border-radius:22px;font-size:13px;cursor:pointer;transition:all .2s}
   #page-scan .archive-btn:active{transform:scale(.96)}
-  #page-scan .bottom-deco{font-size:10px;opacity:.35;text-align:center;margin-top:20px;letter-spacing:1px}
+  #page-scan .bottom-deco{font-size:10px;opacity:.35;text-align:center;margin-top:12px;letter-spacing:1px}
 
   /* ===== Topbar ===== */
-  .topbar{background:linear-gradient(135deg,var(--sg-green),var(--sg-green-dark));color:#fff;padding:44px 20px 20px;position:sticky;top:0;z-index:100}
+  .topbar{background:linear-gradient(135deg,var(--sg-green),var(--sg-green-dark));color:#fff;padding:40px 16px 14px;position:sticky;top:0;z-index:100}
   .topbar .bar-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
   .topbar .back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
   .topbar .bar-title{font-size:17px;font-weight:600;flex:1}
-  .info-card{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px 16px;backdrop-filter:blur(8px)}
+  .info-card{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:10px 14px;backdrop-filter:blur(8px)}
   .info-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
   .info-row:last-child{margin-bottom:0}
   .info-row span:first-child{opacity:.8}
@@ -80,7 +80,7 @@
   .rp-input::placeholder{color:var(--gray-4);font-size:11px}
 
   /* ===== Category Cards ===== */
-  .cat-list{padding:16px}
+  .cat-list{padding:12px 16px}
   .cat-card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
   .cat-card:active{transform:scale(.98)}
   .cat-card .cc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
@@ -145,7 +145,7 @@
 
   /* Voice */
   .voice-area{text-align:center;padding:10px 0 20px}
-  .voice-mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1673c0);border:none;cursor:pointer;font-size:36px;color:#fff;box-shadow:0 8px 24px rgba(27,149,224,.4);transition:all .3s;position:relative}
+  .voice-mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1673c0);border:none;cursor:pointer;font-size:36px;color:#fff;box-shadow:0 8px 24px rgba(27,149,224,.4);transition:all .3s;position:relative;user-select:none;-webkit-user-select:none;touch-action:none}
   .voice-mic-btn.recording{background:linear-gradient(135deg,var(--red),#d32f2f);box-shadow:0 8px 24px rgba(244,67,54,.4);animation:pulse 1.2s ease-in-out infinite}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
   .voice-mic-btn.recording::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(244,67,54,.3);animation:ripple 1.5s ease-out infinite}
@@ -207,7 +207,7 @@
   #page-report{padding-bottom:40px}
 
   /* ===== Archive Page ===== */
-  .ai-card{background:linear-gradient(135deg,#00923E,#00B649);border-radius:var(--radius);padding:18px 16px;color:#fff;margin-bottom:16px}
+  .ai-card{background:linear-gradient(135deg,#0E9F6E,#34D399);border-radius:var(--radius);padding:18px 16px;color:#fff;margin-bottom:16px}
   .ai-card-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px}
   .bar-chart{margin-bottom:16px}
   .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
@@ -614,7 +614,7 @@ function qrGenSVG(text, size) {
       <div class="brand">码上<span class="brand-accent">安全</span></div>
       <div class="subtitle">施工现场检查AI助手</div>
     </div>
-    <div class="qr-area" onclick="goCategory()">
+    <div class="qr-area" onclick="scanEnter()">
       <div class="scan-line"></div>
       <div id="homeQrContainer" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px"></div>
       <div style="display:none;color:#999;font-size:13px;text-align:center;padding:40px 0">二维码加载中...</div>
@@ -622,7 +622,7 @@ function qrGenSVG(text, size) {
     <div class="qr-label">扫码进入检查系统</div>
     <div class="scan-hint">手机扫码 · 点击也可直接进入</div>
     <div class="url-display" id="urlDisplay"></div>
-    <button class="scan-btn" onclick="goCategory()">扫码开始检查</button>
+    <button class="scan-btn" onclick="scanEnter()">扫码开始检查</button>
 
     <div class="how-works">
       <div class="hw-title">— 使用流程 —</div>
@@ -746,8 +746,8 @@ function qrGenSVG(text, size) {
       </div>
       <div class="modal-body">
         <div class="voice-area">
-          <button class="voice-mic-btn" id="micBtn" onclick="toggleVoice()">🎙️</button>
-          <div class="voice-hint" id="voiceHint">点击麦克风开始语音录入</div>
+          <button class="voice-mic-btn" id="micBtn">🎙️</button>
+          <div class="voice-hint" id="voiceHint">按住麦克风说话，松手自动识别</div>
           <button class="voice-demo-btn" onclick="simulateVoice()">▶ 演示：模拟一段语音录入</button>
         </div>
         <div class="voice-result" id="voiceResult">
@@ -975,7 +975,10 @@ function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
+  document.documentElement.scrollTop = 0;
+  document.body.scrollTop = 0;
 }
+function scanEnter() { showToast('✅ 扫码成功，进入检查'); goCategory(); }
 function goScan() { showPage('page-scan'); }
 function goCategory() { showPage('page-category'); }
 function goInspect(catId) {
@@ -1088,38 +1091,91 @@ function closePhotoViewer() {
   document.getElementById('photoViewer').classList.remove('active');
 }
 
-// ===================== Voice =====================
-let recognition = null, isRecording = false;
+// ===================== Voice (按住说话) =====================
+let recognition = null, isRecording = false, simRecording = false, voiceTranscript = '';
 function openVoiceModal() { document.getElementById('voiceOverlay').classList.add('active'); }
 function closeVoiceModal() {
   document.getElementById('voiceOverlay').classList.remove('active');
-  stopVoice();
+  resetVoiceUI();
   document.getElementById('voiceResult').classList.remove('active');
   document.getElementById('voiceConfirmBtn').classList.remove('active');
-  document.getElementById('micBtn').classList.remove('recording');
-  isRecording = false;
 }
-function toggleVoice() { isRecording ? stopVoice() : startVoice(); }
-function startVoice() {
-  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { showToast('浏览器不支持语音识别，请使用演示模式'); return; }
-  recognition = new SR();
-  recognition.lang = 'zh-CN'; recognition.continuous = false; recognition.interimResults = true;
-  recognition.onstart = () => { isRecording = true; const b = document.getElementById('micBtn'); b.classList.add('recording'); b.textContent = '⏹'; document.getElementById('voiceHint').textContent = '正在录音...请说出检查情况'; };
-  recognition.onresult = (e) => {
-    let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
-    if (e.results[e.results.length-1].isFinal) processVoice(t);
-  };
-  recognition.onerror = (e) => { showToast('语音识别出错，可使用演示模式'); stopVoice(); };
-  recognition.onend = () => stopVoice();
-  try { recognition.start(); } catch(e) { showToast('启动失败，请使用演示模式'); }
-}
-function stopVoice() {
+function resetVoiceUI() {
   if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
-  isRecording = false;
-  const b = document.getElementById('micBtn'); b.classList.remove('recording'); b.textContent = '🎙️';
-  document.getElementById('voiceHint').textContent = '点击麦克风开始语音录入';
+  isRecording = false; simRecording = false;
+  const b = document.getElementById('micBtn');
+  b.classList.remove('recording'); b.textContent = '🎙️';
+  document.getElementById('voiceHint').textContent = '按住麦克风说话，松手自动识别';
 }
+function micPressStart(e) {
+  if (e) e.preventDefault();
+  if (isRecording || simRecording) return;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const b = document.getElementById('micBtn');
+  if (SR) {
+    voiceTranscript = '';
+    recognition = new SR();
+    recognition.lang = 'zh-CN'; recognition.continuous = true; recognition.interimResults = true;
+    recognition.onresult = (ev) => {
+      let t = '';
+      for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
+      voiceTranscript = t;
+      document.getElementById('voiceHint').textContent = '正在识别：' + t.slice(-14);
+    };
+    recognition.onerror = () => {};
+    recognition.onend = () => finishRecording(voiceTranscript);
+    try {
+      recognition.start();
+      isRecording = true;
+      b.classList.add('recording'); b.textContent = '🎤';
+      document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
+    } catch(err) { recognition = null; showToast('语音启动失败，可使用下方演示模式'); }
+  } else {
+    simRecording = true;
+    b.classList.add('recording'); b.textContent = '🎤';
+    document.getElementById('voiceHint').textContent = '正在录音… 松手结束';
+  }
+}
+function micPressEnd(e) {
+  if (e) e.preventDefault();
+  const b = document.getElementById('micBtn');
+  if (isRecording && recognition) {
+    isRecording = false;
+    b.classList.remove('recording'); b.textContent = '🎙️';
+    document.getElementById('voiceHint').textContent = '识别中…';
+    try { recognition.stop(); } catch(err) { finishRecording(voiceTranscript); }
+    return;
+  }
+  if (simRecording) {
+    simRecording = false;
+    b.classList.remove('recording'); b.textContent = '🎙️';
+    document.getElementById('voiceHint').textContent = '录音完成，AI正在解析…';
+    setTimeout(() => processVoice(demoVoiceText), 600);
+  }
+}
+function finishRecording(text) {
+  isRecording = false;
+  recognition = null;
+  const b = document.getElementById('micBtn');
+  b.classList.remove('recording'); b.textContent = '🎙️';
+  if (text && text.trim()) {
+    document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…';
+    processVoice(text);
+  } else {
+    document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
+  }
+}
+(function bindMic() {
+  const b = document.getElementById('micBtn');
+  if (!b) return;
+  b.addEventListener('touchstart', micPressStart, {passive:false});
+  b.addEventListener('touchend', micPressEnd, {passive:false});
+  b.addEventListener('touchcancel', micPressEnd, {passive:false});
+  b.addEventListener('mousedown', micPressStart);
+  b.addEventListener('mouseup', micPressEnd);
+  b.addEventListener('mouseleave', () => { if (isRecording || simRecording) micPressEnd(); });
+  b.addEventListener('contextmenu', e => e.preventDefault());
+})();
 
 const demoVoiceText = '2号基坑支护结构发现裂缝，周边防护栏杆缺失。临时用电存在私拉乱接，电缆直接放在地上没有架空敷设。动火作业没有审批手续，监护人不在现场。高空作业有人没系安全带。';
 
