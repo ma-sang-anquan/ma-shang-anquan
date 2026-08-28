@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v3.4</title>
+<title>基建安全智能检查系统 v3.6</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -720,6 +720,17 @@ function qrGenSVG(text, size) {
     </div>
   </div>
 
+  <!-- ===== Rectify Feedback Page ===== -->
+  <div class="page page-full" id="page-rectify">
+    <div class="topbar" style="background:var(--orange)">
+      <div class="bar-top">
+        <button class="back-btn" onclick="goArchive()">←</button>
+        <div class="bar-title">隐患整改反馈单</div>
+      </div>
+    </div>
+    <div class="report-body" id="rectifyBody" style="padding:16px"></div>
+  </div>
+
   <!-- ===== Archive Page ===== -->
   <div class="page" id="page-archive">
     <div class="topbar">
@@ -1035,8 +1046,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v3.4说明是缓存旧版，强制刷新
-  if (!document.title.includes('v3.4')) { location.reload(true); }
+  // 版本检查：若标题不含v3.6说明是缓存旧版，强制刷新
+  if (!document.title.includes('v3.6')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1583,13 +1594,13 @@ function selectPhotoScene(sceneId) {
   event.currentTarget.style.background = 'var(--sg-green-light)';
   
   // 按场景核心隐患排序，优先显示最相关的
-  const coreItems = scene.items.slice(0, 3); // 每个场景前3条是最核心的
-  const otherItems = scene.items.slice(3);
+  const coreItems = scene.items.slice(0, 4); // 每个场景前4条是最核心的
+  const otherItems = scene.items.slice(4);
   const shuffledCore = [...coreItems].sort(() => Math.random() - 0.5);
   const shuffledOther = [...otherItems].sort(() => Math.random() - 0.5);
   
-  // 出2-3条，优先核心项
-  const count = Math.min(shuffledCore.length + shuffledOther.length, Math.random() > 0.5 ? 3 : 2);
+  // 出3-4条，优先核心项
+  const count = Math.min(shuffledCore.length + shuffledOther.length, Math.random() > 0.5 ? 4 : 3);
   const pickedIds = [...shuffledCore, ...shuffledOther].slice(0, count);
   
   const results = pickedIds.map(id => {
@@ -1622,7 +1633,18 @@ function selectPhotoScene(sceneId) {
           ${reg.text}
         </div>` : ''}
       </div>`;
-    }).join('')}`;
+    }).join('')}
+    <div style="margin-top:12px;padding:12px;background:var(--gray-1);border-radius:8px;border:1px dashed var(--gray-3)">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text-2)">✏️ 以上都不对？手动填写隐患</div>
+      <textarea id="manualIssueInput" placeholder="请描述现场发现的隐患问题..." style="width:100%;border:1px solid var(--gray-3);border-radius:6px;padding:8px;font-size:12px;min-height:60px;resize:vertical;margin-bottom:8px"></textarea>
+      <div style="display:flex;gap:8px">
+        <select id="manualIssueCat" style="flex:1;border:1px solid var(--gray-3);border-radius:6px;padding:6px;font-size:12px">
+          <option value="">选择隐患类别</option>
+          ${photoScenes.map(s => `<option value="${s.id}">${s.icon} ${s.name}</option>`).join('')}
+        </select>
+        <button onclick="addManualIssue()" style="background:var(--sg-green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">添加</button>
+      </div>
+    </div>`;
   
   // 显示外层确认按钮
   const confirmBtn = document.getElementById('photoConfirmBtn');
@@ -1646,15 +1668,118 @@ function togglePhotoPick(idx) {
   if (btn) btn.textContent = '✓ 确认填写选中的 ' + n + ' 项';
 }
 
+function addManualIssue() {
+  const input = document.getElementById('manualIssueInput');
+  const catSelect = document.getElementById('manualIssueCat');
+  const text = input.value.trim();
+  const sceneId = catSelect.value;
+  
+  if (!text) { showToast('请填写隐患描述'); return; }
+  if (!sceneId) { showToast('请选择隐患类别'); return; }
+  
+  const scene = photoScenes.find(s => s.id === sceneId);
+  if (!scene) return;
+  
+  // 从该场景中选一个最匹配的条款作为参考
+  const refItem = flatItems[scene.items[0]];
+  const reg = regulations[scene.items[0]];
+  
+  // 创建手动添加的隐患项
+  const manualId = 'manual-' + Date.now();
+  const newItem = {
+    id: manualId,
+    status: 'issue',
+    confidence: 100,
+    detail: '手动填写：' + text,
+    selected: true,
+    isManual: true,
+    manualText: text,
+    catName: refItem.catName,
+    subName: refItem.subName,
+    name: '【手动填写】' + text.substring(0, 20) + (text.length > 20 ? '...' : ''),
+    icon: '✏️'
+  };
+  
+  // 添加到结果列表
+  window._photoResults.push(newItem);
+  
+  // 重新渲染列表
+  const resultDiv = document.getElementById('sceneResult');
+  const currentHtml = resultDiv.innerHTML;
+  const manualHtml = `
+    <div class="detect-card photo-pick selected" data-idx="${window._photoResults.length - 1}" onclick="togglePhotoPick(${window._photoResults.length - 1})" style="cursor:pointer;position:relative;margin-bottom:10px;border:2px solid var(--orange)">
+      <div class="dc-header">
+        <span style="font-size:18px">✏️</span>
+        <span class="dc-name">【手动填写】${text.substring(0, 25)}${text.length > 25 ? '...' : ''}</span>
+        <span class="dc-conf">手动录入</span>
+      </div>
+      <div class="dc-cat">${refItem.catName} / ${refItem.subName}</div>
+      <div class="dc-detail" style="margin-top:6px">${text}</div>
+      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+        <span class="dc-status issue">✗ 隐患</span>
+        <span class="vp-check" style="font-size:16px;margin-left:auto">✅</span>
+      </div>
+      ${reg ? `
+      <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
+        <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 参考条款（${reg.type}）</div>
+        ${reg.text}
+      </div>` : ''}
+    </div>`;
+  
+  // 插入手动项到列表最前面
+  const manualSection = currentHtml.indexOf('<div style="margin-top:12px;padding:12px;background:var(--gray-1)');
+  if (manualSection > 0) {
+    resultDiv.innerHTML = currentHtml.slice(0, manualSection) + manualHtml + currentHtml.slice(manualSection);
+  } else {
+    resultDiv.innerHTML = currentHtml + manualHtml;
+  }
+  
+  // 清空输入
+  input.value = '';
+  catSelect.value = '';
+  
+  // 更新按钮数量
+  const n = window._photoResults.filter(x => x.selected).length;
+  const btn = document.getElementById('photoConfirmBtn');
+  if (btn) btn.textContent = '✓ 确认填写选中的 ' + n + ' 项';
+  
+  showToast('已添加手动填写项');
+}
+
 function confirmPhoto() {
   const uploadedPhoto = document.getElementById('photoImg').src;
   const picked = (window._photoResults || []).filter(r => r.selected);
   if (picked.length) {
     picked.forEach(d => {
-      const item = flatItems[d.id];
-      item.status = d.status; item.note = d.detail;
-      if (uploadedPhoto) item.photo = uploadedPhoto;
-      categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
+      if (d.isManual) {
+        // 手动填写的项，创建新的检查项
+        const newItemId = 'manual-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
+        flatItems[newItemId] = {
+          id: newItemId,
+          name: d.name,
+          catName: d.catName,
+          subName: d.subName,
+          status: 'issue',
+          note: d.manualText,
+          photo: uploadedPhoto || '',
+          isManual: true
+        };
+        // 同时添加到 categories 中对应类别
+        categories.forEach(c => {
+          if (c.name === d.catName) {
+            c.subs.forEach(s => {
+              if (s.name === d.subName) {
+                s.items.push(flatItems[newItemId]);
+              }
+            });
+          }
+        });
+      } else {
+        const item = flatItems[d.id];
+        item.status = d.status; item.note = d.detail;
+        if (uploadedPhoto) item.photo = uploadedPhoto;
+        categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
+      }
     });
     if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
     closePhotoModal();
@@ -2046,20 +2171,54 @@ function openRectifyModal(reportId) {
   const pendingIssues = r.issueDetails.filter(item => !r.rectifications || !r.rectifications[item.id]);
   if (!pendingIssues.length) { showToast('全部隐患已整改'); return; }
   
-  let optionsHtml = '';
-  pendingIssues.forEach(item => {
-    optionsHtml += `<div class="rectify-item" onclick="selectRectifyItem('${reportId}','${item.id}')" style="border:1px solid var(--gray-3);border-radius:8px;padding:12px;margin-bottom:8px;cursor:pointer">
-      <div style="font-weight:600;font-size:13px">${item.name}</div>
-      <div style="font-size:12px;color:var(--gray-4)">${item.note||''}</div>
-    </div>`;
+  // 渲染整改反馈单页面
+  let itemsHtml = '';
+  pendingIssues.forEach((item, idx) => {
+    const reg = regulations[item.id];
+    const fix = fixMap[item.id] || '限期整改至合格标准';
+    itemsHtml += `
+      <div class="rectify-item-card" data-issue-id="${item.id}" style="border:1px solid var(--gray-3);border-radius:10px;padding:14px;margin-bottom:12px;background:#fff">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+          <span style="background:var(--orange);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">${idx+1}</span>
+          <div style="font-weight:600;font-size:14px;flex:1">${item.name}</div>
+        </div>
+        <div style="font-size:12px;color:var(--gray-4);margin-bottom:8px;padding-left:34px">${item.note||''}</div>
+        ${item.photo ? `<div style="margin-bottom:10px;padding-left:34px"><div style="font-size:11px;color:var(--gray-4);margin-bottom:4px">📷 检查时照片：</div><img src="${item.photo}" style="max-width:120px;border-radius:6px;border:1px solid var(--gray-3)"></div>` : ''}
+        <div style="background:var(--gray-1);border-radius:6px;padding:10px;margin-bottom:10px;font-size:12px">
+          <div style="font-weight:600;color:var(--sg-green);margin-bottom:4px">整改要求：</div>
+          <div style="color:var(--text-2)">${fix}</div>
+        </div>
+        <div style="padding-left:34px">
+          <div style="font-size:12px;font-weight:600;margin-bottom:6px">整改后照片：</div>
+          <div class="rectify-photo-area" data-issue-id="${item.id}" style="border:2px dashed var(--gray-3);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--gray-1)" onclick="uploadRectifyPhoto('${reportId}','${item.id}',this)">
+            <div style="font-size:24px;margin-bottom:4px">📷</div>
+            <div style="font-size:12px;color:var(--gray-4)">点击上传整改后照片</div>
+          </div>
+          <div class="rectify-note-area" style="margin-top:10px">
+            <div style="font-size:12px;font-weight:600;margin-bottom:4px">整改说明：</div>
+            <textarea class="rectify-note" data-issue-id="${item.id}" placeholder="请填写整改措施和完成情况..." style="width:100%;border:1px solid var(--gray-3);border-radius:6px;padding:8px;font-size:12px;min-height:60px;resize:vertical"></textarea>
+          </div>
+        </div>
+      </div>`;
   });
   
-  showToast('请选择要整改的隐患');
-  // 简化：直接选择第一个未整改项
-  selectRectifyItem(reportId, pendingIssues[0].id);
+  document.getElementById('rectifyBody').innerHTML = `
+    <div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--gray-3)">
+      <div style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--orange)">隐患整改反馈单</div>
+      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600;width:25%">工程名称</td><td style="border:1px solid var(--gray-3);padding:6px 8px">${r.project||''}</td></tr>
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">检查时间</td><td style="border:1px solid var(--gray-3);padding:6px 8px">${r.dateStr}</td></tr>
+        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改期限</td><td style="border:1px solid var(--gray-3);padding:6px 8px">3日内完成</td></tr>
+      </table>
+      <div style="font-size:12px;color:var(--gray-4)">共 ${pendingIssues.length} 项隐患待整改，请逐项上传整改后照片并填写说明</div>
+    </div>
+    ${itemsHtml}
+    <button class="confirm-btn" onclick="submitRectifications('${reportId}')" style="background:var(--orange);border-color:var(--orange);margin-top:8px">✓ 提交整改反馈</button>`;
+  
+  showPage('page-rectify');
 }
 
-function selectRectifyItem(reportId, issueId) {
+function uploadRectifyPhoto(reportId, issueId, el) {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -2068,29 +2227,44 @@ function selectRectifyItem(reportId, issueId) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (ev) => {
-      saveRectification(reportId, issueId, ev.target.result);
+      el.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;border-radius:6px">`;
+      el.dataset.photo = ev.target.result;
+      el.style.border = '2px solid var(--sg-green)';
     };
     reader.readAsDataURL(file);
   };
   input.click();
 }
 
-function saveRectification(reportId, issueId, photoData) {
+function submitRectifications(reportId) {
   const reports = getReports();
   const r = reports.find(x => x.id === reportId);
   if (!r) return;
   
   if (!r.rectifications) r.rectifications = {};
   const now = new Date();
-  r.rectifications[issueId] = {
-    photo: photoData,
-    time: `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`,
-    note: '整改完成，已拍照留存'
-  };
+  const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  
+  let submitted = 0;
+  document.querySelectorAll('.rectify-item-card').forEach(card => {
+    const issueId = card.dataset.issueId;
+    const photoArea = card.querySelector('.rectify-photo-area');
+    const noteArea = card.querySelector('.rectify-note');
+    if (photoArea && photoArea.dataset.photo) {
+      r.rectifications[issueId] = {
+        photo: photoArea.dataset.photo,
+        time: timeStr,
+        note: noteArea ? noteArea.value || '整改完成' : '整改完成'
+      };
+      submitted++;
+    }
+  });
+  
+  if (submitted === 0) { showToast('请至少上传一项整改照片'); return; }
   
   localStorage.setItem('safety_reports', JSON.stringify(reports));
-  showToast('整改反馈已提交');
-  viewReport(reportId); // 刷新页面
+  showToast(`已提交 ${submitted} 项整改反馈`);
+  viewReport(reportId);
 }
 
 init();
