@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v2.4</title>
+<title>基建安全智能检查系统 v2.5</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -976,8 +976,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v2.4说明是缓存旧版，强制刷新
-  if (!document.title.includes('v2.4')) { location.reload(true); }
+  // 版本检查：若标题不含v2.5说明是缓存旧版，强制刷新
+  if (!document.title.includes('v2.5')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1485,23 +1485,31 @@ function startAIAnalysis() {
   document.getElementById('aiText').textContent = 'AI 正在深度分析图片...';
 }
 
-const photoDetectionResults = [
+const photoDetectionPool = [
   { id:'3-1', status:'issue', confidence:94, detail:'检测到基坑支护结构存在横向裂缝，缝宽约2mm，存在失稳风险' },
   { id:'2-7', status:'issue', confidence:91, detail:'检测到临时用电私拉乱接，电缆未穿管保护，存在触电风险' },
   { id:'3-3', status:'issue', confidence:89, detail:'检测到基坑周边防护栏杆部分缺失，未设置连续防护' },
   { id:'1-1', status:'issue', confidence:86, detail:'检测到高空作业人员未正确佩戴安全带，存在坠落风险' },
+  { id:'4-5', status:'issue', confidence:88, detail:'检测到灭火器被杂物遮挡，无法快速取用' },
+  { id:'2-5', status:'issue', confidence:90, detail:'检测到电缆直接放置地面，未做架空或埋地处理' },
 ];
 
 function showPhotoResult() {
   document.getElementById('aiAnalyzing').classList.remove('active');
+  // 随机出 1-2 条，模拟真实场景的不确定性
+  const shuffled = [...photoDetectionPool].sort(() => Math.random() - 0.5);
+  const count = Math.random() > 0.5 ? 2 : 1;
+  const results = shuffled.slice(0, count).map(d => ({ ...d, selected: true }));
+  
   const r = document.getElementById('photoResult');
   r.innerHTML = `
     <div class="vr-label" style="margin-bottom:10px">🔍 AI 识别结果</div>
-    ${photoDetectionResults.map(d => {
+    <div style="font-size:11px;color:var(--gray-4);padding:0 0 8px 2px">👇 点选要录入的项目，无关项点掉即可</div>
+    ${results.map((d, idx) => {
       const item = flatItems[d.id];
       const reg = regulations[d.id];
       return `
-      <div class="detect-card">
+      <div class="detect-card photo-pick ${d.selected ? 'selected' : ''}" data-idx="${idx}" onclick="togglePhotoPick(${idx})" style="cursor:pointer;position:relative">
         <div class="dc-header">
           <span style="font-size:18px">${item.catIcon}</span>
           <span class="dc-name">${item.name}</span>
@@ -1509,7 +1517,10 @@ function showPhotoResult() {
         </div>
         <div class="dc-cat">${item.catName} / ${item.subName}</div>
         <div class="dc-detail" style="margin-top:6px">${d.detail}</div>
-        <div style="margin-top:8px"><span class="dc-status issue">✗ 隐患</span></div>
+        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
+          <span class="dc-status issue">✗ 隐患</span>
+          <span class="vp-check" style="font-size:16px;margin-left:auto">${d.selected ? '✅' : '⬜'}</span>
+        </div>
         ${reg ? `
         <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
           <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 AI已自动匹配违章条例（${reg.type}）</div>
@@ -1519,19 +1530,38 @@ function showPhotoResult() {
     }).join('')}`;
   r.classList.add('active');
   document.getElementById('photoConfirmBtn').classList.add('active');
+  window._photoResults = results;
+}
+
+function togglePhotoPick(idx) {
+  const r = window._photoResults[idx];
+  r.selected = !r.selected;
+  const el = document.querySelector('.photo-pick[data-idx="' + idx + '"]');
+  if (el) {
+    el.classList.toggle('selected', r.selected);
+    el.style.opacity = r.selected ? '1' : '0.4';
+    el.querySelector('.vp-check').textContent = r.selected ? '✅' : '⬜';
+  }
+  const n = window._photoResults.filter(x => x.selected).length;
+  document.getElementById('photoConfirmBtn').textContent = '✓ 确认填写选中的 ' + n + ' 项';
 }
 
 function confirmPhoto() {
   const uploadedPhoto = document.getElementById('photoImg').src;
-  photoDetectionResults.forEach(d => {
-    const item = flatItems[d.id];
-    item.status = d.status; item.note = d.detail;
-    if (uploadedPhoto) item.photo = uploadedPhoto;
-    categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
-  });
-  if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
-  closePhotoModal();
-  showToast('已自动填写 ' + photoDetectionResults.length + ' 项识别结果（含照片佐证）');
+  const picked = (window._photoResults || []).filter(r => r.selected);
+  if (picked.length) {
+    picked.forEach(d => {
+      const item = flatItems[d.id];
+      item.status = d.status; item.note = d.detail;
+      if (uploadedPhoto) item.photo = uploadedPhoto;
+      categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
+    });
+    if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
+    closePhotoModal();
+    showToast('已自动填写 ' + picked.length + ' 项识别结果（含照片佐证）');
+  } else {
+    showToast('未选择任何项目');
+  }
 }
 
 // ===================== Report =====================
