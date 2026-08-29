@@ -2286,8 +2286,8 @@ function addManualIssue() {
   // 添加到结果列表
   window._photoResults.push(newItem);
   
-  // 重新渲染列表
-  const resultDiv = document.getElementById('sceneResult');
+  // 重新渲染列表（GLM模式结果直接在photoResult里，模板模式在sceneResult里）
+  const resultDiv = document.getElementById('sceneResult') || document.getElementById('photoResult');
   const currentHtml = resultDiv.innerHTML;
   const manualHtml = `
     <div class="detect-card photo-pick selected" data-idx="${window._photoResults.length - 1}" onclick="togglePhotoPick(${window._photoResults.length - 1})" style="cursor:pointer;position:relative;margin-bottom:10px;border:2px solid var(--orange)">
