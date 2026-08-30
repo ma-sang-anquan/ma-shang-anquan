@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v5.0</title>
+<title>基建安全智能检查系统 v5.1</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -1105,8 +1105,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v5.0说明是缓存旧版，强制刷新
-  if (!document.title.includes('v5.0')) { location.reload(true); }
+  // 版本检查：若标题不含v5.1说明是缓存旧版，强制刷新
+  if (!document.title.includes('v5.1')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1838,6 +1838,7 @@ function handlePhoto(event) {
     document.getElementById('photoImg').src = dataUrl;
     document.getElementById('photoPreview').classList.add('active');
     document.getElementById('photoUpload').style.display = 'none';
+    document.getElementById('photoResult').classList.remove('active');
     setTimeout(() => startAIAnalysis(), 400);
   });
 }
@@ -1892,6 +1893,8 @@ function startAIAnalysis() {
       if (results === null) {
         showPhotoResult();
         showToast('⚠️ 真机识别连接失败，已切换场景模板模式');
+      } else if (results.nonScene) {
+        showNonSceneResult(results.nonScene);
       } else if (!results.length) {
         showPhotoResult();
         showToast('🤖 照片中未发现明显隐患，请手动选择场景确认');
@@ -1931,12 +1934,14 @@ function buildHazardPrompt() {
     '【识别要求】\n' +
     '1. 只返回照片中确实可见的实体隐患（人员防护、脚手架、用电设备、电缆、消防器材、基坑、吊装设备、现场环境等）\n' +
     '2. 管理资料类隐患（交底签字、方案审批、验收记录、应急演练等）照片无法判断，一律不返回\n' +
-    '3. 返回1-4条，最明显/最严重的排前面；照片中没有明显隐患则返回空数组\n' +
+    '3. 返回1-4条，最明显/最严重的排前面；现场照片中没有明显隐患则hazards返回空数组\n' +
     '4. 置信度85-98：特征非常清晰给95以上，比较确定给90左右，隐约可见给85\n' +
     '5. detail用一句话具体描述照片中看到的问题（例如"画面中配电箱箱门敞开，内部无漏电保护器"）\n' +
     '6. 特别留意以下最容易观察的典型隐患：电缆是否沿地面明敷（未埋地/架空）、配电箱门是否敞开、材料堆放是否杂乱、灭火器材是否缺失、人员是否佩戴安全帽/安全带\n' +
-    '【输出格式】严格只输出JSON数组，不要任何解释文字、不要markdown代码块：\n' +
-    '[{"id":"2-3","confidence":95,"detail":"具体描述"}]';
+    '【输出格式】严格只输出JSON对象，不要任何解释文字、不要markdown代码块：\n' +
+    '第一步先判断照片是否为施工现场（电力基建、建筑施工、检修作业等真实工作场景）：\n' +
+    '- 是施工现场 → {"scene":true,"hazards":[{"id":"2-3","confidence":95,"detail":"具体描述"}]}\n' +
+    '- 不是施工现场（动物、人物自拍、风景、美食、日常物品、卡通图片等）→ {"scene":false,"desc":"一句话客观描述照片内容，如：一只趴在沙发上的橘猫"}';
 }
 
 async function callGLMVision(base64, apiKey) {
@@ -1954,7 +1959,7 @@ async function callGLMVision(base64, apiKey) {
           { role: 'system', content: buildHazardPrompt() },
           { role: 'user', content: [
             { type: 'image_url', image_url: { url: base64 } },
-            { type: 'text', text: '请识别这张照片中的安全隐患，严格按JSON数组返回。' }
+            { type: 'text', text: '请先判断这张照片是否为施工现场，再严格按系统提示的JSON对象格式返回结果。' }
           ]}
         ]
       })
@@ -1963,10 +1968,14 @@ async function callGLMVision(base64, apiKey) {
     if (!resp.ok) { console.warn('GLM http error', resp.status); return null; }
     const data = await resp.json();
     const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-    const m = text.match(/\[[\s\S]*\]/);
-    if (!m) { console.warn('GLM no json:', text.slice(0, 200)); return null; }
-    const arr = JSON.parse(m[0]);
-    if (!Array.isArray(arr)) return null;
+    let obj = null;
+    try { obj = JSON.parse(text.replace(/```json|```/g, '').trim()); } catch (e) {}
+    if (!obj) { const m = text.match(/\{[\s\S]*\}/); if (m) { try { obj = JSON.parse(m[0]); } catch (e) {} } }
+    if (!obj) { const m = text.match(/\[[\s\S]*\]/); if (m) { try { obj = { scene: true, hazards: JSON.parse(m[0]) }; } catch (e) {} } }
+    if (!obj || typeof obj !== 'object') { console.warn('GLM no json:', text.slice(0, 200)); return null; }
+    if (obj.scene === false) return { nonScene: String(obj.desc || '非施工现场内容').slice(0, 80) };
+    const arr = Array.isArray(obj) ? obj : obj.hazards;
+    if (!Array.isArray(arr)) return [];
     return arr.filter(d => d && flatItems[d.id]).slice(0, 4).map(d => ({
       id: d.id,
       status: 'issue',
@@ -2022,6 +2031,25 @@ function showAIResults(results) {
   confirmBtn.style.display = 'block';
   confirmBtn.textContent = '✓ 确认填写选中的 ' + results.length + ' 项';
   window._photoResults = results;
+}
+
+// 非施工现场照片：说明拍到了什么，引导重新拍摄
+function showNonSceneResult(desc) {
+  document.getElementById('aiAnalyzing').classList.remove('active');
+  const esc = String(desc).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const r = document.getElementById('photoResult');
+  r.innerHTML = `
+    <div class="vr-label" style="margin-bottom:4px">📸 AI识别结果 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#F6FFED;color:#389E0D;border:1px solid #B7EB8F;margin-left:4px">🤖 GLM-4V 真机识别</span></div>
+    <div style="text-align:center;padding:26px 16px;background:#FFFBE6;border:1px solid #FFE58F;border-radius:10px;margin-top:6px">
+      <div style="font-size:44px">🔎</div>
+      <div style="font-size:14px;font-weight:700;color:#333;margin:10px 0 6px">这张照片拍的是：${esc}</div>
+      <div style="font-size:12px;color:#AD6800;line-height:1.7">未检测到施工现场安全隐患<br>请传入正确的现场隐患照片</div>
+      <button onclick="document.getElementById('photoInput').click()" style="margin-top:14px;background:var(--sg-green);color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer">📷 重新拍摄</button>
+    </div>`;
+  r.classList.add('active');
+  const confirmBtn = document.getElementById('photoConfirmBtn');
+  if (confirmBtn) confirmBtn.style.display = 'none';
+  window._photoResults = [];
 }
 
 const photoScenes = [
