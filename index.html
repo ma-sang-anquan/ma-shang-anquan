@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v5.1</title>
+<title>基建安全智能检查系统 v5.2</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -820,6 +820,19 @@ function qrGenSVG(text, size) {
 </div>
 
 <script>
+// ===================== 入场校验：旧二维码作废，只认现场新码（?v=51）=====================
+(function(){
+  if (/[?&]v=51\b/.test(location.search)) return;
+  document.documentElement.style.display = 'none';
+  document.addEventListener('DOMContentLoaded', function() {
+    document.body.innerHTML = '<div style="position:fixed;inset:0;background:#F4F7F6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;font-family:-apple-system,sans-serif">'
+      + '<div style="font-size:52px">🔄</div>'
+      + '<div style="font-size:17px;font-weight:700;color:#333;margin:14px 0 8px">体验二维码已更新</div>'
+      + '<div style="font-size:13px;color:#999;line-height:1.8">您扫描的是旧版二维码<br>请使用活动现场发放的最新二维码进入</div></div>';
+    document.documentElement.style.display = '';
+  });
+})();
+
 // ===================== Data =====================
 const categories = [
   { id:1, name:'人员行为与安全意识隐患', icon:'👷', color:'#1B95E0', colorLight:'#e3f2fd',
@@ -1105,8 +1118,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v5.1说明是缓存旧版，强制刷新
-  if (!document.title.includes('v5.1')) { location.reload(true); }
+  // 版本检查：若标题不含v5.2说明是缓存旧版，强制刷新
+  if (!document.title.includes('v5.2')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
