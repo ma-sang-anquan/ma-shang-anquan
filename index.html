@@ -3,10 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v5.2</title>
+<title>基建安全智能检查系统</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -15,7 +12,7 @@
 <style>
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   :root{
-    --sg-green:#10B981;--sg-green-dark:#059669;--sg-green-light:#E6F9F0;
+    --sg-green:#00923E;--sg-green-dark:#007032;--sg-green-light:#e6f4ea;
     --blue:#1B95E0;--blue-light:#e3f2fd;
     --orange:#FF9800;--orange-light:#fff3e0;
     --brown:#795548;--brown-light:#efebe9;
@@ -28,16 +25,15 @@
   body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--gray-1);color:var(--text-1);line-height:1.6}
   #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
   @media(min-width:500px){body{background:#1a1a2e;padding:20px 0}#app{min-height:880px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}}
-  .page{display:none;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .page{display:none;min-height:100vh;animation:fadeIn .3s ease}
   .page.active{display:block}
-  #page-scan.page.active{display:flex;flex-direction:column;align-items:center}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
   /* ===== Scan Page ===== */
-  #page-scan{background:linear-gradient(160deg,#4BDCA0,#10B981 45%,#0B7A5C);display:flex;flex-direction:column;align-items:center;padding:32px 24px 24px;color:#fff}
-  #page-scan .hero{text-align:center;margin-bottom:14px}
-  #page-scan .logo-icon{width:48px;height:48px;margin:0 auto 6px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
-  #page-scan .brand{font-size:24px;font-weight:800;letter-spacing:1px;margin-bottom:2px}
+  #page-scan{background:linear-gradient(160deg,#00B649,#00923E 40%,#004d24);display:flex;flex-direction:column;align-items:center;min-height:100vh;padding:50px 24px 30px;color:#fff;overflow-y:auto}
+  #page-scan .hero{text-align:center;margin-bottom:24px}
+  #page-scan .logo-icon{width:60px;height:60px;margin:0 auto 10px;background:rgba(255,255,255,.15);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+  #page-scan .brand{font-size:26px;font-weight:800;letter-spacing:1px;margin-bottom:4px}
   #page-scan .brand .brand-accent{color:#FFD700}
   #page-scan .subtitle{font-size:13px;opacity:.75}
   #page-scan .qr-area{background:#fff;padding:14px;border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.25);margin-bottom:8px;position:relative;cursor:pointer;transition:transform .2s}
@@ -50,30 +46,30 @@
   #page-scan .qr-label{font-size:12px;color:var(--sg-green);text-align:center;margin-top:6px;margin-bottom:6px;font-weight:600}
   #page-scan .scan-hint{font-size:12px;opacity:.7;text-align:center;margin-bottom:16px}
   #page-scan .url-display{font-size:10px;opacity:.4;text-align:center;word-break:break-all;max-width:280px;margin:0 auto 16px}
-  #page-scan .scan-btn{background:#fff;color:var(--sg-green-dark);border:none;padding:13px 44px;border-radius:28px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s;margin-bottom:16px}
+  #page-scan .scan-btn{background:#fff;color:var(--sg-green);border:none;padding:13px 44px;border-radius:28px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.15);transition:all .2s;margin-bottom:28px}
   #page-scan .scan-btn:active{transform:scale(.96)}
-  #page-scan .how-works{width:100%;margin-bottom:12px}
+  #page-scan .how-works{width:100%;margin-bottom:22px}
   #page-scan .hw-title{font-size:12px;opacity:.6;text-align:center;margin-bottom:10px;letter-spacing:1px}
   #page-scan .hw-steps{display:flex;align-items:center;justify-content:center;gap:6px}
   #page-scan .hw-step{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:8px 6px;text-align:center;flex:1;max-width:85px}
   #page-scan .hw-icon{font-size:18px;margin-bottom:3px}
   #page-scan .hw-text{font-size:10px;opacity:.85}
   #page-scan .hw-arrow{font-size:12px;opacity:.4}
-  #page-scan .feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+  #page-scan .feat-grid{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:22px}
   #page-scan .feat-card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:10px 12px;display:flex;align-items:center;gap:8px}
   #page-scan .fc-icon{font-size:18px;flex-shrink:0}
   #page-scan .fc-name{font-size:12px;font-weight:600}
   #page-scan .fc-text{font-size:10px;opacity:.7;margin-top:1px}
   #page-scan .archive-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.25);color:#fff;padding:11px 30px;border-radius:22px;font-size:13px;cursor:pointer;transition:all .2s}
   #page-scan .archive-btn:active{transform:scale(.96)}
-  #page-scan .bottom-deco{font-size:10px;opacity:.35;text-align:center;margin-top:12px;letter-spacing:1px}
+  #page-scan .bottom-deco{font-size:10px;opacity:.35;text-align:center;margin-top:20px;letter-spacing:1px}
 
   /* ===== Topbar ===== */
-  .topbar{background:linear-gradient(135deg,var(--sg-green),var(--sg-green-dark));color:#fff;padding:40px 16px 14px;position:sticky;top:0;z-index:100}
+  .topbar{background:linear-gradient(135deg,var(--sg-green),var(--sg-green-dark));color:#fff;padding:44px 20px 20px;position:sticky;top:0;z-index:100}
   .topbar .bar-top{display:flex;align-items:center;gap:10px;margin-bottom:12px}
   .topbar .back-btn{background:rgba(255,255,255,.15);border:none;color:#fff;width:36px;height:36px;border-radius:10px;font-size:18px;cursor:pointer}
   .topbar .bar-title{font-size:17px;font-weight:600;flex:1}
-  .info-card{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:10px 14px;backdrop-filter:blur(8px)}
+  .info-card{background:rgba(255,255,255,.12);border-radius:var(--radius);padding:14px 16px;backdrop-filter:blur(8px)}
   .info-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px}
   .info-row:last-child{margin-bottom:0}
   .info-row span:first-child{opacity:.8}
@@ -84,7 +80,7 @@
   .rp-input::placeholder{color:var(--gray-4);font-size:11px}
 
   /* ===== Category Cards ===== */
-  .cat-list{padding:12px 16px}
+  .cat-list{padding:16px}
   .cat-card{background:#fff;border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:14px}
   .cat-card:active{transform:scale(.98)}
   .cat-card .cc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
@@ -102,7 +98,7 @@
   .sub-section{margin:16px;background:#fff;border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
   .sub-header{padding:12px 16px;background:var(--gray-1);font-size:14px;font-weight:600;color:var(--text-1);display:flex;align-items:center;gap:8px}
   .sub-header .sh-dot{width:6px;height:6px;border-radius:50%}
-  .check-item{padding:14px 16px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--gray-2);transition:all .2s;flex-wrap:wrap}
+  .check-item{padding:14px 16px;display:flex;align-items:center;gap:12px;border-top:1px solid var(--gray-2);transition:all .2s}
   .check-item.has-issue{border-left:4px solid var(--red);padding-left:12px}
   .check-item.is-ok{border-left:4px solid var(--sg-green);padding-left:12px}
   .ci-body{flex:1}
@@ -149,7 +145,7 @@
 
   /* Voice */
   .voice-area{text-align:center;padding:10px 0 20px}
-  .voice-mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1673c0);border:none;cursor:pointer;font-size:36px;color:#fff;box-shadow:0 8px 24px rgba(27,149,224,.4);transition:all .3s;position:relative;user-select:none;-webkit-user-select:none;touch-action:none}
+  .voice-mic-btn{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--blue),#1673c0);border:none;cursor:pointer;font-size:36px;color:#fff;box-shadow:0 8px 24px rgba(27,149,224,.4);transition:all .3s;position:relative}
   .voice-mic-btn.recording{background:linear-gradient(135deg,var(--red),#d32f2f);box-shadow:0 8px 24px rgba(244,67,54,.4);animation:pulse 1.2s ease-in-out infinite}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
   .voice-mic-btn.recording::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:3px solid rgba(244,67,54,.3);animation:ripple 1.5s ease-out infinite}
@@ -211,7 +207,7 @@
   #page-report{padding-bottom:40px}
 
   /* ===== Archive Page ===== */
-  .ai-card{background:linear-gradient(135deg,#0E9F6E,#34D399);border-radius:var(--radius);padding:18px 16px;color:#fff;margin-bottom:16px}
+  .ai-card{background:linear-gradient(135deg,#00923E,#00B649);border-radius:var(--radius);padding:18px 16px;color:#fff;margin-bottom:16px}
   .ai-card-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:6px}
   .bar-chart{margin-bottom:16px}
   .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
@@ -233,8 +229,6 @@
   .archive-date{font-size:14px;font-weight:600;color:var(--text-1)}
   .archive-meta{font-size:12px;color:var(--gray-5);margin-top:2px}
   .archive-badge{font-size:11px;padding:3px 10px;border-radius:10px;font-weight:600;flex-shrink:0}
-  .archive-del{flex-shrink:0;border:none;background:var(--gray-1);color:var(--red);width:30px;height:30px;border-radius:50%;font-size:13px;display:flex;align-items:center;justify-content:center;cursor:pointer}
-  .archive-del:active{background:var(--red);color:#fff}
   .ab-severe{background:#fee;color:var(--red)}
   .ab-general{background:#fff8e1;color:var(--orange)}
   .ab-clean{background:#e8f5e9;color:var(--sg-green)}
@@ -618,7 +612,7 @@ function qrGenSVG(text, size) {
       <div class="brand">码上<span class="brand-accent">安全</span></div>
       <div class="subtitle">施工现场检查AI助手</div>
     </div>
-    <div class="qr-area" onclick="scanEnter()">
+    <div class="qr-area" onclick="goCategory()">
       <div class="scan-line"></div>
       <div id="homeQrContainer" style="width:180px;height:180px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:4px"></div>
       <div style="display:none;color:#999;font-size:13px;text-align:center;padding:40px 0">二维码加载中...</div>
@@ -626,7 +620,7 @@ function qrGenSVG(text, size) {
     <div class="qr-label">扫码进入检查系统</div>
     <div class="scan-hint">手机扫码 · 点击也可直接进入</div>
     <div class="url-display" id="urlDisplay"></div>
-    <button class="scan-btn" onclick="scanEnter()">扫码开始检查</button>
+    <button class="scan-btn" onclick="goCategory()">扫码开始检查</button>
 
     <div class="how-works">
       <div class="hw-title">— 使用流程 —</div>
@@ -647,7 +641,7 @@ function qrGenSVG(text, size) {
     </div>
 
     <button class="archive-btn" onclick="goArchive()">📂 检查归档与AI分析</button>
-    <div class="bottom-deco">国网张家口供电公司 · 基建安全管理 · 制作者—刘昊</div>
+    <div class="bottom-deco">国网张家口供电公司 · 基建安全管理</div>
   </div>
 
   <!-- ===== Category Selection ===== -->
@@ -720,17 +714,6 @@ function qrGenSVG(text, size) {
     </div>
   </div>
 
-  <!-- ===== Rectify Feedback Page ===== -->
-  <div class="page page-full" id="page-rectify">
-    <div class="topbar" style="background:var(--orange)">
-      <div class="bar-top">
-        <button class="back-btn" onclick="goArchive()">←</button>
-        <div class="bar-title">隐患整改反馈单</div>
-      </div>
-    </div>
-    <div class="report-body" id="rectifyBody" style="padding:16px"></div>
-  </div>
-
   <!-- ===== Archive Page ===== -->
   <div class="page" id="page-archive">
     <div class="topbar">
@@ -743,10 +726,7 @@ function qrGenSVG(text, size) {
       <div class="ai-card" id="aiAnalysisCard"></div>
     </div>
     <div style="padding:0 16px 8px">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <div style="font-size:14px;font-weight:700;color:var(--text-1)">📂 历次检查记录</div>
-        <button onclick="clearReports()" style="border:none;background:none;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;padding:4px 6px">🗑 清空</button>
-      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--text-1);margin-bottom:8px">📂 历次检查记录</div>
     </div>
     <div class="archive-list" id="archiveList"></div>
   </div>
@@ -761,17 +741,12 @@ function qrGenSVG(text, size) {
       </div>
       <div class="modal-body">
         <div class="voice-area">
-          <button class="voice-mic-btn" id="micBtn">🎙️</button>
-          <div class="voice-hint" id="voiceHint">按住麦克风说话，松手自动识别</div>
-          <div id="wxGuide" style="display:none;margin-top:10px;background:#FFF7E6;border:1px solid #FFD591;border-radius:8px;padding:10px 12px;font-size:12px;color:#AD6800;line-height:1.8;text-align:left">
-            📢 <b>微信内无法使用语音识别</b>（微信未开放麦克风）<br>
-            方式①：点右上角「···」→「在浏览器打开」<br>
-            方式②：退出微信，用<b>手机相机</b>扫码直接打开
-          </div>
+          <button class="voice-mic-btn" id="micBtn" onclick="toggleVoice()">🎙️</button>
+          <div class="voice-hint" id="voiceHint">点击麦克风开始语音录入</div>
           <button class="voice-demo-btn" onclick="simulateVoice()">▶ 演示：模拟一段语音录入</button>
         </div>
         <div class="voice-result" id="voiceResult">
-          <div class="vr-label">📝 语音识别结果 <span id="voiceModeTag" style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;margin-left:4px"></span></div>
+          <div class="vr-label">📝 语音识别结果</div>
           <div class="vr-text" id="voiceText"></div>
           <div class="vr-parse">
             <div class="vr-parse-label">🤖 AI 智能解析</div>
@@ -787,7 +762,7 @@ function qrGenSVG(text, size) {
   <div class="overlay" id="photoOverlay">
     <div class="modal">
       <div class="modal-header">
-        <div class="mh-title">📷 拍照智能识别 <span onclick="setGLMKey()" style="font-size:11px;font-weight:500;color:var(--gray-4);cursor:pointer;float:right;padding:2px 6px;border:1px solid var(--gray-3);border-radius:8px">⚙️ AI引擎</span></div>
+        <div class="mh-title">📷 拍照智能识别</div>
         <div class="mh-sub">拍照上传，AI自动识别施工现场隐患</div>
         <button class="mh-close" onclick="closePhotoModal()">✕</button>
       </div>
@@ -797,7 +772,7 @@ function qrGenSVG(text, size) {
           <div class="pa-text">点击拍照或上传照片</div>
           <div class="pa-sub">支持基坑、用电设备、高空作业等场景识别</div>
         </div>
-        <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhoto(event)">
+        <input type="file" id="photoInput" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(event)">
         <div class="photo-preview" id="photoPreview"><img id="photoImg" src=""></div>
         <div class="ai-analyzing" id="aiAnalyzing">
           <div class="ai-spinner"></div>
@@ -820,19 +795,6 @@ function qrGenSVG(text, size) {
 </div>
 
 <script>
-// ===================== 入场校验：旧二维码作废，只认现场新码（?v=51）=====================
-(function(){
-  if (/[?&]v=51\b/.test(location.search)) return;
-  document.documentElement.style.display = 'none';
-  document.addEventListener('DOMContentLoaded', function() {
-    document.body.innerHTML = '<div style="position:fixed;inset:0;background:#F4F7F6;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;font-family:-apple-system,sans-serif">'
-      + '<div style="font-size:52px">🔄</div>'
-      + '<div style="font-size:17px;font-weight:700;color:#333;margin:14px 0 8px">体验二维码已更新</div>'
-      + '<div style="font-size:13px;color:#999;line-height:1.8">您扫描的是旧版二维码<br>请使用活动现场发放的最新二维码进入</div></div>';
-    document.documentElement.style.display = '';
-  });
-})();
-
 // ===================== Data =====================
 const categories = [
   { id:1, name:'人员行为与安全意识隐患', icon:'👷', color:'#1B95E0', colorLight:'#e3f2fd',
@@ -909,65 +871,6 @@ const categories = [
         { id:'5-3', name:'安全技术交底是否签字确认', status:'pending', note:'' },
         { id:'5-4', name:'交底内容是否有针对性', status:'pending', note:'' },
       ]},
-      { name:'方案与审批', items:[
-        { id:'5-5', name:'施工方案是否经审批', status:'pending', note:'' },
-        { id:'5-6', name:'超过一定规模的危险性较大工程是否专家论证', status:'pending', note:'' },
-      ]},
-    ]
-  },
-  { id:6, name:'起重机械与吊装作业隐患', icon:'🏗️', color:'#9C27B0', colorLight:'#f3e5f5',
-    subs:[
-      { name:'起重机械', items:[
-        { id:'6-1', name:'起重机械是否验收合格并挂牌', status:'pending', note:'' },
-        { id:'6-2', name:'起重机械安全装置是否齐全有效', status:'pending', note:'' },
-        { id:'6-3', name:'起重机械操作人员是否持证', status:'pending', note:'' },
-      ]},
-      { name:'吊装作业', items:[
-        { id:'6-4', name:'吊装作业区域是否设置警戒', status:'pending', note:'' },
-        { id:'6-5', name:'吊装物捆绑是否牢固', status:'pending', note:'' },
-        { id:'6-6', name:'是否违规斜拉斜吊', status:'pending', note:'' },
-      ]},
-      { name:'吊索具', items:[
-        { id:'6-7', name:'钢丝绳有无断丝、变形、磨损超标', status:'pending', note:'' },
-        { id:'6-8', name:'吊钩有无裂纹、变形，保险装置是否有效', status:'pending', note:'' },
-      ]},
-    ]
-  },
-  { id:7, name:'高处作业与脚手架隐患', icon:'🪜', color:'#FF5722', colorLight:'#fbe9e7',
-    subs:[
-      { name:'脚手架', items:[
-        { id:'7-1', name:'脚手架基础是否平整夯实', status:'pending', note:'' },
-        { id:'7-2', name:'脚手架连墙件是否按规范设置', status:'pending', note:'' },
-        { id:'7-3', name:'脚手板是否满铺、固定牢固', status:'pending', note:'' },
-        { id:'7-4', name:'脚手架外侧是否设置密目式安全网', status:'pending', note:'' },
-      ]},
-      { name:'临边洞口', items:[
-        { id:'7-5', name:'楼梯口、电梯井口是否设置防护', status:'pending', note:'' },
-        { id:'7-6', name:'预留洞口是否设置盖板或防护栏杆', status:'pending', note:'' },
-        { id:'7-7', name:'临边作业面是否设置防护栏杆', status:'pending', note:'' },
-      ]},
-      { name:'攀登作业', items:[
-        { id:'7-8', name:'登高作业是否使用合格梯具', status:'pending', note:'' },
-        { id:'7-9', name:'直爬梯是否设置护笼', status:'pending', note:'' },
-      ]},
-    ]
-  },
-  { id:8, name:'消防安全与文明施工隐患', icon:'🧯', color:'#E91E63', colorLight:'#fce4ec',
-    subs:[
-      { name:'消防设施', items:[
-        { id:'8-1', name:'临时消防设施是否齐全有效', status:'pending', note:'' },
-        { id:'8-2', name:'消防通道是否畅通', status:'pending', note:'' },
-        { id:'8-3', name:'易燃易爆物品是否专库存放', status:'pending', note:'' },
-      ]},
-      { name:'文明施工', items:[
-        { id:'8-4', name:'材料堆放是否整齐，标识是否清晰', status:'pending', note:'' },
-        { id:'8-5', name:'施工道路是否硬化，排水是否畅通', status:'pending', note:'' },
-        { id:'8-6', name:'建筑垃圾是否及时清运', status:'pending', note:'' },
-      ]},
-      { name:'生活区', items:[
-        { id:'8-7', name:'宿舍内是否违规使用大功率电器', status:'pending', note:'' },
-        { id:'8-8', name:'食堂卫生是否符合要求', status:'pending', note:'' },
-      ]},
     ]
   },
 ];
@@ -1006,33 +909,6 @@ const regulations = {
   '5-2': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.3.2条：隐患整改应在规定期限内完成，逾期未整改的应升级管理并追究责任。' },
   '5-3': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.2.1条：施工前应进行安全技术交底，交底人和被交底人均应签字确认，未经签字确认不得施工。' },
   '5-4': { type:'一般违章', text:'违反《国家电网有限公司电力建设安全工作规程》（Q/GDW 11957.1-2020）第5.2.2条：安全技术交底应结合工程实际，交底内容应具体、有针对性，不得流于形式。' },
-  '5-5': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第6.3.1条：在电气设备上工作，应填用工作票或事故紧急抢修单，工作票应经签发人签发后方可执行。' },
-  '5-6': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第6.3.2条：工作票应一式两份，一份由工作负责人收执，另一份由工作许可人收执。工作票应提前送达运维人员。' },
-  '6-1': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.5条：特种设备（起重机械）在使用前应经特种设备检验检测机构检验合格，取得合格证并制订安全使用规定和定期检验维护制度。' },
-  '6-2': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.2.1.9条：各式起重机应该根据需要安设过卷扬限制器、过负荷限制器、起重臂俯仰限制器、行程限制器、联锁开关等安全装置；其起升、变幅、运行、旋转机构都应装设制动器。' },
-  '6-3': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.2.1.3条：在用起重机械应当在每次使用前进行一次常规性检查，并做好记录。起重机械每年至少应做一次全面技术检查。' },
-  '6-4': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.2.1.5条：禁止与工作无关人员在起重工作区域内行走或停留。' },
-  '6-5': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.2.1.4条：起吊重物前，应由工作负责人检查悬吊情况及所吊物件的捆绑情况，认为可靠后方准试行起吊。' },
-  '6-6': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.2.1.7条：禁止用起重机起吊埋在地下的物件。禁止斜拉斜吊。' },
-  '6-7': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.3.1.2条：钢丝绳应按其力学性能选用，并应配备一定的安全系数。钢丝绳的安全系数及配合滑轮的直径应不小于表19的规定。' },
-  '6-8': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第17.3.1.3条：钢丝绳端部用绳卡固定连接时，绳卡压板应在钢丝绳主要受力的一边，不准正反交叉设置。' },
-  '7-1': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.1.10条：高处作业使用的脚手架应经验收合格后方可使用。上下脚手架应走斜道或梯子，作业人员不准沿脚手杆或栏杆等攀爬。' },
-  '7-2': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.1.17条：脚手架的安装、拆除和使用，应执行国家相关规程规定。连墙件应按规范设置，确保脚手架稳定。' },
-  '7-3': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.1.11条：高处作业应一律使用工具袋。较大的工具应用绳拴在牢固的构件上，工件、边角余料应放置在牢靠的地方或用铁丝扣牢并有防止坠落的措施。' },
-  '7-4': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.1.12条：在进行高处作业时，除有关人员外，不准他人在工作地点的下面通行或逗留，工作地点下面应有围栏或装设其他保护装置，防止落物伤人。' },
-  '7-5': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.2条：变电站（生产厂房）内外工作场所的井、坑、孔、洞或沟道，应覆以与地面齐平而坚固的盖板。在检修工作中如需将盖板取下，应设临时围栏。' },
-  '7-6': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.3条：所有升降口、大小孔洞、楼梯和平台，应装设不低于1050mm高的栏杆和不低于100mm高的护板。临时遮栏应由上、下两道横杆及栏杆柱组成，并在栏杆下边设置严密固定的高度不低于180mm的挡脚板。' },
-  '7-7': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.1.4条：在屋顶以及其他危险的边沿进行工作，临空一面应装设安全网或防护栏杆，否则，作业人员应使用安全带。' },
-  '7-8': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第18.2.1条：梯子应坚固完整，有防滑措施。梯子的支柱应能承受作业人员及所携带的工具、材料攀登时的总重量。' },
-  '7-9': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.2.2条：变电站（生产厂房）外墙、竖井等处固定的爬梯，应牢固可靠，并设护笼，高百米以上的爬梯，中间应设有休息的平台。' },
-  '8-1': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.3.3条：遇有电气设备着火时，应立即将有关设备的电源切断，然后进行救火。消防器材的配备、使用、维护，消防通道的配置等应遵守DL 5027的规定。' },
-  '8-2': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.3.4条：工作场所的照明，应该保证足够的亮度。现场的临时照明线路应相对固定，并经常检查、维修。照明灯具的悬挂高度应不低于2.5m。' },
-  '8-3': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.6.1条：在防火重点部位或场所以及禁止明火区动火作业，应填用动火工作票。易燃易爆物品应专库存放，远离火源。' },
-  '8-4': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.6条：各生产场所应有逃生路线的标示。材料堆放应整齐，标识清晰，不得阻塞通道。' },
-  '8-5': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.3.5条：检修动力电源箱的支路开关都应加装剩余电流动作保护器（漏电保护器）并应定期检查和试验。施工道路应保持畅通，排水良好。' },
-  '8-6': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.2条：变电站（生产厂房）内外工作场所的井、坑、孔、洞或沟道，应覆以与地面齐平而坚固的盖板。建筑垃圾应及时清运，保持现场整洁。' },
-  '8-7': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.3.5条：检修动力电源箱的支路开关都应加装剩余电流动作保护器（漏电保护器）。宿舍内严禁违规使用大功率电器，防止电气火灾。' },
-  '8-8': { type:'一般违章', text:'违反《国家电网公司电力安全工作规程（变电部分）》（Q/GDW 1799.1-2013）第16.1.6条：各生产场所应有逃生路线的标示。食堂应符合卫生要求，防止食物中毒。' },
 };
 
 // ===================== AI整改措施数据库 =====================
@@ -1065,40 +941,9 @@ const fixMap = {
   '5-2': '加快整改进度，逾期未整改的升级管理并追究责任',
   '5-3': '补做安全技术交底，交底人和被交底人签字确认',
   '5-4': '重新进行安全技术交底，内容结合工程实际',
-  '5-5': '施工方案必须经审批后方可实施，未经审批不得施工',
-  '5-6': '超过一定规模的危险性较大工程必须组织专家论证',
-  '6-1': '起重机械必须经检验合格取得合格证后方可使用，并建立定期检验维护制度',
-  '6-2': '起重机械安全装置必须齐全有效，缺失或失效的立即停用修复',
-  '6-3': '起重机械操作人员必须持有效证件上岗，无证人员严禁操作',
-  '6-4': '吊装作业区域设置警戒线，禁止无关人员进入',
-  '6-5': '吊装物捆绑必须牢固可靠，起吊前检查确认',
-  '6-6': '严禁斜拉斜吊，吊装作业必须垂直起吊',
-  '6-7': '钢丝绳定期检查，断丝、变形、磨损超标的立即更换',
-  '6-8': '吊钩定期检查，有裂纹、变形或保险装置失效的立即更换',
-  '7-1': '脚手架基础必须平整夯实，设置排水措施',
-  '7-2': '脚手架连墙件按规范设置，确保整体稳定',
-  '7-3': '脚手板满铺并固定牢固，严禁有探头板',
-  '7-4': '脚手架外侧设置密目式安全网，防止坠物伤人',
-  '7-5': '井、坑、孔、洞立即加盖板并设警示标志，盖板必须坚固齐平',
-  '7-6': '临边洞口设置防护栏杆和挡脚板，高度不低于1050mm',
-  '7-7': '临边作业设置防护栏杆或安全网，否则作业人员必须使用安全带',
-  '7-8': '登高作业使用合格梯具，梯具必须有防滑措施',
-  '7-9': '直爬梯设置护笼，高百米以上爬梯中间设休息平台',
-  '8-1': '临时消防设施必须齐全有效，定期检查维护',
-  '8-2': '消防通道保持畅通，不得堆放物品',
-  '8-3': '易燃易爆物品专库存放，远离火源和热源',
-  '8-4': '材料堆放整齐，标识清晰，不得阻塞通道',
-  '8-5': '施工道路硬化，排水畅通，保持现场整洁',
-  '8-6': '建筑垃圾及时清运，孔洞盖板及时恢复',
-  '8-7': '宿舍内严禁违规使用大功率电器，防止电气火灾',
-  '8-8': '食堂卫生符合要求，防止食物中毒',
 };
 
 // ===================== Init =====================
-// 旧二维码地址纠错：ma-shang-anqun 是建仓库时少打的 a，自动跳到正确地址
-if (location.pathname.indexOf('/ma-shang-anqun') === 0) {
-  location.replace(location.href.replace('/ma-shang-anqun', '/ma-shang-anquan'));
-}
 function init() {
   const now = new Date();
   const ds = `${now.getFullYear()}年${now.getMonth()+1}月${now.getDate()}日`;
@@ -1118,24 +963,14 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v5.3说明是缓存旧版，强制刷新
-  if (!document.title.includes('v5.3')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
 function showPage(id) {
-  var pages = document.querySelectorAll('.page');
-  for (var i = 0; i < pages.length; i++) {
-    pages[i].classList.remove('active');
-    pages[i].style.display = 'none';
-  }
-  var target = document.getElementById(id);
-  target.classList.add('active');
-  target.style.display = (id === 'page-scan') ? 'flex' : 'block';
-  target.scrollTop = 0;
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
   window.scrollTo(0, 0);
 }
-function scanEnter() { showToast('✅ 扫码成功，进入检查'); goCategory(); }
 function goScan() { showPage('page-scan'); }
 function goCategory() { showPage('page-category'); }
 function goInspect(catId) {
@@ -1196,15 +1031,7 @@ function renderInspectionPage(catId) {
           </div>
           <div class="ci-photo-btn ${fi.photo?'has-photo':''}" onclick="itemPhoto('${item.id}')">${fi.photo?'📸':'📷'}</div>
           <input type="file" id="photo-input-${item.id}" accept="image/*" capture="environment" style="display:none" onchange="handleItemPhoto(event,'${item.id}')">
-          <div style="width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;border:2px solid ${fi.note?'var(--sg-green)':'var(--gray-3)'};background:${fi.note?'var(--sg-green-light)':'var(--gray-1)'};cursor:pointer" onclick="toggleNoteInput('${item.id}')" title="填写检查意见">✏️</div>
           <div class="ci-status" onclick="cycleStatus('${item.id}')">${fi.status==='ok'?'✓':fi.status==='issue'?'!':''}</div>
-          <div id="note-editor-${item.id}" style="display:none;width:100%;margin-top:4px">
-            <textarea id="note-input-${item.id}" placeholder="✏️ 输入检查意见（现场情况/位置/程度），保存后自动写入整改通知单" style="width:100%;border:1px solid var(--gray-3);border-radius:8px;padding:8px 10px;font-size:12px;min-height:56px;resize:vertical;box-sizing:border-box;outline:none">${fi.note||''}</textarea>
-            <div style="display:flex;gap:8px;margin-top:6px">
-              <button onclick="saveItemNote('${item.id}')" style="flex:1;background:var(--sg-green);color:#fff;border:none;border-radius:6px;padding:8px;font-size:13px;font-weight:600;cursor:pointer">✓ 保存意见</button>
-              <button onclick="toggleNoteInput('${item.id}')" style="background:#fff;color:var(--gray-4);border:1px solid var(--gray-3);border-radius:6px;padding:8px 14px;font-size:13px;cursor:pointer">收起</button>
-            </div>
-          </div>
         </div>`;
       }).join('')}
     </div>`).join('');
@@ -1229,29 +1056,6 @@ function cycleStatus(id) {
   categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === id) { i.status = item.status; i.note = item.note; } })));
   if (currentCatId) renderInspectionPage(currentCatId);
   else renderCategoryList();
-}
-
-// ===================== 检查意见手动输入 =====================
-function toggleNoteInput(id) {
-  const ed = document.getElementById('note-editor-' + id);
-  if (!ed) return;
-  const showing = ed.style.display !== 'none';
-  ed.style.display = showing ? 'none' : 'block';
-  if (!showing) { const ta = document.getElementById('note-input-' + id); if (ta) ta.focus(); }
-}
-function saveItemNote(id) {
-  const ta = document.getElementById('note-input-' + id);
-  if (!ta) return;
-  const val = ta.value.trim();
-  flatItems[id].note = val;
-  categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === id) i.note = val; })));
-  const st = flatItems[id].status;
-  if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
-  if (val && st !== 'issue') {
-    showToast('意见已保存。提示：该项未标记为隐患(点右侧圆圈)，不会进整改单');
-  } else {
-    showToast('检查意见已保存，将写入整改通知单');
-  }
 }
 
 // ===================== Photo Evidence =====================
@@ -1279,320 +1083,37 @@ function closePhotoViewer() {
   document.getElementById('photoViewer').classList.remove('active');
 }
 
-// ===================== Voice (按住说话) =====================
-let recognition = null, isRecording = false, simRecording = false, voiceTranscript = '';
-function openVoiceModal() {
-  document.getElementById('voiceOverlay').classList.add('active');
-  var wg = document.getElementById('wxGuide');
-  if (wg) {
-    var noMic = !(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-    var inWx = /MicroMessenger/i.test(navigator.userAgent);
-    wg.style.display = (inWx && noMic) ? 'block' : 'none';
-  }
-  setVoiceMode('');
-}
-function setVoiceMode(mode) {
-  var tag = document.getElementById('voiceModeTag');
-  if (!tag) return;
-  if (mode === 'real') { tag.textContent = '🎙️ 真机识别'; tag.style.background = '#F6FFED'; tag.style.color = '#389E0D'; tag.style.border = '1px solid #B7EB8F'; }
-  else if (mode === 'xfyun') { tag.textContent = '☁️ 讯飞云识别'; tag.style.background = '#F6FFED'; tag.style.color = '#389E0D'; tag.style.border = '1px solid #B7EB8F'; }
-  else if (mode === 'demo') { tag.textContent = '📢 演示模式·不是你说的话'; tag.style.background = '#FFF7E6'; tag.style.color = '#D48806'; tag.style.border = '1px solid #FFD591'; }
-  else { tag.textContent = ''; tag.style.border = 'none'; tag.style.background = 'transparent'; }
-}
+// ===================== Voice =====================
+let recognition = null, isRecording = false;
+function openVoiceModal() { document.getElementById('voiceOverlay').classList.add('active'); }
 function closeVoiceModal() {
   document.getElementById('voiceOverlay').classList.remove('active');
-  resetVoiceUI();
+  stopVoice();
   document.getElementById('voiceResult').classList.remove('active');
   document.getElementById('voiceConfirmBtn').classList.remove('active');
+  document.getElementById('micBtn').classList.remove('recording');
+  isRecording = false;
 }
-function resetVoiceUI() {
-  if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
-  isRecording = false; simRecording = false;
-  if (iatRecording) stopIatRecording();
-  const b = document.getElementById('micBtn');
-  b.classList.remove('recording'); b.textContent = '🎙️';
-  document.getElementById('voiceHint').textContent = '按住麦克风说话，松手自动识别';
-}
-function micPressStart(e) {
-  if (e) e.preventDefault();
-  if (isRecording || simRecording || iatRecording) return;
-  const b = document.getElementById('micBtn');
-  b.classList.add('recording'); b.textContent = '🎤';
-
-  // 检测 iOS Safari（Web Speech API 有 bug 的环境）
-  const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-
+function toggleVoice() { isRecording ? stopVoice() : startVoice(); }
+function startVoice() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-
-  // iOS Safari 上 Web Speech API 经常静默失败，直接跳过
-  if (SR && !isIOSSafari) {
-    voiceTranscript = '';
-    try {
-      recognition = new SR();
-      recognition.lang = 'zh-CN';
-      recognition.continuous = true;
-      recognition.interimResults = true;
-      recognition.maxAlternatives = 1;
-
-      recognition.onresult = (ev) => {
-        let t = '';
-        for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
-        voiceTranscript = t;
-        document.getElementById('voiceHint').textContent = '正在识别：' + t.slice(-14);
-      };
-
-      recognition.onerror = (err) => {
-        console.log('Web Speech error:', err.error);
-        fallbackToSim();
-      };
-
-      recognition.onend = () => {
-        if (isRecording) {
-          // 如果 transcript 为空，说明识别失败，降级
-          if (!voiceTranscript || voiceTranscript.trim() === '') {
-            fallbackToSim();
-          } else {
-            finishRecording(voiceTranscript);
-          }
-        }
-      };
-
-      recognition.start();
-      isRecording = true;
-      document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
-    } catch(err) {
-      console.log('Web Speech exception:', err);
-      fallbackToSim();
-    }
-  } else if (xfyunConfigured() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-    // 讯飞路径（iOS Safari 或不支持 Web Speech 的浏览器）
-    startIatRecording().then(() => {
-      document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
-    }).catch(() => {
-      b.classList.remove('recording'); b.textContent = '🎙️';
-      document.getElementById('voiceHint').textContent = '无法打开麦克风，请允许授权后重试';
-    });
-  } else {
-    fallbackToSim();
-  }
+  if (!SR) { showToast('浏览器不支持语音识别，请使用演示模式'); return; }
+  recognition = new SR();
+  recognition.lang = 'zh-CN'; recognition.continuous = false; recognition.interimResults = true;
+  recognition.onstart = () => { isRecording = true; const b = document.getElementById('micBtn'); b.classList.add('recording'); b.textContent = '⏹'; document.getElementById('voiceHint').textContent = '正在录音...请说出检查情况'; };
+  recognition.onresult = (e) => {
+    let t = ''; for (let i = 0; i < e.results.length; i++) t += e.results[i][0].transcript;
+    if (e.results[e.results.length-1].isFinal) processVoice(t);
+  };
+  recognition.onerror = (e) => { showToast('语音识别出错，可使用演示模式'); stopVoice(); };
+  recognition.onend = () => stopVoice();
+  try { recognition.start(); } catch(e) { showToast('启动失败，请使用演示模式'); }
 }
-function fallbackToSim() {
+function stopVoice() {
   if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
   isRecording = false;
-  simRecording = true;
-  document.getElementById('voiceHint').textContent = '正在录音… 松手结束';
-}
-function micPressEnd(e) {
-  if (e) e.preventDefault();
-  const b = document.getElementById('micBtn');
-  if (isRecording && recognition) {
-    isRecording = false;
-    b.classList.remove('recording'); b.textContent = '🎙️';
-    document.getElementById('voiceHint').textContent = '识别中…';
-    try { recognition.stop(); } catch(err) { finishRecording(voiceTranscript); }
-    return;
-  }
-  if (iatRecording) {
-    b.classList.remove('recording'); b.textContent = '🎙️';
-    document.getElementById('voiceHint').textContent = '录音完成，正在识别…';
-    stopIatRecording();
-    runIatRecognition();
-    return;
-  }
-  if (simRecording) {
-    simRecording = false;
-    b.classList.remove('recording'); b.textContent = '🎙️';
-    document.getElementById('voiceHint').textContent = '录音完成，AI正在解析…';
-    setVoiceMode('demo');
-    setTimeout(() => processVoice(demoVoiceText), 600);
-  }
-}
-function finishRecording(text) {
-  isRecording = false;
-  recognition = null;
-  const b = document.getElementById('micBtn');
-  b.classList.remove('recording'); b.textContent = '🎙️';
-  if (text && text.trim()) {
-    document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…';
-    setVoiceMode('real');
-    processVoice(text);
-  } else {
-    document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
-  }
-}
-(function bindMic() {
-  const b = document.getElementById('micBtn');
-  if (!b) return;
-  b.addEventListener('touchstart', micPressStart, {passive:false});
-  b.addEventListener('touchend', micPressEnd, {passive:false});
-  b.addEventListener('touchcancel', micPressEnd, {passive:false});
-  b.addEventListener('mousedown', micPressStart);
-  b.addEventListener('mouseup', micPressEnd);
-  b.addEventListener('mouseleave', () => { if (isRecording || simRecording || iatRecording) micPressEnd(); });
-  b.addEventListener('contextmenu', e => e.preventDefault());
-})();
-
-// ===================== 讯飞语音听写（iOS微信真识别） =====================
-// ↓↓↓ 在讯飞开放平台 xfyun.cn 创建应用后填入三个密钥 ↓↓↓
-const XFYUN = { APPID: '66489045', APIKey: 'a9918dce4a02c44f0c184fbeddc668a', APISecret: 'YWEyYzgwMGZhNGIwZjJiMTIkYzM3YzU0' };
-function xfyunConfigured() { return !!(XFYUN.APPID && XFYUN.APIKey && XFYUN.APISecret); }
-
-// --- 紧凑版 SHA-256（签名用） ---
-function sha256(ascii) {
-  function rr(v, a) { return (v >>> a) | (v << (32 - a)); }
-  var mp = Math.pow, mw = mp(2, 32), result = '';
-  var words = [], bitLen = ascii.length * 8;
-  var hash = sha256.h = sha256.h || [], k = sha256.k = sha256.k || [];
-  var pc = k.length, isComp = {};
-  for (var cand = 2; pc < 64; cand++) {
-    if (!isComp[cand]) {
-      for (var i = 0; i < 313; i += cand) isComp[i] = cand;
-      hash[pc] = (mp(cand, .5) * mw) | 0;
-      k[pc++] = (mp(cand, 1 / 3) * mw) | 0;
-    }
-  }
-  ascii += '\x80';
-  while (ascii.length % 64 - 56) ascii += '\x00';
-  for (var i = 0; i < ascii.length; i++) {
-    var j = ascii.charCodeAt(i);
-    if (j >> 8) return;
-    words[i >> 2] |= j << ((3 - i) % 4) * 8;
-  }
-  words[words.length] = (bitLen / mw) | 0;
-  words[words.length] = bitLen;
-  for (var j = 0; j < words.length;) {
-    var w = words.slice(j, j += 16), oldHash = hash;
-    hash = hash.slice(0, 8);
-    for (var i = 0; i < 64; i++) {
-      var w15 = w[i - 15], w2 = w[i - 2];
-      var a = hash[0], e = hash[4];
-      var t1 = hash[7] + (rr(e, 6) ^ rr(e, 11) ^ rr(e, 25)) + ((e & hash[5]) ^ ((~e) & hash[6])) + k[i]
-        + (w[i] = (i < 16) ? w[i] : (w[i - 16] + (rr(w15, 7) ^ rr(w15, 18) ^ (w15 >>> 3)) + w[i - 7] + (rr(w2, 17) ^ rr(w2, 19) ^ (w2 >>> 10))) | 0);
-      var t2 = (rr(a, 2) ^ rr(a, 13) ^ rr(a, 22)) + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
-      hash = [(t1 + t2) | 0].concat(hash);
-      hash[4] = (hash[4] + t1) | 0;
-    }
-    for (var i = 0; i < 8; i++) hash[i] = (hash[i] + oldHash[i]) | 0;
-  }
-  for (var i = 0; i < 8; i++) {
-    for (var j = 3; j + 1; j--) {
-      var b = (hash[i] >> (j * 8)) & 255;
-      result += ((b < 16) ? 0 : '') + b.toString(16);
-    }
-  }
-  return result;
-}
-function hexToLatin(hex) { var s = ''; for (var i = 0; i < hex.length; i += 2) s += String.fromCharCode(parseInt(hex.substr(i, 2), 16)); return s; }
-function hmacSha256Base64(key, msg) {
-  var k = key;
-  if (k.length > 64) k = hexToLatin(sha256(k));
-  k = k + '\x00'.repeat(64 - k.length);
-  var ipad = '', opad = '';
-  for (var i = 0; i < 64; i++) { var c = k.charCodeAt(i); ipad += String.fromCharCode(c ^ 0x36); opad += String.fromCharCode(c ^ 0x5c); }
-  return btoa(hexToLatin(sha256(opad + hexToLatin(sha256(ipad + msg)))));
-}
-function arrayBufferToBase64(buf) {
-  var bin = '', bytes = new Uint8Array(buf), chunk = 0x8000;
-  for (var i = 0; i < bytes.length; i += chunk) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
-  return btoa(bin);
-}
-function getIatUrl() {
-  var host = 'iat-api.xfyun.cn';
-  var date = new Date().toUTCString();
-  var sigOrigin = 'host: ' + host + '\ndate: ' + date + '\nGET /v2/iat HTTP/1.1';
-  var sig = hmacSha256Base64(XFYUN.APISecret, sigOrigin);
-  var authOrigin = 'api_key="' + XFYUN.APIKey + '", algorithm="hmac-sha256", headers="host date request-line", signature="' + sig + '"';
-  return 'wss://' + host + '/v2/iat?authorization=' + encodeURIComponent(btoa(authOrigin)) + '&date=' + encodeURIComponent(date) + '&host=' + host;
-}
-
-// --- 录音采集（PCM 16k 16bit mono） ---
-var iatRecording = false, iatStream = null, iatCtx = null, iatProcessor = null, iatSource = null, iatPcm = [];
-function resampleTo16k(input, fromRate) {
-  if (fromRate === 16000) return input;
-  var ratio = fromRate / 16000, newLen = Math.round(input.length / ratio), out = new Float32Array(newLen);
-  for (var i = 0; i < newLen; i++) {
-    var pos = i * ratio, idx = Math.floor(pos), frac = pos - idx;
-    var s0 = input[idx] || 0, s1 = input[idx + 1] !== undefined ? input[idx + 1] : s0;
-    out[i] = s0 + (s1 - s0) * frac;
-  }
-  return out;
-}
-function floatTo16BitPCM(input) {
-  var out = new Int16Array(input.length);
-  for (var i = 0; i < input.length; i++) { var s = Math.max(-1, Math.min(1, input[i])); out[i] = s < 0 ? s * 0x8000 : s * 0x7FFF; }
-  return out.buffer;
-}
-function startIatRecording() {
-  iatPcm = [];
-  return navigator.mediaDevices.getUserMedia({ audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true } }).then(function (stream) {
-    iatStream = stream;
-    iatCtx = new (window.AudioContext || window.webkitAudioContext)();
-    iatSource = iatCtx.createMediaStreamSource(stream);
-    iatProcessor = iatCtx.createScriptProcessor(4096, 1, 1);
-    iatProcessor.onaudioprocess = function (e) {
-      if (!iatRecording) return;
-      var input = e.inputBuffer.getChannelData(0);
-      iatPcm.push(floatTo16BitPCM(resampleTo16k(input, iatCtx.sampleRate)));
-    };
-    iatSource.connect(iatProcessor);
-    iatProcessor.connect(iatCtx.destination);
-    iatRecording = true;
-  });
-}
-function stopIatRecording() {
-  iatRecording = false;
-  if (iatProcessor) { try { iatProcessor.disconnect(); } catch (e) {} iatProcessor = null; }
-  if (iatSource) { try { iatSource.disconnect(); } catch (e) {} iatSource = null; }
-  if (iatStream) { iatStream.getTracks().forEach(function (t) { t.stop(); }); iatStream = null; }
-  if (iatCtx) { iatCtx.close().catch(function () {}); iatCtx = null; }
-}
-
-// --- WebSocket 发送识别 ---
-function runIatRecognition() {
-  var total = 0; iatPcm.forEach(function (b) { total += b.byteLength; });
-  if (total === 0) { document.getElementById('voiceHint').textContent = '没录到声音，按住再试一次'; return; }
-  var merged = new Uint8Array(total), off = 0;
-  iatPcm.forEach(function (b) { merged.set(new Uint8Array(b), off); off += b.byteLength; });
-  document.getElementById('voiceHint').textContent = '识别中…';
-  var ws, offset = 0, endSent = false, iatTexts = {}, finalText = '';
-  try { ws = new WebSocket(getIatUrl()); } catch (e) { document.getElementById('voiceHint').textContent = '识别服务连接失败'; return; }
-  ws.onopen = function () {
-    var first = true;
-    var timer = setInterval(function () {
-      if (ws.readyState !== 1) { clearInterval(timer); return; }
-      if (offset >= merged.length) {
-        if (!endSent) { ws.send(JSON.stringify({ data: { status: 2, format: 'audio/L16;rate=16000', encoding: 'raw', audio: '' } })); endSent = true; }
-        clearInterval(timer); return;
-      }
-      var chunk = merged.subarray(offset, Math.min(offset + 10240, merged.length));
-      offset += chunk.length;
-      var payload = { data: { status: first ? 0 : 1, format: 'audio/L16;rate=16000', encoding: 'raw', audio: arrayBufferToBase64(chunk.buffer) } };
-      if (first) {
-        payload.common = { app_id: XFYUN.APPID };
-        payload.business = { language: 'zh_cn', domain: 'iat', accent: 'mandarin', vad_eos: 3000, ptt: 1 };
-        first = false;
-      }
-      ws.send(JSON.stringify(payload));
-    }, 40);
-  };
-  ws.onmessage = function (e) {
-    var d = JSON.parse(e.data);
-    if (d.code !== 0) { try { ws.close(); } catch (x) {} document.getElementById('voiceHint').textContent = '识别失败：' + d.message + '（code ' + d.code + '）'; return; }
-    var res = d.data && d.data.result;
-    if (res && res.ws) {
-      var str = '';
-      res.ws.forEach(function (w) { w.cw.forEach(function (c) { str += c.w; }); });
-      iatTexts[res.sn] = str;
-      finalText = Object.keys(iatTexts).sort(function (a, b) { return a - b; }).map(function (k) { return iatTexts[k]; }).join('');
-      document.getElementById('voiceHint').textContent = '识别中：' + finalText.slice(-14);
-    }
-    if (d.data && d.data.status === 2) {
-      try { ws.close(); } catch (x) {}
-      if (finalText.trim()) { document.getElementById('voiceHint').textContent = '识别完成，AI正在解析…'; setVoiceMode('xfyun'); processVoice(finalText); }
-      else document.getElementById('voiceHint').textContent = '没听清，按住再试一次';
-    }
-  };
-  ws.onerror = function () { document.getElementById('voiceHint').textContent = '识别服务连接失败，请检查网络和密钥'; };
+  const b = document.getElementById('micBtn'); b.classList.remove('recording'); b.textContent = '🎙️';
+  document.getElementById('voiceHint').textContent = '点击麦克风开始语音录入';
 }
 
 const demoVoiceText = '2号基坑支护结构发现裂缝，周边防护栏杆缺失。临时用电存在私拉乱接，电缆直接放在地上没有架空敷设。动火作业没有审批手续，监护人不在现场。高空作业有人没系安全带。';
@@ -1604,7 +1125,6 @@ function simulateVoice() {
   setTimeout(() => {
     b.classList.remove('recording'); b.textContent = '🎙️';
     document.getElementById('voiceHint').textContent = '录音完成，AI正在解析...';
-    setVoiceMode('demo');
     setTimeout(() => processVoice(demoVoiceText), 500);
   }, 2000);
 }
@@ -1744,78 +1264,22 @@ const voiceRules = [
 function processVoice(text) {
   document.getElementById('voiceText').textContent = text;
   const results = [];
-  const matchedIds = new Set();
-  
-  // 场景词 → 核心检查项映射（只报场景名时兜底，和拍照识别场景模式一致）
-  const voiceScenes = [
-    { keys:['动火','焊接','切割','明火','焊工','气割'], items:['4-3','4-4','4-5'] },
-    { keys:['高空','高处','安全带','坠落'], items:['1-1'] },
-    { keys:['脚手架'], items:['1-2'] },
-    { keys:['临时用电','配电箱','电缆','用电','漏电','私拉乱接'], items:['2-1','2-3','2-5'] },
-    { keys:['基坑'], items:['3-1','3-3','3-4'] },
-    { keys:['有限空间','气体检测','密闭空间'], items:['4-1','4-2'] },
-    { keys:['消防','灭火'], items:['4-5','8-3'] },
-    { keys:['吊装','起重','吊车'], items:['6-1','6-5'] },
-  ];
-
-  const pushResult = (id, status, note) => {
-    if (matchedIds.has(id)) return;
-    const item = flatItems[id];
-    if (!item) return;
-    results.push({ id, status, note, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon, selected: true });
-    matchedIds.add(id);
-  };
-
-  // 1) 严格匹配（有明确问题定性，高置信），一段话可命中多条
-  const priorityRules = [
-    { match: t => (t.includes('高空') || t.includes('高处')) && (t.includes('安全带') || t.includes('保护') || t.includes('没系') || t.includes('未系')), id: '1-1' },
-    { match: t => t.includes('脚手架') && (t.includes('未验收') || t.includes('没验收') || t.includes('不合格')), id: '1-2' },
-    { match: t => t.includes('灭火器') && (t.includes('堵') || t.includes('挡') || t.includes('缺') || t.includes('没') || t.includes('失效')), id: '4-5' },
-    { match: t => (t.includes('电缆') || t.includes('电线')) && (t.includes('地上') || t.includes('未架空') || t.includes('乱') || t.includes('破损')), id: '2-5' },
-    { match: t => t.includes('配电箱') && (t.includes('不规范') || t.includes('未标识') || t.includes('破损')), id: '2-2' },
-    { match: t => (t.includes('支护') || t.includes('基坑')) && (t.includes('裂缝') || t.includes('变形') || t.includes('失稳')), id: '3-1' },
-    { match: t => (t.includes('动火') || t.includes('焊接') || t.includes('切割') || t.includes('明火')) && (t.includes('未审批') || t.includes('没审批') || t.includes('没有审批') || t.includes('无手续') || t.includes('没办票') || t.includes('未办票') || t.includes('无票')), id: '4-3' },
-    { match: t => (t.includes('动火') || t.includes('监护')) && (t.includes('不在') || t.includes('缺位') || t.includes('未到位') || t.includes('没有监护')), id: '4-4' },
-    { match: t => t.includes('私拉乱接') || (t.includes('私拉') && t.includes('乱接')), id: '2-7' },
-  ];
-
-  for (const rule of priorityRules) {
-    if (rule.match(text)) {
-      const vr = voiceRules.find(v => v.id === rule.id);
-      if (vr) { const r = vr.extract(text); if (r) pushResult(rule.id, r.status, r.note); }
-    }
-  }
-
-  // 2) 宽松匹配补充：有定性词的其他项，最多凑4条
-  for (const vr of voiceRules) {
-    if (results.length >= 4) break;
-    if (vr.keys.some(k => text.includes(k)) && !matchedIds.has(vr.id)) {
-      const r = vr.extract(text);
-      if (r) pushResult(vr.id, r.status, r.note);
-    }
-  }
-
-  // 3) 场景兜底：只说了场景名（如"动火作业"），给出该场景核心检查项供勾选
-  if (results.length === 0) {
-    for (const sc of voiceScenes) {
-      if (sc.keys.some(k => text.includes(k))) {
-        sc.items.forEach(id => pushResult(id, 'issue', '语音提及该场景，请现场确认'));
-        break;
+  voiceRules.forEach(rule => {
+    if (rule.keys.some(k => text.includes(k))) {
+      const r = rule.extract(text);
+      if (r) {
+        const item = flatItems[rule.id];
+        results.push({ id: rule.id, ...r, catName: item.catName, subName: item.subName, name: item.name, icon: item.catIcon });
       }
     }
-  }
-
-  // 版本标记
-  window._voiceVersion = 'v4.1-scene';
-  console.log('语音解析版本:', window._voiceVersion);
+  });
   const parseList = document.getElementById('parseList');
   if (results.length) {
-    parseList.innerHTML = '<div style="font-size:11px;color:var(--gray-4);padding:0 0 6px 2px">👇 点选要录入的项目，无关项点掉即可</div>' + results.map((r, idx) => `
-      <div class="parse-item voice-pick selected" data-idx="${idx}" onclick="toggleVoicePick(${idx})" style="cursor:pointer;border-radius:8px;padding:8px;margin:0 -8px">
+    parseList.innerHTML = results.map(r => `
+      <div class="parse-item">
         <span class="pi-icon">${r.icon}</span>
         <span class="pi-text">${r.name}<span class="pi-cat">${r.catName} / ${r.subName}</span></span>
         <span class="pi-badge ${r.status==='ok'?'ok':'issue'}">${r.status==='ok'?'正常':'隐患'}</span>
-        <span class="vp-check" style="margin-left:6px;font-size:16px">✅</span>
       </div>
       ${r.status === 'issue' && regulations[r.id] ? `
       <div style="flex-direction:column;align-items:flex-start;gap:4px;padding:8px 12px 8px 32px;background:var(--sg-green-light);border-radius:8px;margin:2px 0 6px 16px;border-left:3px solid var(--sg-green)">
@@ -1828,35 +1292,19 @@ function processVoice(text) {
   }
   document.getElementById('voiceResult').classList.add('active');
   document.getElementById('voiceConfirmBtn').classList.add('active');
-  document.getElementById('voiceHint').textContent = 'AI解析完成，点选确认后填写到检查表';
+  document.getElementById('voiceHint').textContent = 'AI解析完成，请确认后填写到检查表';
   window._voiceResults = results;
 }
 
-function toggleVoicePick(idx) {
-  const r = window._voiceResults[idx];
-  r.selected = !r.selected;
-  const el = document.querySelector('.voice-pick[data-idx="' + idx + '"]');
-  if (el) {
-    el.classList.toggle('selected', r.selected);
-    el.style.opacity = r.selected ? '1' : '0.4';
-    el.querySelector('.vp-check').textContent = r.selected ? '✅' : '⬜';
-  }
-  const n = window._voiceResults.filter(x => x.selected).length;
-  document.getElementById('voiceConfirmBtn').textContent = '✓ 确认填写选中的 ' + n + ' 项';
-}
-
 function confirmVoice() {
-  const picked = (window._voiceResults || []).filter(r => r.selected);
-  if (picked.length) {
-    picked.forEach(r => {
+  if (window._voiceResults) {
+    window._voiceResults.forEach(r => {
       const item = flatItems[r.id];
       item.status = r.status; item.note = r.note || '';
       categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === r.id) { i.status = r.status; i.note = r.note || ''; } })));
     });
     if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
-    showToast('已自动填写 ' + picked.length + ' 项检查记录');
-  } else {
-    showToast('未选择任何项目');
+    showToast('已自动填写 ' + window._voiceResults.length + ' 项检查记录');
   }
   closeVoiceModal();
 }
@@ -1874,287 +1322,46 @@ function closePhotoModal() { document.getElementById('photoOverlay').classList.r
 
 function handlePhoto(event) {
   const file = event.target.files[0]; if (!file) return;
-  compressPhoto(file).then(compressed => {
-    const dataUrl = compressed;
-    window._photoBase64 = dataUrl;
-    document.getElementById('photoImg').src = dataUrl;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('photoImg').src = e.target.result;
     document.getElementById('photoPreview').classList.add('active');
     document.getElementById('photoUpload').style.display = 'none';
-    document.getElementById('photoResult').classList.remove('active');
-    setTimeout(() => startAIAnalysis(), 400);
-  });
-}
-
-// 压缩照片：最长边1024、JPEG 0.75（API上传快，也省localStorage空间）
-function compressPhoto(file) {
-  return new Promise((resolve) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-    img.onload = () => {
-      const max = 1024;
-      let w = img.width, h = img.height;
-      if (Math.max(w, h) > max) { const r = max / Math.max(w, h); w = Math.round(w * r); h = Math.round(h * r); }
-      const cv = document.createElement('canvas');
-      cv.width = w; cv.height = h;
-      cv.getContext('2d').drawImage(img, 0, 0, w, h);
-      URL.revokeObjectURL(url);
-      resolve(cv.toDataURL('image/jpeg', 0.75));
-    };
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target.result);
-      reader.readAsDataURL(file);
-    };
-    img.src = url;
-  });
+    setTimeout(() => startAIAnalysis(), 500);
+  };
+  reader.readAsDataURL(file);
 }
 
 function startAIAnalysis() {
   document.getElementById('aiAnalyzing').classList.add('active');
-  const apiKey = getGLMKey();
-  const useReal = !!(apiKey && window._photoBase64);
-  const steps = useReal
-    ? ['正在连接 GLM-4V 视觉大模型...', '上传施工现场照片...', 'AI识别隐患特征...', '比对标准隐患库...', '生成识别结果...']
-    : ['正在加载AI模型...', '识别施工场景类型...', '检测安全隐患特征...', '比对安全规范标准...', '生成识别结果...'];
+  const steps = ['正在加载AI模型...', '识别施工场景类型...', '检测安全隐患特征...', '比对安全规范标准...', '生成识别结果...'];
   const sc = document.getElementById('aiSteps');
   sc.innerHTML = steps.map((s, i) => `<div class="ai-step" id="aiStep-${i}">${s}</div>`).join('');
   let cur = 0;
   const iv = setInterval(() => {
     if (cur < steps.length) { document.getElementById('aiStep-' + cur).classList.add('done'); cur++; }
-    else {
-      clearInterval(iv);
-      if (useReal) { document.getElementById('aiText').textContent = 'GLM-4V 深度分析中，请稍候...'; }
-      else { setTimeout(() => showPhotoResult(), 500); }
-    }
+    else { clearInterval(iv); setTimeout(() => showPhotoResult(), 500); }
   }, 600);
-  document.getElementById('aiText').textContent = useReal ? 'GLM-4V 视觉大模型正在分析照片...' : 'AI 正在深度分析图片...';
-
-  if (useReal) {
-    callGLMVision(window._photoBase64, apiKey).then(results => {
-      if (results === null) {
-        showPhotoResult();
-        showToast('⚠️ 真机识别连接失败，已切换场景模板模式');
-      } else if (results.nonScene) {
-        showNonSceneResult(results.nonScene);
-      } else if (!results.length) {
-        showPhotoResult();
-        showToast('🤖 照片中未发现明显隐患，请手动选择场景确认');
-      } else {
-        showAIResults(results);
-      }
-    });
-  }
+  document.getElementById('aiText').textContent = 'AI 正在深度分析图片...';
 }
 
-// ===================== GLM-4V 真机AI识别 =====================
-const GLM_API_URL = 'https://open.bigmodel.cn/api/paas/v4/chat/completions';
-const GLM_MODEL = 'glm-4v-flash';
-const DEFAULT_GLM_KEY = 'a7539c63620149a985d7f5b6fc2d7aeb.A82pGNd8USranWKu'; // 页面"⚙️ AI引擎"也可覆盖配置
-
-function getGLMKey() {
-  return localStorage.getItem('glm_api_key') || DEFAULT_GLM_KEY;
-}
-
-function setGLMKey() {
-  const cur = getGLMKey();
-  const k = prompt('🤖 真机AI识别引擎（智谱 GLM-4V）\n\n当前状态：' + (cur ? '已配置 ✅ 真机识别' : '未配置（离线模板模式）') + '\n\n粘贴 API Key 启用真机识别；输入"清除"恢复离线模式；取消保持不变。');
-  if (k === null) return;
-  if (k.trim() === '清除') { localStorage.removeItem('glm_api_key'); showToast('已切换离线模板模式'); return; }
-  if (k.trim()) { localStorage.setItem('glm_api_key', k.trim()); showToast('✅ 真机AI识别已启用'); }
-}
-
-function buildHazardPrompt() {
-  const lib = [];
-  categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => lib.push(i.id + ' ' + i.name))));
-  return '你是电力建设施工现场安全检查专家，正在检查变电站基建施工现场的照片。\n\n' +
-    '【标准隐患库】（只能从中选择，禁止编造库外条目）：\n' + lib.join('\n') + '\n\n' +
-    '【易混淆条目辨析】\n' +
-    '- 2-5 指电缆"敷设方式"不当：沿地面明敷、未埋地未架空（看到电缆拖地就选它）\n' +
-    '- 2-6 指电缆"物理损坏"：外皮破损、接头裸露\n' +
-    '- 2-1 指配电系统架构问题（看不出来时不要轻易返回），2-2 指单个配电箱的标识/箱门/设置不规范\n\n' +
-    '【识别要求】\n' +
-    '1. 只返回照片中确实可见的实体隐患（人员防护、脚手架、用电设备、电缆、消防器材、基坑、吊装设备、现场环境等）\n' +
-    '2. 管理资料类隐患（交底签字、方案审批、验收记录、应急演练等）照片无法判断，一律不返回\n' +
-    '3. 返回1-4条，最明显/最严重的排前面；现场照片中没有明显隐患则hazards返回空数组\n' +
-    '4. 置信度85-98：特征非常清晰给95以上，比较确定给90左右，隐约可见给85\n' +
-    '5. detail用一句话具体描述照片中看到的问题（例如"画面中配电箱箱门敞开，内部无漏电保护器"）\n' +
-    '6. 特别留意以下最容易观察的典型隐患：电缆是否沿地面明敷（未埋地/架空）、配电箱门是否敞开、材料堆放是否杂乱、灭火器材是否缺失、人员是否佩戴安全帽/安全带\n' +
-    '【输出格式】严格只输出JSON对象，不要任何解释文字、不要markdown代码块：\n' +
-    '第一步先判断照片是否为施工现场（电力基建、建筑施工、检修作业等真实工作场景）：\n' +
-    '- 是施工现场 → {"scene":true,"hazards":[{"id":"2-3","confidence":95,"detail":"具体描述"}]}\n' +
-    '- 不是施工现场（动物、人物自拍、风景、美食、日常物品、卡通图片等）→ {"scene":false,"desc":"一句话客观描述照片内容，如：一只趴在沙发上的橘猫"}';
-}
-
-async function callGLMVision(base64, apiKey) {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), 25000);
-  try {
-    const resp = await fetch(GLM_API_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + apiKey },
-      signal: ctrl.signal,
-      body: JSON.stringify({
-        model: GLM_MODEL,
-        temperature: 0.1,
-        messages: [
-          { role: 'system', content: buildHazardPrompt() },
-          { role: 'user', content: [
-            { type: 'image_url', image_url: { url: base64 } },
-            { type: 'text', text: '请先判断这张照片是否为施工现场，再严格按系统提示的JSON对象格式返回结果。' }
-          ]}
-        ]
-      })
-    });
-    clearTimeout(timer);
-    if (!resp.ok) { console.warn('GLM http error', resp.status); return null; }
-    const data = await resp.json();
-    const text = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
-    let obj = null;
-    try { obj = JSON.parse(text.replace(/```json|```/g, '').trim()); } catch (e) {}
-    if (!obj) { const m = text.match(/\{[\s\S]*\}/); if (m) { try { obj = JSON.parse(m[0]); } catch (e) {} } }
-    if (!obj) { const m = text.match(/\[[\s\S]*\]/); if (m) { try { obj = { scene: true, hazards: JSON.parse(m[0]) }; } catch (e) {} } }
-    if (!obj || typeof obj !== 'object') { console.warn('GLM no json:', text.slice(0, 200)); return null; }
-    if (obj.scene === false) return { nonScene: String(obj.desc || '非施工现场内容').slice(0, 80) };
-    const arr = Array.isArray(obj) ? obj : obj.hazards;
-    if (!Array.isArray(arr)) return [];
-    return arr.filter(d => d && flatItems[d.id]).slice(0, 4).map(d => ({
-      id: d.id,
-      status: 'issue',
-      confidence: Math.min(98, Math.max(80, parseInt(d.confidence) || 90)),
-      detail: 'AI识别发现：' + (d.detail || flatItems[d.id].name + '不符合规范要求'),
-      selected: true
-    }));
-  } catch (e) { clearTimeout(timer); console.warn('GLM fetch failed', e); return null; }
-}
-
-function showAIResults(results) {
-  document.getElementById('aiAnalyzing').classList.remove('active');
-  const r = document.getElementById('photoResult');
-  r.innerHTML = `
-    <div class="vr-label" style="margin-bottom:4px">📸 AI识别结果 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#F6FFED;color:#389E0D;border:1px solid #B7EB8F;margin-left:4px">🤖 GLM-4V 真机识别</span></div>
-    <div style="font-size:12px;color:var(--gray-4);padding:6px 0 8px">👇 点选要录入的项目，无关项点掉即可</div>
-    ${results.map((d, idx) => {
-      const item = flatItems[d.id];
-      const reg = regulations[d.id];
-      return `
-      <div class="detect-card photo-pick ${d.selected ? 'selected' : ''}" data-idx="${idx}" onclick="togglePhotoPick(${idx})" style="cursor:pointer;position:relative;margin-bottom:10px">
-        <div class="dc-header">
-          <span style="font-size:18px">${item.catIcon}</span>
-          <span class="dc-name">${item.name}</span>
-          <span class="dc-conf">置信度 ${d.confidence}%</span>
-        </div>
-        <div class="dc-cat">${item.catName} / ${item.subName}</div>
-        <div class="dc-detail" style="margin-top:6px">${d.detail}</div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-          <span class="dc-status issue">✗ 隐患</span>
-          <span class="vp-check" style="font-size:16px;margin-left:auto">${d.selected ? '✅' : '⬜'}</span>
-        </div>
-        ${reg ? `
-        <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
-          <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 AI已自动匹配违章条例（${reg.type}）</div>
-          ${reg.text}
-        </div>` : ''}
-      </div>`;
-    }).join('')}
-    <div style="margin-top:12px;padding:12px;background:var(--gray-1);border-radius:8px;border:1px dashed var(--gray-3)">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text-2)">✏️ 以上都不对？手动填写隐患</div>
-      <textarea id="manualIssueInput" placeholder="请描述现场发现的隐患问题..." style="width:100%;border:1px solid var(--gray-3);border-radius:6px;padding:8px;font-size:12px;min-height:60px;resize:vertical;margin-bottom:8px"></textarea>
-      <div style="display:flex;gap:8px">
-        <select id="manualIssueCat" style="flex:1;border:1px solid var(--gray-3);border-radius:6px;padding:6px;font-size:12px">
-          <option value="">选择隐患类别</option>
-          ${photoScenes.map(s => `<option value="${s.id}">${s.icon} ${s.name}</option>`).join('')}
-        </select>
-        <button onclick="addManualIssue()" style="background:var(--sg-green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">添加</button>
-      </div>
-    </div>`;
-  r.classList.add('active');
-  const confirmBtn = document.getElementById('photoConfirmBtn');
-  confirmBtn.style.display = 'block';
-  confirmBtn.textContent = '✓ 确认填写选中的 ' + results.length + ' 项';
-  window._photoResults = results;
-}
-
-// 非施工现场照片：说明拍到了什么，引导重新拍摄
-function showNonSceneResult(desc) {
-  document.getElementById('aiAnalyzing').classList.remove('active');
-  const esc = String(desc).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  const r = document.getElementById('photoResult');
-  r.innerHTML = `
-    <div class="vr-label" style="margin-bottom:4px">📸 AI识别结果 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#F6FFED;color:#389E0D;border:1px solid #B7EB8F;margin-left:4px">🤖 GLM-4V 真机识别</span></div>
-    <div style="text-align:center;padding:26px 16px;background:#FFFBE6;border:1px solid #FFE58F;border-radius:10px;margin-top:6px">
-      <div style="font-size:44px">🔎</div>
-      <div style="font-size:14px;font-weight:700;color:#333;margin:10px 0 6px">这张照片拍的是：${esc}</div>
-      <div style="font-size:12px;color:#AD6800;line-height:1.7">未检测到施工现场安全隐患<br>请传入正确的现场隐患照片</div>
-      <button onclick="document.getElementById('photoInput').click()" style="margin-top:14px;background:var(--sg-green);color:#fff;border:none;border-radius:8px;padding:9px 22px;font-size:13px;font-weight:600;cursor:pointer">📷 重新拍摄</button>
-    </div>`;
-  r.classList.add('active');
-  const confirmBtn = document.getElementById('photoConfirmBtn');
-  if (confirmBtn) confirmBtn.style.display = 'none';
-  window._photoResults = [];
-}
-
-const photoScenes = [
-  { id:'high', name:'高处作业/脚手架', icon:'🪜', catIds:[1,7], items:['1-1','1-2','7-1','7-2','7-3','7-4','7-5','7-6','7-7','7-8','7-9'] },
-  { id:'electric', name:'临时用电/电缆', icon:'⚡', catIds:[2], items:['2-1','2-2','2-3','2-4','2-5','2-6','2-7','2-8'] },
-  { id:'fire', name:'动火/消防/基坑', icon:'🔥', catIds:[3,4,8], items:['3-1','3-2','3-3','3-4','4-1','4-2','4-3','4-4','4-5','4-6','8-1','8-2','8-3'] },
-  { id:'manage', name:'管理/资料/吊装', icon:'📋', catIds:[5,6], items:['5-1','5-2','5-3','5-4','5-5','5-6','6-1','6-2','6-3','6-4','6-5','6-6','6-7','6-8'] },
+const photoDetectionResults = [
+  { id:'3-1', status:'issue', confidence:94, detail:'检测到基坑支护结构存在横向裂缝，缝宽约2mm，存在失稳风险' },
+  { id:'2-7', status:'issue', confidence:91, detail:'检测到临时用电私拉乱接，电缆未穿管保护，存在触电风险' },
+  { id:'3-3', status:'issue', confidence:89, detail:'检测到基坑周边防护栏杆部分缺失，未设置连续防护' },
+  { id:'1-1', status:'issue', confidence:86, detail:'检测到高空作业人员未正确佩戴安全带，存在坠落风险' },
 ];
 
 function showPhotoResult() {
   document.getElementById('aiAnalyzing').classList.remove('active');
-  
   const r = document.getElementById('photoResult');
   r.innerHTML = `
-    <div class="vr-label" style="margin-bottom:12px">📸 请选择照片对应的检查场景 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;background:#FFF7E6;color:#D48806;border:1px solid #FFE7BA;margin-left:4px">📋 场景模板模式</span></div>
-    <div style="font-size:12px;color:var(--gray-4);margin-bottom:12px">AI已分析图片，请选择最匹配的场景类别：</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-      ${photoScenes.map(s => `
-        <div class="scene-card" onclick="selectPhotoScene('${s.id}')" style="background:var(--gray-2);border-radius:10px;padding:14px 10px;text-align:center;cursor:pointer;border:2px solid transparent;transition:all .2s">
-          <div style="font-size:28px;margin-bottom:6px">${s.icon}</div>
-          <div style="font-size:13px;font-weight:600;color:var(--text-2)">${s.name}</div>
-        </div>
-      `).join('')}
-    </div>
-    <div id="sceneResult" style="margin-top:14px"></div>`;
-  r.classList.add('active');
-}
-
-function selectPhotoScene(sceneId) {
-  const scene = photoScenes.find(s => s.id === sceneId);
-  if (!scene) return;
-  
-  // 高亮选中的场景
-  document.querySelectorAll('.scene-card').forEach(el => {
-    el.style.borderColor = 'transparent';
-    el.style.background = 'var(--gray-2)';
-  });
-  event.currentTarget.style.borderColor = 'var(--sg-green)';
-  event.currentTarget.style.background = 'var(--sg-green-light)';
-  
-  // 按场景核心隐患排序，优先显示最相关的
-  const coreItems = scene.items.slice(0, 4); // 每个场景前4条是最核心的
-  const otherItems = scene.items.slice(4);
-  const shuffledCore = [...coreItems].sort(() => Math.random() - 0.5);
-  const shuffledOther = [...otherItems].sort(() => Math.random() - 0.5);
-  
-  // 出3-4条，优先核心项
-  const count = Math.min(shuffledCore.length + shuffledOther.length, Math.random() > 0.5 ? 4 : 3);
-  const pickedIds = [...shuffledCore, ...shuffledOther].slice(0, count);
-  
-  const results = pickedIds.map(id => {
-    const item = flatItems[id];
-    return { id, status:'issue', confidence:90+Math.floor(Math.random()*5), detail:'AI识别发现：'+item.name+'不符合规范要求', selected:true };
-  });
-  
-  const resultDiv = document.getElementById('sceneResult');
-  resultDiv.innerHTML = `
-    <div style="font-size:12px;color:var(--gray-4);padding:10px 0 8px">👇 点选要录入的项目，无关项点掉即可</div>
-    ${results.map((d, idx) => {
+    <div class="vr-label" style="margin-bottom:10px">🔍 AI 识别结果</div>
+    ${photoDetectionResults.map(d => {
       const item = flatItems[d.id];
       const reg = regulations[d.id];
       return `
-      <div class="detect-card photo-pick ${d.selected ? 'selected' : ''}" data-idx="${idx}" onclick="togglePhotoPick(${idx})" style="cursor:pointer;position:relative;margin-bottom:10px">
+      <div class="detect-card">
         <div class="dc-header">
           <span style="font-size:18px">${item.catIcon}</span>
           <span class="dc-name">${item.name}</span>
@@ -2162,289 +1369,29 @@ function selectPhotoScene(sceneId) {
         </div>
         <div class="dc-cat">${item.catName} / ${item.subName}</div>
         <div class="dc-detail" style="margin-top:6px">${d.detail}</div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-          <span class="dc-status issue">✗ 隐患</span>
-          <span class="vp-check" style="font-size:16px;margin-left:auto">${d.selected ? '✅' : '⬜'}</span>
-        </div>
+        <div style="margin-top:8px"><span class="dc-status issue">✗ 隐患</span></div>
         ${reg ? `
         <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
           <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 AI已自动匹配违章条例（${reg.type}）</div>
           ${reg.text}
         </div>` : ''}
       </div>`;
-    }).join('')}
-    <div style="margin-top:12px;padding:12px;background:var(--gray-1);border-radius:8px;border:1px dashed var(--gray-3)">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--text-2)">✏️ 以上都不对？手动填写隐患</div>
-      <textarea id="manualIssueInput" placeholder="请描述现场发现的隐患问题..." style="width:100%;border:1px solid var(--gray-3);border-radius:6px;padding:8px;font-size:12px;min-height:60px;resize:vertical;margin-bottom:8px"></textarea>
-      <div style="display:flex;gap:8px">
-        <select id="manualIssueCat" style="flex:1;border:1px solid var(--gray-3);border-radius:6px;padding:6px;font-size:12px">
-          <option value="">选择隐患类别</option>
-          ${photoScenes.map(s => `<option value="${s.id}">${s.icon} ${s.name}</option>`).join('')}
-        </select>
-        <button onclick="addManualIssue()" style="background:var(--sg-green);color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:12px;cursor:pointer">添加</button>
-      </div>
-    </div>`;
-  
-  // 显示外层确认按钮
-  const confirmBtn = document.getElementById('photoConfirmBtn');
-  confirmBtn.style.display = 'block';
-  confirmBtn.textContent = '✓ 确认填写选中的 ' + results.length + ' 项';
-  
-  window._photoResults = results;
-}
-
-function togglePhotoPick(idx) {
-  const r = window._photoResults[idx];
-  r.selected = !r.selected;
-  const el = document.querySelector('.photo-pick[data-idx="' + idx + '"]');
-  if (el) {
-    el.classList.toggle('selected', r.selected);
-    el.style.opacity = r.selected ? '1' : '0.4';
-    el.querySelector('.vp-check').textContent = r.selected ? '✅' : '⬜';
-  }
-  const n = window._photoResults.filter(x => x.selected).length;
-  const btn = document.getElementById('photoConfirmBtn');
-  if (btn) btn.textContent = '✓ 确认填写选中的 ' + n + ' 项';
-}
-
-function addManualIssue() {
-  const input = document.getElementById('manualIssueInput');
-  const catSelect = document.getElementById('manualIssueCat');
-  const text = input.value.trim();
-  const sceneId = catSelect.value;
-  
-  if (!text) { showToast('请填写隐患描述'); return; }
-  if (!sceneId) { showToast('请选择隐患类别'); return; }
-  
-  const scene = photoScenes.find(s => s.id === sceneId);
-  if (!scene) return;
-  
-  // 根据用户输入的关键词，在该场景所有条款中智能匹配最相关的一条
-  const textLower = text.toLowerCase();
-  let bestMatchId = scene.items[0];
-  let bestScore = 0;
-  
-  // 每条隐患的扩展关键词库：同义词、口语化表达、常见错误表述
-  const keywordMap = {
-    // 1. 安全管理与人员隐患
-    '1-1': ['安全带', '高空', '高处', '坠落', '没系', '未系', '不系', '没戴', '挂扣', '保险带', '防护', '失去保护', '脱保'],
-    '1-2': ['脚手架', '验收', '挂牌', '合格牌', '未验收', '没有验收', '没挂牌'],
-    '1-3': ['培训', '教育', '考试', '上岗证', '没培训', '未培训', '不会', '不懂', '新人'],
-    '1-4': ['特种作业', '操作证', '持证', '无证', '没证', '假证', '电工证', '焊工证', '起重证', '登高证'],
-    '1-5': ['演练', '应急', '预案', '没演练', '未演练', '不会用', '不熟悉'],
-    '1-6': ['物资', '器材', '急救', '药品', '没配备', '未配备', '缺少', '找不到'],
-    
-    // 2. 临时用电与电气施工隐患
-    '2-1': ['三级配电', '两级保护', '配电系统', '总配', '分配', '开关箱', '层级', '没分级'],
-    '2-2': ['配电箱', '标识', '名称', '用途', '分路', '警示', '没标识', '不清楚', '乱'],
-    '2-3': ['漏电保护', '漏保', '漏电开关', '失灵', '失效', '不动作', '没测试', '跳闸'],
-    '2-4': ['接地', '重复接地', 'PE线', '地线', '没接地', '接地不良', '松动'],
-    '2-5': ['电缆', '敷设', '埋地', '架空', '明设', '地面', '乱拉', '拖地', '泡水', '破皮'],
-    '2-6': ['破损', '裸露', '接头', '绝缘', '老化', '破皮', '铜线外露', '包扎'],
-    '2-7': ['私拉乱接', '乱接', '私接', '违规接线', '飞线', '临时线', '插线板串接'],
-    '2-8': ['一机一闸', '一漏一箱', '专用开关', '多机一闸', '混用', '共用一个开关'],
-    
-    // 3. 深基坑与地下工程隐患
-    '3-1': ['基坑', '支护', '变形', '裂缝', '倾斜', '坍塌', '边坡', '土钉墙', '锚杆'],
-    '3-2': ['监测', '报警', '数据', '位移', '沉降', '没监测', '超警戒'],
-    '3-3': ['防护栏杆', '基坑周边', '临边防护', '警示标志', '围护', '挡板'],
-    '3-4': ['堆载', '超载', '堆土', '材料堆放', '基坑边', '荷载', '压塌'],
-    
-    // 4. 有限空间与动火作业隐患
-    '4-1': ['有限空间', '通风', '检测', '气体', '缺氧', '有毒', '没通风', '未检测'],
-    '4-2': ['氧气', '浓度', '有害气体', '超标', '报警仪', '检测仪'],
-    '4-3': ['动火', '动火票', '审批', '没办票', '未审批', '擅自动火', '焊接', '切割'],
-    '4-4': ['监护', '监护人', '看火人', '没人监护', '离开', '脱岗'],
-    '4-5': ['灭火器', '消防器材', '灭火器材', '没配备', '过期', '压力不足', '损坏'],
-    '4-6': ['易燃物', '可燃物', '清理', '隔离', '5米', '周围', '杂物', '油桶', '木材'],
-    
-    // 5. 管理机制隐患
-    '5-1': ['闭环', '整改闭环', '复查', '确认', '没闭环', '未闭环', '跟踪'],
-    '5-2': ['期限', '逾期', '超期', '没整改', '未整改', '拖延', '滞后'],
-    '5-3': ['交底', '安全技术交底', '签字', '没交底', '未交底', '代签', '补签'],
-    '5-4': ['针对性', '内容', '流于形式', '泛泛', '不具体', '照搬'],
-    '5-5': ['方案', '施工方案', '审批', '没审批', '未审批', '先干后批'],
-    '5-6': ['专家论证', '危大工程', '超过一定规模', '没论证', '未论证'],
-    
-    // 6. 起重机械与吊装作业隐患
-    '6-1': ['起重机械', '验收', '合格证', '检验', '没验收', '未检验', '过期'],
-    '6-2': ['安全装置', '限位器', '力矩限制', '高度限位', '幅度限位', '失灵', '失效', '拆除'],
-    '6-3': ['持证', '操作证', '司机证', '起重证', '没证', '无证', '假证'],
-    '6-4': ['警戒', '警戒线', '警示', '围栏', '隔离', '区域', '没设警戒', '无关人员'],
-    '6-5': ['捆绑', '绑扎', '吊索', '索具', '不牢', '松动', '滑脱', '散件'],
-    '6-6': ['斜拉', '斜吊', '歪拉', '拖拽', '违规吊装', '斜着吊'],
-    '6-7': ['钢丝绳', '断丝', '变形', '磨损', '报废', '超标', '断股', '扭结'],
-    '6-8': ['吊钩', '裂纹', '变形', '保险', '防脱', '没保险', '损坏'],
-    
-    // 7. 高处作业与脚手架隐患
-    '7-1': ['基础', '平整', '夯实', '垫板', '排水', '沉降', '悬空', '不平'],
-    '7-2': ['连墙件', '拉结', '固定', '缺少', '不足', '拆除', '松动'],
-    '7-3': ['脚手板', '满铺', '固定', '探头板', '单板', '间隙', '没铺满', '松动'],
-    '7-4': ['安全网', '密目网', '立网', '平网', '没挂', '破损', '缺失', '防护网'],
-    '7-5': ['楼梯口', '电梯井', '井口', '防护', '没防护', '坠落', '敞口'],
-    '7-6': ['洞口', '预留洞', '盖板', '防护栏杆', '没盖板', '未覆盖', '敞开', '孔洞'],
-    '7-7': ['临边', '阳台', '屋面', '楼层边', '防护栏杆', '没防护', '坠落'],
-    '7-8': ['梯子', '梯具', '人字梯', '直梯', '不合格', '损坏', '滑动', '没固定'],
-    '7-9': ['爬梯', '护笼', '直爬梯', '竖梯', '没护笼', '坠落', '休息平台'],
-    
-    // 8. 消防安全与文明施工隐患
-    '8-1': ['消防设施', '临时消防', '消防栓', '水带', '没配备', '损坏', '缺水'],
-    '8-2': ['消防通道', '通道', '畅通', '堵塞', '占用', '堆放', '锁闭'],
-    '8-3': ['易燃易爆', '危险品', '专库', '存放', '混放', '暴晒', '火源', '油桶', '气瓶'],
-    '8-4': ['材料堆放', '整齐', '标识', '混乱', '阻塞', '通道', '超高', '倾斜'],
-    '8-5': ['道路', '硬化', '排水', '泥泞', '积水', '扬尘', '没硬化'],
-    '8-6': ['垃圾', '建筑垃圾', '清运', '堆积', '没清理', '满天飞', '扬尘'],
-    '8-7': ['宿舍', '大功率', '电器', '电炉', '热得快', '私拉', '违规用电', '做饭'],
-    '8-8': ['食堂', '卫生', '食品安全', '许可证', '没证', '脏乱', '过期食品']
-  };
-  
-  scene.items.forEach(itemId => {
-    const item = flatItems[itemId];
-    if (!item) return;
-    const itemName = item.name.toLowerCase();
-    let score = 0;
-    
-    // 获取该隐患的扩展关键词
-    const itemKeywords = keywordMap[itemId] || [];
-    
-    // 扩展关键词匹配（高权重）
-    itemKeywords.forEach(kw => {
-      if (textLower.includes(kw)) {
-        score += 15;
-      }
-    });
-    
-    // 标准名称匹配（中权重）
-    if (textLower.includes(itemName) || itemName.includes(textLower)) {
-      score += 20;
-    }
-    
-    // 部分匹配（低权重）
-    const commonWords = ['没', '未', '无', '不', '缺', '少', '失', '坏', '破', '乱'];
-    commonWords.forEach(w => {
-      if (textLower.includes(w) && itemName.includes(w)) {
-        score += 2;
-      }
-    });
-    
-    if (score > bestScore) {
-      bestScore = score;
-      bestMatchId = itemId;
-    }
-  });
-  
-  const refItem = flatItems[bestMatchId];
-  const reg = regulations[bestMatchId];
-  
-  // 创建手动添加的隐患项
-  const manualId = 'manual-' + Date.now();
-  const newItem = {
-    id: manualId,
-    status: 'issue',
-    confidence: 100,
-    detail: '手动填写：' + text,
-    selected: true,
-    isManual: true,
-    manualText: text,
-    matchedRegId: bestMatchId,
-    catName: refItem.catName,
-    subName: refItem.subName,
-    name: '【手动填写】' + text.substring(0, 20) + (text.length > 20 ? '...' : ''),
-    icon: '✏️'
-  };
-  
-  // 添加到结果列表
-  window._photoResults.push(newItem);
-  
-  // 重新渲染列表（GLM模式结果直接在photoResult里，模板模式在sceneResult里）
-  const resultDiv = document.getElementById('sceneResult') || document.getElementById('photoResult');
-  const currentHtml = resultDiv.innerHTML;
-  const manualHtml = `
-    <div class="detect-card photo-pick selected" data-idx="${window._photoResults.length - 1}" onclick="togglePhotoPick(${window._photoResults.length - 1})" style="cursor:pointer;position:relative;margin-bottom:10px;border:2px solid var(--orange)">
-      <div class="dc-header">
-        <span style="font-size:18px">✏️</span>
-        <span class="dc-name">【手动填写】${text.substring(0, 25)}${text.length > 25 ? '...' : ''}</span>
-        <span class="dc-conf">手动录入</span>
-      </div>
-      <div class="dc-cat">${refItem.catName} / ${refItem.subName}</div>
-      <div class="dc-detail" style="margin-top:6px">${text}</div>
-      <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-        <span class="dc-status issue">✗ 隐患</span>
-        <span class="vp-check" style="font-size:16px;margin-left:auto">✅</span>
-      </div>
-      ${reg ? `
-      <div style="margin-top:8px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px;font-size:11px;color:var(--text-2);line-height:1.6;border-left:3px solid var(--sg-green)">
-        <div style="font-weight:700;color:var(--sg-green);margin-bottom:2px">📋 参考条款（${reg.type}）</div>
-        ${reg.text}
-      </div>` : ''}
-    </div>`;
-  
-  // 插入手动项到列表最前面
-  const manualSection = currentHtml.indexOf('<div style="margin-top:12px;padding:12px;background:var(--gray-1)');
-  if (manualSection > 0) {
-    resultDiv.innerHTML = currentHtml.slice(0, manualSection) + manualHtml + currentHtml.slice(manualSection);
-  } else {
-    resultDiv.innerHTML = currentHtml + manualHtml;
-  }
-  
-  // 清空输入
-  input.value = '';
-  catSelect.value = '';
-  
-  // 更新按钮数量
-  const n = window._photoResults.filter(x => x.selected).length;
-  const btn = document.getElementById('photoConfirmBtn');
-  if (btn) btn.textContent = '✓ 确认填写选中的 ' + n + ' 项';
-  
-  showToast('已添加手动填写项');
+    }).join('')}`;
+  r.classList.add('active');
+  document.getElementById('photoConfirmBtn').classList.add('active');
 }
 
 function confirmPhoto() {
   const uploadedPhoto = document.getElementById('photoImg').src;
-  const picked = (window._photoResults || []).filter(r => r.selected);
-  if (picked.length) {
-    picked.forEach(d => {
-      if (d.isManual) {
-        // 手动填写的项，创建新的检查项
-        const newItemId = 'manual-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5);
-        flatItems[newItemId] = {
-          id: newItemId,
-          name: d.name,
-          catName: d.catName,
-          subName: d.subName,
-          status: 'issue',
-          note: d.manualText,
-          photo: uploadedPhoto || '',
-          isManual: true
-        };
-        // 同步匹配到的违章条例和整改要求，供整改单使用
-        if (d.matchedRegId && regulations[d.matchedRegId]) {
-          regulations[newItemId] = regulations[d.matchedRegId];
-          if (fixMap[d.matchedRegId]) fixMap[newItemId] = fixMap[d.matchedRegId];
-        }
-        // 同时添加到 categories 中对应类别
-        categories.forEach(c => {
-          if (c.name === d.catName) {
-            c.subs.forEach(s => {
-              if (s.name === d.subName) {
-                s.items.push(flatItems[newItemId]);
-              }
-            });
-          }
-        });
-      } else {
-        const item = flatItems[d.id];
-        item.status = d.status; item.note = d.detail;
-        if (uploadedPhoto) item.photo = uploadedPhoto;
-        categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
-      }
-    });
-    if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
-    closePhotoModal();
-    showToast('已自动填写 ' + picked.length + ' 项识别结果（含照片佐证）');
-  } else {
-    showToast('未选择任何项目');
-  }
+  photoDetectionResults.forEach(d => {
+    const item = flatItems[d.id];
+    item.status = d.status; item.note = d.detail;
+    if (uploadedPhoto) item.photo = uploadedPhoto;
+    categories.forEach(c => c.subs.forEach(s => s.items.forEach(i => { if (i.id === d.id) { i.status = d.status; i.note = d.detail; if (uploadedPhoto) i.photo = uploadedPhoto; } })));
+  });
+  if (currentCatId) renderInspectionPage(currentCatId); else renderCategoryList();
+  closePhotoModal();
+  showToast('已自动填写 ' + photoDetectionResults.length + ' 项识别结果（含照片佐证）');
 }
 
 // ===================== Report =====================
@@ -2610,44 +1557,23 @@ document.getElementById('voiceOverlay').addEventListener('click', e => { if (e.t
 document.getElementById('photoOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePhotoModal(); });
 
 // ===================== 归档与AI智能分析 =====================
-function genSampleReports() {
-  const now = new Date();
-  const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${ts}`;
-  return [
-    {id:`RPT-${ds.replace(/-/g,'')}-001`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
-     issues:['1-1','2-7','5-3'],issueDetails:[{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'2名工人高处作业未系安全带'},{id:'2-7',name:'是否存在私拉乱接现象',note:'3号配电室有私接电源线'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底记录无签字'}],
-     summary:{total:28,ok:25,issues:3,severe:1,general:2},rectifications:{}},
-    {id:`RPT-${ds.replace(/-/g,'')}-002`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
-     issues:['2-1','2-3','4-3','1-1'],issueDetails:[{id:'2-1',name:'是否按"三级配电两级保护"设置',note:'未落实三级配电'},{id:'2-3',name:'漏电保护器是否有效动作',note:'2个漏保失效'},{id:'4-3',name:'动火作业是否办理审批手续',note:'无动火工作票'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'安全带低挂高用'}],
-     summary:{total:28,ok:24,issues:4,severe:3,general:1},rectifications:{}},
-    {id:`RPT-${ds.replace(/-/g,'')}-003`,date:ds,dateStr:dateStr,project:'张家口110kV输变电工程',inspector:'',
-     issues:['2-7','3-1','5-3','1-1','4-5'],issueDetails:[{id:'2-7',name:'是否存在私拉乱接现象',note:'开关箱直接接引'},{id:'3-1',name:'支护结构有无变形、裂缝',note:'北侧支护轻微变形'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底内容泛泛'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'1人未戴安全带'},{id:'4-5',name:'灭火器材是否配备到位',note:'动火区缺2具灭火器'}],
-     summary:{total:28,ok:23,issues:5,severe:2,general:3},rectifications:{}}
-  ];
-}
+const sampleReports = [
+  {id:'RPT-20260810-001',date:'2026-08-10',dateStr:'08月10日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['1-1','2-7','5-3'],issueDetails:[{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'2名工人高处作业未系安全带'},{id:'2-7',name:'是否存在私拉乱接现象',note:'3号配电室有私接电源线'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底记录无签字'}],
+   summary:{total:28,ok:25,issues:3,severe:1,general:2}},
+  {id:'RPT-20260815-002',date:'2026-08-15',dateStr:'08月15日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['2-1','2-3','4-3','1-1'],issueDetails:[{id:'2-1',name:'是否按"三级配电两级保护"设置',note:'未落实三级配电'},{id:'2-3',name:'漏电保护器是否有效动作',note:'2个漏保失效'},{id:'4-3',name:'动火作业是否办理审批手续',note:'无动火工作票'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'安全带低挂高用'}],
+   summary:{total:28,ok:24,issues:4,severe:3,general:1}},
+  {id:'RPT-20260820-003',date:'2026-08-20',dateStr:'08月20日',project:'张家口110kV输变电工程',inspector:'',
+   issues:['2-7','3-1','5-3','1-1','4-5'],issueDetails:[{id:'2-7',name:'是否存在私拉乱接现象',note:'开关箱直接接引'},{id:'3-1',name:'支护结构有无变形、裂缝',note:'北侧支护轻微变形'},{id:'5-3',name:'安全技术交底是否签字确认',note:'交底内容泛泛'},{id:'1-1',name:'高空作业人员是否正确佩戴安全带',note:'1人未戴安全带'},{id:'4-5',name:'灭火器材是否配备到位',note:'动火区缺2具灭火器'}],
+   summary:{total:28,ok:23,issues:5,severe:2,general:3}}
+];
 
 function getReports() {
   const s = localStorage.getItem('safety_reports');
-  if (s) {
-    const reports = JSON.parse(s);
-    // 示例数据时间动态更新为当前时间
-    const now = new Date();
-    const ds = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    const dateStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${ts}`;
-    reports.forEach(r => {
-      if (r.id.includes('RPT-') && r.id.length <= 15) { // 只更新示例数据（ID较短）
-        r.date = ds;
-        r.dateStr = dateStr;
-      }
-    });
-    return reports;
-  }
-  const fresh = genSampleReports();
-  localStorage.setItem('safety_reports', JSON.stringify(fresh));
-  return fresh;
+  if (s) return JSON.parse(s);
+  localStorage.setItem('safety_reports', JSON.stringify(sampleReports));
+  return sampleReports;
 }
 function saveReport(r) { const all = getReports(); all.unshift(r); localStorage.setItem('safety_reports', JSON.stringify(all)); }
 
@@ -2656,21 +1582,16 @@ function saveAndArchive() {
   const issues = allItems.filter(i => i.status === 'issue');
   const now = new Date();
   const ds2 = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
   const report = {
     id:`RPT-${ds2.replace(/-/g,'')}-${String(Date.now()).slice(-3)}`,
-    date:ds2, dateStr:`${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${timeStr}`,
+    date:ds2, dateStr:`${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日`,
     project:(document.getElementById('inputProject')||{}).value||'',
     inspector:(document.getElementById('inputInspector')||{}).value||'',
     issues:issues.map(i=>i.id),
-    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note,photo:i.photo||'',
-      regType:regulations[i.id]?regulations[i.id].type:'',
-      regText:regulations[i.id]?regulations[i.id].text:'',
-      fix:fixMap[i.id]||''})),
+    issueDetails:issues.map(i=>({id:i.id,name:i.name,note:i.note})),
     summary:{total:allItems.length,ok:allItems.filter(i=>i.status==='ok').length,issues:issues.length,
       severe:issues.filter(i=>regulations[i.id]&&regulations[i.id].type==='严重违章').length,
-      general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length},
-    rectifications:{}
+      general:issues.filter(i=>!regulations[i.id]||regulations[i.id].type!=='严重违章').length}
   };
   saveReport(report);
   showToast('已归档保存');
@@ -2682,59 +1603,18 @@ function goArchive() { renderArchive(); renderAIAnalysis(); showPage('page-archi
 function renderArchive() {
   const reports = getReports();
   const c = document.getElementById('archiveList');
-  if (!reports.length) {
-    c.innerHTML = `<div style="text-align:center;color:var(--gray-4);padding:40px 20px">暂无检查记录<br>
-      <button onclick="restoreSamples()" style="margin-top:14px;border:1px dashed var(--sg-green);background:#fff;color:var(--sg-green);font-size:13px;font-weight:600;padding:8px 18px;border-radius:20px;cursor:pointer">📥 载入示例数据</button></div>`;
-    return;
-  }
-  // 分组：待整改（有隐患未闭环）/ 整改闭环（全部整改完成或无隐患）
-  const isPending = r => r.issueDetails && r.issueDetails.length > 0 && r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
-  const pendingList = reports.filter(isPending);
-  const closedList = reports.filter(r => !isPending(r));
-  const renderItem = r => {
+  if (!reports.length) { c.innerHTML = '<div style="text-align:center;color:var(--gray-4);padding:40px">暂无检查记录</div>'; return; }
+  c.innerHTML = reports.map(r => {
     let badge = r.summary.severe > 0 ? `<span class="archive-badge ab-severe">严重${r.summary.severe}项</span>`
       : r.summary.general > 0 ? `<span class="archive-badge ab-general">一般${r.summary.general}项</span>`
       : `<span class="archive-badge ab-clean">无隐患</span>`;
-    const hasPending = isPending(r);
-    const rectifyBtn = hasPending ? `<button class="archive-rectify" onclick="event.stopPropagation();openRectifyModal('${r.id}')" style="background:var(--orange);color:#fff;border:none;border-radius:4px;padding:4px 8px;font-size:11px;margin-right:4px;cursor:pointer">整改</button>` : '';
-    const closedTag = !hasPending && r.summary.issues > 0 ? `<span style="background:var(--sg-green-light);color:var(--sg-green);font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;margin-right:4px">✓ 已闭环</span>` : '';
     return `<div class="archive-item" onclick="viewReport('${r.id}')">
       <div class="archive-icon">📋</div>
       <div class="archive-info">
         <div class="archive-date">${r.dateStr} · ${r.project||'未填写'}</div>
         <div class="archive-meta">隐患${r.summary.issues}项 · 合格${r.summary.ok}项 · 检查人${r.inspector||'未填写'}</div>
-      </div>${badge}
-      ${closedTag}${rectifyBtn}
-      <button class="archive-del" onclick="event.stopPropagation();deleteReport('${r.id}')">✕</button></div>`;
-  };
-  const groupHead = (icon, title, count, color) => `<div style="display:flex;align-items:center;gap:8px;padding:14px 14px 8px;font-size:14px;font-weight:700;color:${color}">${icon} ${title}<span style="background:${color};color:#fff;font-size:11px;font-weight:600;padding:1px 8px;border-radius:10px">${count}</span></div>`;
-  const emptyTip = '<div style="text-align:center;color:var(--gray-4);font-size:12px;padding:14px 0 18px">暂无记录</div>';
-  c.innerHTML =
-    groupHead('📂', '整改通知单 · 待整改', pendingList.length, 'var(--orange)') +
-    (pendingList.length ? pendingList.map(renderItem).join('') : emptyTip) +
-    groupHead('📂', '整改闭环 · 已完成', closedList.length, 'var(--sg-green)') +
-    (closedList.length ? closedList.map(renderItem).join('') : emptyTip);
-}
-
-function deleteReport(id) {
-  if (!confirm('删除这条检查记录？')) return;
-  const all = getReports().filter(r => r.id !== id);
-  localStorage.setItem('safety_reports', JSON.stringify(all));
-  renderArchive(); renderAIAnalysis();
-  showToast('已删除该记录');
-}
-
-function clearReports() {
-  if (!confirm('确定清空全部检查记录吗？AI分析数据也会同步清除。')) return;
-  localStorage.setItem('safety_reports', '[]');
-  renderArchive(); renderAIAnalysis();
-  showToast('已清空全部记录');
-}
-
-function restoreSamples() {
-  localStorage.setItem('safety_reports', JSON.stringify(sampleReports));
-  renderArchive(); renderAIAnalysis();
-  showToast('已载入示例数据');
+      </div>${badge}</div>`;
+  }).join('');
 }
 
 function renderAIAnalysis() {
@@ -2779,39 +1659,11 @@ function viewReport(id) {
   let tableRows = '';
   r.issueDetails.forEach(item => {
     issueIdx++;
-    const reg = regulations[item.id] || (item.regText ? {type:item.regType,text:item.regText} : null);
-    const fix = fixMap[item.id] || item.fix || '限期整改至合格标准';
+    const reg = regulations[item.id]; const fix = fixMap[item.id] || '限期整改至合格标准';
     const vType = reg ? reg.type : '一般违章'; const vText = reg ? reg.text : '请参照相关规程执行';
     const sevClass = vType === '严重违章' ? 'it-sev-high' : 'it-sev-mid';
-    const photoHtml = item.photo ? `<div style="margin-top:6px"><img src="${item.photo}" style="max-width:100%;border-radius:6px;border:1px solid var(--gray-3)" onclick="openPhotoViewer('${item.photo}')"></div>` : '';
-    tableRows += `<tr><td style="text-align:center">${issueIdx}</td><td>${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span>${photoHtml}</td><td style="text-align:center"><span class="${sevClass}" style="font-weight:600">${vType}</span></td><td style="font-size:11px;line-height:1.6">${vText}</td><td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td></tr>`;
+    tableRows += `<tr><td style="text-align:center">${issueIdx}</td><td>${item.name}<br><span style="color:var(--gray-4);font-size:11px">${item.note}</span></td><td style="text-align:center"><span class="${sevClass}" style="font-weight:600">${vType}</span></td><td style="font-size:11px;line-height:1.6">${vText}</td><td style="font-size:11px;line-height:1.6;color:var(--sg-green)">${fix}</td></tr>`;
   });
-  
-  // 整改反馈区域
-  let rectHtml = '';
-  if (r.rectifications && Object.keys(r.rectifications).length > 0) {
-    rectHtml = '<div class="report-sec"><div class="rs-label">整改反馈记录</div>';
-    if (r.rectifyUnit || r.rectifyPerson) {
-      rectHtml += `<div style="font-size:12px;color:var(--text-2);margin-bottom:10px;padding:8px 10px;background:var(--sg-green-light);border-radius:6px">整改单位：<b>${r.rectifyUnit||'-'}</b>　整改人：<b>${r.rectifyPerson||'-'}</b></div>`;
-    }
-    Object.entries(r.rectifications).forEach(([issueId, rect]) => {
-      const item = r.issueDetails.find(x => x.id === issueId);
-      if (item) {
-        rectHtml += `<div style="border:1px solid var(--gray-3);border-radius:8px;padding:12px;margin-bottom:10px;background:var(--gray-1)">
-          <div style="font-weight:600;font-size:13px;margin-bottom:6px">✅ ${item.name}</div>
-          <div style="font-size:12px;color:var(--text-2);margin-bottom:6px">${rect.note||'已整改完成'}</div>
-          ${rect.photo ? `<img src="${rect.photo}" style="max-width:100%;border-radius:6px;border:1px solid var(--gray-3)" onclick="openPhotoViewer('${rect.photo}')">` : ''}
-          <div style="font-size:11px;color:var(--gray-4);margin-top:6px">整改时间：${rect.time||''}</div>
-        </div>`;
-      }
-    });
-    rectHtml += '</div>';
-  }
-  
-  // 添加整改按钮（施工人员入口）
-  const canRectify = r.issueDetails.some(item => !r.rectifications || !r.rectifications[item.id]);
-  const rectifyBtn = canRectify ? `<button class="confirm-btn active" onclick="openRectifyModal('${r.id}')" style="display:block !important;width:100%;margin-top:14px;background:var(--orange);border:none;color:#fff;font-size:15px;font-weight:600;padding:14px;border-radius:10px;cursor:pointer">🔧 施工人员整改反馈</button>` : '<div style="text-align:center;color:var(--sg-green);font-weight:600;padding:14px;background:var(--sg-green-light);border-radius:8px;margin-top:14px">✓ 全部隐患已整改闭环</div>';
-  
   document.getElementById('reportBody').innerHTML = `
     <div class="report-sec">
       <table style="width:100%;border-collapse:collapse;font-size:13px">
@@ -2833,132 +1685,9 @@ function viewReport(id) {
         <thead><tr><th style="width:4%">序号</th><th style="width:18%">发现问题</th><th style="width:10%">违章类型</th><th style="width:35%">违章条例</th><th style="width:33%">整改要求</th></tr></thead>
         <tbody>${tableRows}</tbody>
       </table>
-    </div>
-    ${rectHtml}
-    <div style="padding:0 16px 16px">${rectifyBtn}</div>`;
+    </div>`;
   document.getElementById('reportNo').textContent = `编号：${r.id}`;
   showPage('page-report');
-}
-
-function openRectifyModal(reportId) {
-  const reports = getReports();
-  const r = reports.find(x => x.id === reportId);
-  if (!r) return;
-  
-  const pendingIssues = r.issueDetails.filter(item => !r.rectifications || !r.rectifications[item.id]);
-  if (!pendingIssues.length) { showToast('全部隐患已整改'); return; }
-  
-  // 渲染整改反馈单页面
-  let itemsHtml = '';
-  pendingIssues.forEach((item, idx) => {
-    const reg = regulations[item.id] || (item.regText ? {type:item.regType,text:item.regText} : null);
-    const fix = fixMap[item.id] || item.fix || '限期整改至合格标准';
-    itemsHtml += `
-      <div class="rectify-item-card" data-issue-id="${item.id}" style="border:1px solid var(--gray-3);border-radius:10px;padding:14px;margin-bottom:12px;background:#fff">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <span style="background:var(--orange);color:#fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600">${idx+1}</span>
-          <div style="font-weight:600;font-size:14px;flex:1">${item.name}</div>
-        </div>
-        <div style="font-size:12px;color:var(--gray-4);margin-bottom:8px;padding-left:34px">${item.note||''}</div>
-        ${item.photo ? `<div style="margin-bottom:10px;padding-left:34px"><div style="font-size:11px;color:var(--gray-4);margin-bottom:4px">📷 检查时照片：</div><img src="${item.photo}" style="max-width:120px;border-radius:6px;border:1px solid var(--gray-3)"></div>` : ''}
-        ${reg ? `<div style="background:#FFF4E5;border-left:3px solid var(--orange);border-radius:6px;padding:10px;margin-bottom:10px;font-size:12px">
-          <div style="font-weight:600;color:var(--orange);margin-bottom:4px">📋 违章条例（${reg.type}）：</div>
-          <div style="color:var(--text-2);line-height:1.6">${reg.text}</div>
-        </div>` : ''}
-        <div style="background:var(--gray-1);border-radius:6px;padding:10px;margin-bottom:10px;font-size:12px">
-          <div style="font-weight:600;color:var(--sg-green);margin-bottom:4px">整改要求：</div>
-          <div style="color:var(--text-2)">${fix}</div>
-        </div>
-        <div style="padding-left:34px">
-          <div style="font-size:12px;font-weight:600;margin-bottom:6px">整改后照片：</div>
-          <div class="rectify-photo-area" data-issue-id="${item.id}" style="border:2px dashed var(--gray-3);border-radius:8px;padding:20px;text-align:center;cursor:pointer;background:var(--gray-1)" onclick="uploadRectifyPhoto('${reportId}','${item.id}',this)">
-            <div style="font-size:24px;margin-bottom:4px">📷</div>
-            <div style="font-size:12px;color:var(--gray-4)">点击上传整改后照片</div>
-          </div>
-          <div class="rectify-note-area" style="margin-top:10px">
-            <div style="font-size:12px;font-weight:600;margin-bottom:4px">整改说明：</div>
-            <textarea class="rectify-note" data-issue-id="${item.id}" placeholder="请填写整改措施和完成情况..." style="width:100%;border:1px solid var(--gray-3);border-radius:6px;padding:8px;font-size:12px;min-height:60px;resize:vertical"></textarea>
-          </div>
-        </div>
-      </div>`;
-  });
-  
-  document.getElementById('rectifyBody').innerHTML = `
-    <div style="background:#fff;border-radius:10px;padding:16px;margin-bottom:12px;border:1px solid var(--gray-3)">
-      <div style="font-size:16px;font-weight:700;margin-bottom:12px;color:var(--orange)">隐患整改反馈单</div>
-      <table style="width:100%;border-collapse:collapse;font-size:13px;margin-bottom:12px">
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600;width:25%">工程名称</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyProject" placeholder="请输入工程名称" value="${r.project||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">检查时间</td><td style="border:1px solid var(--gray-3);padding:6px 8px">${r.dateStr}</td></tr>
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改期限</td><td style="border:1px solid var(--gray-3);padding:6px 8px">3日内完成</td></tr>
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改单位</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyUnit" placeholder="请输入整改单位" value="${r.rectifyUnit||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
-        <tr><td style="border:1px solid var(--gray-3);padding:6px 8px;background:var(--gray-1);font-weight:600">整改人</td><td style="border:1px solid var(--gray-3);padding:6px 8px"><input id="rectifyPerson" placeholder="请输入整改人姓名" value="${r.rectifyPerson||''}" style="width:100%;border:none;outline:none;font-size:13px;background:transparent"></td></tr>
-      </table>
-      <div style="font-size:12px;color:var(--gray-4)">共 ${pendingIssues.length} 项隐患待整改，请逐项上传整改后照片并填写说明</div>
-    </div>
-    ${itemsHtml}
-    <div style="background:#fff;padding:16px;border-top:1px solid var(--gray-3)">
-      <button class="confirm-btn active" onclick="submitRectifications('${reportId}')" style="display:block !important;width:100%;background:var(--orange);border:none;color:#fff;font-size:16px;font-weight:600;padding:14px;border-radius:10px;cursor:pointer">✓ 完成整改并提交</button>
-      <div style="font-size:11px;color:var(--gray-4);text-align:center;margin-top:6px">提交后可在归档记录中随时查看整改结果</div>
-    </div>`;
-  
-  showPage('page-rectify');
-}
-
-function uploadRectifyPhoto(reportId, issueId, el) {
-  const input = document.createElement('input');
-  input.type = 'file';
-  input.accept = 'image/*';
-  input.onchange = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      el.innerHTML = `<img src="${ev.target.result}" style="max-width:100%;border-radius:6px">`;
-      el.dataset.photo = ev.target.result;
-      el.style.border = '2px solid var(--sg-green)';
-    };
-    reader.readAsDataURL(file);
-  };
-  input.click();
-}
-
-function submitRectifications(reportId) {
-  const reports = getReports();
-  const r = reports.find(x => x.id === reportId);
-  if (!r) return;
-
-  // 保存表头信息：工程名称（可补填）、整改单位、整改人
-  const projInput = document.getElementById('rectifyProject');
-  const unitInput = document.getElementById('rectifyUnit');
-  const personInput = document.getElementById('rectifyPerson');
-  if (projInput && projInput.value.trim()) r.project = projInput.value.trim();
-  r.rectifyUnit = unitInput ? unitInput.value.trim() : '';
-  r.rectifyPerson = personInput ? personInput.value.trim() : '';
-
-  if (!r.rectifications) r.rectifications = {};
-  const now = new Date();
-  const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}月${now.getDate()}日 ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-  
-  let submitted = 0;
-  document.querySelectorAll('.rectify-item-card').forEach(card => {
-    const issueId = card.dataset.issueId;
-    const photoArea = card.querySelector('.rectify-photo-area');
-    const noteArea = card.querySelector('.rectify-note');
-    if (photoArea && photoArea.dataset.photo) {
-      r.rectifications[issueId] = {
-        photo: photoArea.dataset.photo,
-        time: timeStr,
-        note: noteArea ? noteArea.value || '整改完成' : '整改完成'
-      };
-      submitted++;
-    }
-  });
-  
-  if (submitted === 0) { showToast('请至少上传一项整改照片'); return; }
-  
-  localStorage.setItem('safety_reports', JSON.stringify(reports));
-  showToast(`已提交 ${submitted} 项整改反馈，可在归档中查看`);
-  viewReport(reportId);
 }
 
 init();
