@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>基建安全智能检查系统 v5.3</title>
+<title>基建安全智能检查系统 v5.4</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="安全检查">
@@ -275,6 +275,54 @@
   .toast{position:fixed;top:60px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;z-index:500;opacity:0;transition:opacity .3s;pointer-events:none}
   .toast.show{opacity:1}
   @media print{body{background:#fff}#app{max-width:none;box-shadow:none}.page{display:none!important}}
+  /* ===== v5.4 首页压缩：一屏显示全部内容 ===== */
+  #page-scan{
+    justify-content:flex-start !important;
+    padding:55px 16px 16px !important;
+  }
+  #page-scan .hero{margin-bottom:22px !important}
+  #page-scan .logo-icon{width:44px !important;height:44px !important;font-size:26px !important;margin-bottom:6px !important;border-radius:12px !important}
+  #page-scan .brand{font-size:24px !important;margin-bottom:3px !important}
+  #page-scan .subtitle{font-size:13px !important}
+  #page-scan .qr-area{padding:12px !important;margin-bottom:14px !important;border-radius:16px !important}
+  #page-scan .qr-area #homeQrContainer{width:190px !important;height:190px !important}
+  #page-scan .qr-label{font-size:12px !important;margin-top:6px !important;margin-bottom:6px !important;color:#fff !important;opacity:.9 !important}
+  #page-scan .scan-btn{padding:11px 36px !important;font-size:15px !important;margin-bottom:24px !important;border-radius:26px !important}
+  #page-scan .how-works{margin-bottom:24px !important}
+  #page-scan .hw-title{font-size:12px !important;margin-bottom:8px !important}
+  #page-scan .hw-steps{gap:4px !important}
+  #page-scan .hw-step{padding:7px 3px !important;max-width:68px !important}
+  #page-scan .hw-icon{font-size:15px !important;margin-bottom:2px !important;height:19px !important;display:flex !important;align-items:center !important;justify-content:center !important}
+  #page-scan .hw-text{font-size:10px !important}
+  #page-scan .hw-arrow{font-size:10px !important}
+  #page-scan .feat-grid{gap:6px !important;margin-bottom:24px !important}
+  #page-scan .feat-card{padding:8px 10px !important;gap:6px !important}
+  #page-scan .fc-icon{font-size:16px !important}
+  #page-scan .fc-name{font-size:11px !important}
+  #page-scan .fc-text{font-size:9px !important}
+  #page-scan .archive-btn{padding:10px 24px !important;font-size:12px !important}
+  #page-scan .bottom-deco{font-size:9px !important;margin-top:auto !important;padding-top:10px !important}
+  /* 小屏手机额外压缩 */
+  @media (max-height:780px){
+    #page-scan{padding:14px 16px 10px !important}
+    #page-scan .hero{margin-bottom:8px !important}
+    #page-scan .logo-icon{width:38px !important;height:38px !important;font-size:22px !important}
+    #page-scan .brand{font-size:22px !important}
+    #page-scan .qr-area{margin-bottom:6px !important}
+    #page-scan .qr-area #homeQrContainer{width:160px !important;height:160px !important}
+    #page-scan .qr-label{margin-top:3px !important;margin-bottom:3px !important}
+    #page-scan .scan-btn{padding:9px 30px !important;font-size:14px !important;margin-bottom:10px !important}
+    #page-scan .how-works{margin-bottom:8px !important}
+    #page-scan .hw-step{padding:6px 2px !important;max-width:62px !important}
+    #page-scan .hw-text{font-size:9px !important}
+    #page-scan .feat-grid{margin-bottom:8px !important}
+    #page-scan .feat-card{padding:7px 8px !important}
+    #page-scan .archive-btn{padding:9px 20px !important;font-size:11px !important}
+  }
+  /* 超小屏（如 iPhone SE）进一步隐藏次要元素 */
+  @media (max-height:620px){
+    #page-scan .feat-grid{display:none !important}
+  }
 </style>
 <script>
 /* ===== Pure JS QR Code Generator (SVG output, compact version) ===== */
@@ -614,8 +662,13 @@ function qrGenSVG(text, size) {
   <!-- ===== Scan Entry ===== -->
   <div class="page active" id="page-scan">
     <div class="hero">
-      <div class="logo-icon">🏗️</div>
-      <div class="brand">码上<span class="brand-accent">安全</span></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:4px">
+        <div style="font-size:28px;font-weight:800;letter-spacing:8px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.2)">码上</div>
+        <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.25),rgba(255,255,255,.08));border:2px solid rgba(255,215,0,.6);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,.2),inset 0 1px 2px rgba(255,255,255,.3);flex-shrink:0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M13 2L4 14h6l-1 8 9-12h-6l1-8z" fill="#FFD700" stroke="#FFA500" stroke-width="0.8" stroke-linejoin="round"/></svg>
+        </div>
+        <div style="font-size:28px;font-weight:800;letter-spacing:8px;color:#FFD700;text-shadow:0 2px 8px rgba(0,0,0,.2)">安全</div>
+      </div>
       <div class="subtitle">施工现场检查AI助手</div>
     </div>
     <div class="qr-area" onclick="scanEnter()">
@@ -624,8 +677,8 @@ function qrGenSVG(text, size) {
       <div style="display:none;color:#999;font-size:13px;text-align:center;padding:40px 0">二维码加载中...</div>
     </div>
     <div class="qr-label">扫码进入检查系统</div>
-    <div class="scan-hint">手机扫码 · 点击也可直接进入</div>
-    <div class="url-display" id="urlDisplay"></div>
+    <div class="scan-hint" style="display:none">手机扫码 · 点击也可直接进入</div>
+    <div class="url-display" id="urlDisplay" style="display:none"></div>
     <button class="scan-btn" onclick="scanEnter()">扫码开始检查</button>
 
     <div class="how-works">
@@ -633,9 +686,11 @@ function qrGenSVG(text, size) {
       <div class="hw-steps">
         <div class="hw-step"><div class="hw-icon">📱</div><div class="hw-text">扫码进入</div></div>
         <div class="hw-arrow">→</div>
-        <div class="hw-step"><div class="hw-icon">🎤📷</div><div class="hw-text">语音/拍照检查</div></div>
+        <div class="hw-step"><div class="hw-icon">🎤📷📋</div><div class="hw-text">多种方式检查</div></div>
         <div class="hw-arrow">→</div>
         <div class="hw-step"><div class="hw-icon">📋</div><div class="hw-text">生成整改单</div></div>
+        <div class="hw-arrow">→</div>
+        <div class="hw-step"><div class="hw-icon"><span style="display:inline-flex;width:15px;height:15px;border:2px solid #FF9800;border-radius:4px;align-items:center;justify-content:center;color:#FF9800;font-size:10px;font-weight:700;line-height:1">✓</span></div><div class="hw-text">整改闭环</div></div>
       </div>
     </div>
 
@@ -1113,8 +1168,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v5.3说明是缓存旧版，强制刷新
-  if (!document.title.includes('v5.3')) { location.reload(true); }
+  // 版本检查：若标题不含v5.4说明是缓存旧版，强制刷新
+  if (!document.title.includes('v5.4')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
