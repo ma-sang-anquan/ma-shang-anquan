@@ -617,6 +617,7 @@ function qrGenSVG(text, size) {
       <div class="logo-icon">🏗️</div>
       <div class="brand">码上<span class="brand-accent">安全</span></div>
       <div class="subtitle">施工现场检查AI助手</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:6px;font-weight:400">制作者—刘昊</div>
     </div>
     <div class="qr-area" onclick="scanEnter()">
       <div class="scan-line"></div>
@@ -625,6 +626,7 @@ function qrGenSVG(text, size) {
     </div>
     <div class="qr-label">扫码进入检查系统</div>
     <div class="scan-hint">手机扫码 · 点击也可直接进入</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.7);margin-top:8px;font-weight:500">第二学习小组成果展示</div>
     <div class="url-display" id="urlDisplay"></div>
     <button class="scan-btn" onclick="scanEnter()">扫码开始检查</button>
 
@@ -647,7 +649,7 @@ function qrGenSVG(text, size) {
     </div>
 
     <button class="archive-btn" onclick="goArchive()">📂 检查归档与AI分析</button>
-    <div class="bottom-deco">国网张家口供电公司 · 基建安全管理</div>
+    <div class="bottom-deco">国网张家口供电公司 · 基建安全管理 · 制作者—刘昊</div>
   </div>
 
   <!-- ===== Category Selection ===== -->
@@ -1118,8 +1120,8 @@ function init() {
 
   renderCategoryList();
   if (window.location.hash === '#archive') goArchive();
-  // 版本检查：若标题不含v5.2说明是缓存旧版，强制刷新
-  if (!document.title.includes('v5.2')) { location.reload(true); }
+  // 版本检查：若标题不含v5.3说明是缓存旧版，强制刷新
+  if (!document.title.includes('v5.3')) { location.reload(true); }
 }
 
 // ===================== Navigation =====================
@@ -1318,25 +1320,54 @@ function micPressStart(e) {
   if (isRecording || simRecording || iatRecording) return;
   const b = document.getElementById('micBtn');
   b.classList.add('recording'); b.textContent = '🎤';
+
+  // 检测 iOS Safari（Web Speech API 有 bug 的环境）
+  const isIOSSafari = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (SR) {
+
+  // iOS Safari 上 Web Speech API 经常静默失败，直接跳过
+  if (SR && !isIOSSafari) {
     voiceTranscript = '';
     try {
       recognition = new SR();
-      recognition.lang = 'zh-CN'; recognition.continuous = true; recognition.interimResults = true;
+      recognition.lang = 'zh-CN';
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.maxAlternatives = 1;
+
       recognition.onresult = (ev) => {
         let t = '';
         for (let i = 0; i < ev.results.length; i++) t += ev.results[i][0].transcript;
         voiceTranscript = t;
         document.getElementById('voiceHint').textContent = '正在识别：' + t.slice(-14);
       };
-      recognition.onerror = () => { fallbackToSim(); };
-      recognition.onend = () => { if (isRecording) finishRecording(voiceTranscript); };
+
+      recognition.onerror = (err) => {
+        console.log('Web Speech error:', err.error);
+        fallbackToSim();
+      };
+
+      recognition.onend = () => {
+        if (isRecording) {
+          // 如果 transcript 为空，说明识别失败，降级
+          if (!voiceTranscript || voiceTranscript.trim() === '') {
+            fallbackToSim();
+          } else {
+            finishRecording(voiceTranscript);
+          }
+        }
+      };
+
       recognition.start();
       isRecording = true;
       document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
-    } catch(err) { fallbackToSim(); }
+    } catch(err) {
+      console.log('Web Speech exception:', err);
+      fallbackToSim();
+    }
   } else if (xfyunConfigured() && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+    // 讯飞路径（iOS Safari 或不支持 Web Speech 的浏览器）
     startIatRecording().then(() => {
       document.getElementById('voiceHint').textContent = '正在聆听… 松手结束';
     }).catch(() => {
