@@ -28,8 +28,8 @@
   body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--gray-1);color:var(--text-1);line-height:1.6}
   #app{max-width:430px;margin:0 auto;min-height:100vh;position:relative;overflow-x:hidden}
   @media(min-width:500px){body{background:#1a1a2e;padding:20px 0}#app{min-height:880px;border-radius:32px;box-shadow:0 20px 60px rgba(0,0,0,.3);overflow:hidden}}
-  .page{display:none;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch;animation:fadeIn .3s ease}
-  .page.active{display:block}
+  .page{display:none;height:100vh;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .page.active{display:block;animation:fadeIn .3s ease}
   #page-scan.page.active{display:flex;flex-direction:column;align-items:center}
   @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
@@ -617,7 +617,6 @@ function qrGenSVG(text, size) {
       <div class="logo-icon">🏗️</div>
       <div class="brand">码上<span class="brand-accent">安全</span></div>
       <div class="subtitle">施工现场检查AI助手</div>
-      <div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:6px;font-weight:400">制作者—刘昊</div>
     </div>
     <div class="qr-area" onclick="scanEnter()">
       <div class="scan-line"></div>
